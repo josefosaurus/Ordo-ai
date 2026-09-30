@@ -875,7 +875,7 @@ func TestNonInteractiveReviewStartNoticeShownOnlyOnce(t *testing.T) {
 	if err := RunReviewFacadeStart([]string{"--cwd", repo, "--lineage", "review-notice-once-a"}, &first); err != nil {
 		t.Fatalf("first non-interactive start: %v\n%s", err, first.String())
 	}
-	if !strings.Contains(console.String(), reviewConsentSkippedNotice) {
+	if !strings.Contains(console.String(), reviewConsentSkippedNotice()) {
 		t.Fatalf("the first non-interactive start must show the notice:\n%s", console.String())
 	}
 
@@ -885,7 +885,7 @@ func TestNonInteractiveReviewStartNoticeShownOnlyOnce(t *testing.T) {
 	if err := RunReviewFacadeStart([]string{"--cwd", repo, "--lineage", "review-notice-once-b"}, &second); err != nil {
 		t.Fatalf("second non-interactive start: %v\n%s", err, second.String())
 	}
-	if strings.Contains(console.String(), reviewConsentSkippedNotice) {
+	if strings.Contains(console.String(), reviewConsentSkippedNotice()) {
 		t.Fatalf("a repeated non-interactive start must not repeat the notice:\n%s", console.String())
 	}
 

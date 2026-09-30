@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/pathquote"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/reviewtransaction"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/state"
@@ -567,8 +568,7 @@ func normalizeReviewConsentLocale(value string) (reviewConsentLocale, error) {
 }
 
 const (
-	reviewConsentHeadline = "Gentle AI can review this change before you call it done."
-	reviewConsentValue    = "Reviewing takes a little longer and makes the result safer."
+	reviewConsentValue = "Reviewing takes a little longer and makes the result safer."
 
 	// reviewConsentAnswerRunLabel and reviewConsentAnswerNotNowLabel are the
 	// single wording source for the two offered answers: the interactive
@@ -588,24 +588,38 @@ const (
 	reviewConsentOffPath        = reviewConsentOffPathNote + "\n"
 	reviewConsentQuestion       = "Choose 1 or 2 [1]: "
 
-	// reviewConsentSkippedNotice keeps the fail-safe default discoverable: an
-	// unanswerable question must never look like a silent yes. It carries no
-	// provenance sentence about how reviews got switched on: either the unset
-	// default or an explicit enable may permit review. Explicit OFF is refused
-	// before this point.
-	reviewConsentSkippedNotice = "Gentle AI reviewed this change without asking, because this session has no terminal to answer on. " +
-		"Run 'gentle-ai review mode disable' to turn reviews off, or 'gentle-ai review mode status' to see the current setting."
-
-	reviewConsentUnreadableNotice = "Gentle AI could not read an answer, so it reviewed this change and will ask again next time."
-	reviewConsentUnknownNotice    = "Gentle AI did not recognize that answer, so it reviewed this change and will ask again next time."
-
 	// reviewConsentDeclinedNotice confirms a decline in the user's own terms.
 	// It goes to the console stream, never stdout: stdout stays pure JSON.
 	reviewConsentDeclinedNotice = "Review skipped for this candidate at your request. It will be offered again on the next change."
 )
 
+// The consent sentences that name the product use the active brand, so they
+// are functions rather than constants.
+
+func reviewConsentHeadline() string {
+	return brand.Current().Name + " can review this change before you call it done."
+}
+
+// reviewConsentSkippedNotice keeps the fail-safe default discoverable: an
+// unanswerable question must never look like a silent yes. It carries no
+// provenance sentence about how reviews got switched on: either the unset
+// default or an explicit enable may permit review. Explicit OFF is refused
+// before this point.
+func reviewConsentSkippedNotice() string {
+	return brand.Current().Name + " reviewed this change without asking, because this session has no terminal to answer on. " +
+		"Run 'gentle-ai review mode disable' to turn reviews off, or 'gentle-ai review mode status' to see the current setting."
+}
+
+func reviewConsentUnreadableNotice() string {
+	return brand.Current().Name + " could not read an answer, so it reviewed this change and will ask again next time."
+}
+
+func reviewConsentUnknownNotice() string {
+	return brand.Current().Name + " did not recognize that answer, so it reviewed this change and will ask again next time."
+}
+
 // reviewConsentNoticeDirName and reviewConsentNoticeMarkerFile locate the
-// once-per-clone marker for reviewConsentSkippedNotice, mirroring the
+// once-per-clone marker for reviewConsentSkippedNotice(), mirroring the
 // existing <GitCommonDir>/gentle-ai/<subdir> convention this package already
 // uses for clone-local, uncommitted state (see writeReviewDefectReport).
 const (
@@ -614,7 +628,7 @@ const (
 )
 
 // reviewConsentNoticeAlreadyShown reports whether this clone already saw
-// reviewConsentSkippedNotice. An error resolving the marker is treated as
+// reviewConsentSkippedNotice(). An error resolving the marker is treated as
 // "not shown" so a broken marker can never silently suppress the notice.
 func reviewConsentNoticeAlreadyShown(ctx context.Context, repo string) (bool, error) {
 	path, err := reviewConsentNoticeMarkerPath(ctx, repo)
@@ -754,7 +768,7 @@ func authorizeReviewStart(ctx context.Context, repo string, assessment reviewtra
 	if err != nil {
 		// A damaged latch must neither block the review nor silently disable it:
 		// review the candidate, and say why the question was skipped.
-		_, _ = fmt.Fprintf(console.Output, "Gentle AI reviewed this change without asking: %v.\n", err)
+		_, _ = fmt.Fprintf(console.Output, "%s reviewed this change without asking: %v.\n", brand.Current().Name, err)
 		return nil
 	}
 	if asked {
@@ -770,7 +784,7 @@ func authorizeReviewStart(ctx context.Context, repo string, assessment reviewtra
 		// An unreadable marker fails open to showing the notice — the first
 		// occurrence must never be silently suppressed.
 		if shown, shownErr := reviewConsentNoticeAlreadyShown(ctx, repo); shownErr != nil || !shown {
-			_, _ = fmt.Fprintln(console.Output, reviewConsentSkippedNotice)
+			_, _ = fmt.Fprintln(console.Output, reviewConsentSkippedNotice())
 			_ = recordReviewConsentNoticeShown(ctx, repo)
 		}
 		return nil
@@ -780,7 +794,7 @@ func authorizeReviewStart(ctx context.Context, repo string, assessment reviewtra
 	if err != nil {
 		// Leaving the latch unset is deliberate: the human never got to answer,
 		// so the one-time question must survive for a session that can ask it.
-		_, _ = fmt.Fprintln(console.Output, reviewConsentUnreadableNotice)
+		_, _ = fmt.Fprintln(console.Output, reviewConsentUnreadableNotice())
 		return nil
 	}
 	// The two answers persist asymmetrically. Accepting the review is the safe
@@ -794,7 +808,7 @@ func authorizeReviewStart(ctx context.Context, repo string, assessment reviewtra
 		_, _ = fmt.Fprintln(console.Output, reviewConsentDeclinedNotice)
 		return fmt.Errorf("%w: the next candidate is asked again", errReviewDeclinedForCandidate)
 	default:
-		_, _ = fmt.Fprintln(console.Output, reviewConsentUnknownNotice)
+		_, _ = fmt.Fprintln(console.Output, reviewConsentUnknownNotice())
 		return nil
 	}
 }
@@ -825,7 +839,7 @@ func readReviewConsentAnswer(input io.Reader) (string, error) {
 
 func reviewConsentPrompt(assessment reviewtransaction.RiskAssessment) string {
 	return fmt.Sprintf("%s\nWhy: %s\n%s\n%s%s%s",
-		reviewConsentHeadline, reviewConsentReason(assessment), reviewConsentValue,
+		reviewConsentHeadline(), reviewConsentReason(assessment), reviewConsentValue,
 		reviewConsentAnswers, reviewConsentOffPath, reviewConsentQuestion)
 }
 

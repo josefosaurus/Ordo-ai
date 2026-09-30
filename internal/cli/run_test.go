@@ -874,7 +874,7 @@ func TestV2SDKProvisionRejectsChangedOwnershipAndUnmaterializedPackage(t *testin
 	if err != nil || proposal == nil {
 		t.Fatalf("refreshed proposal = %+v, %v", proposal, err)
 	}
-	if err := (openCodePluginDependencyPreflightStep{homeDir: home, consent: proposal}).Run(); err == nil || !strings.Contains(err.Error(), "without materializing") || !strings.Contains(err.Error(), "not covered by Gentle AI rollback") {
+	if err := (openCodePluginDependencyPreflightStep{homeDir: home, consent: proposal}).Run(); err == nil || !strings.Contains(err.Error(), "without materializing") || !strings.Contains(err.Error(), "not covered by Ordo rollback") {
 		t.Fatalf("successful manager without SDK passed: %v", err)
 	}
 	if _, err := os.Stat(marker); err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/consentenvelope"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/reviewtransaction"
@@ -83,14 +84,14 @@ type reviewConsentEnvelopeText struct {
 func reviewConsentEnvelopeTextFor(locale reviewConsentLocale, assessment reviewtransaction.RiskAssessment, _ string) reviewConsentEnvelopeText {
 	if locale != reviewConsentLocaleSpanish {
 		return reviewConsentEnvelopeText{
-			headline: reviewConsentHeadline, reason: reviewConsentReason(assessment), value: reviewConsentValue,
+			headline: reviewConsentHeadline(), reason: reviewConsentReason(assessment), value: reviewConsentValue,
 			evidence: reviewConsentRiskEvidence(assessment), grantedLabel: reviewConsentAnswerRunLabel,
 			grantedEffect: reviewConsentGrantedEffect, declinedLabel: reviewConsentAnswerNotNowLabel,
 			declinedEffect: reviewConsentDeclinedEffect, offPathNote: reviewConsentOffPathNote,
 		}
 	}
 	return reviewConsentEnvelopeText{
-		headline:       "Gentle AI puede revisar este cambio antes de que lo des por terminado.",
+		headline:       brand.Current().Name + " puede revisar este cambio antes de que lo des por terminado.",
 		reason:         reviewConsentSpanishReason(assessment),
 		value:          "La revisión lleva un poco más de tiempo y hace que el resultado sea considerablemente más seguro.",
 		evidence:       reviewConsentSpanishRiskEvidence(assessment),

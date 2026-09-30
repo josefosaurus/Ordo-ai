@@ -158,7 +158,7 @@ func TestNegotiatedHighRiskStartWithRelayDeclarationEmitsBlockingConsentQuestion
 	}
 	// The envelope must carry the same semantic phrases the interactive question
 	// uses, so the orchestrator can localize the complete decision faithfully.
-	if question.Headline != "Gentle AI can review this change before you call it done." {
+	if question.Headline != "Ordo can review this change before you call it done." {
 		t.Fatalf("consent headline = %q, want the established offer", question.Headline)
 	}
 	if question.Value != "Reviewing takes a little longer and makes the result safer." {
@@ -233,7 +233,7 @@ func TestRelayedConsentMediumRiskKeepsBriefDecisionAndRiskContext(t *testing.T) 
 		"start", "--contract", ReviewIntegrationContractV2, "--cwd", repo,
 		"--lineage", "review-consent-medium-copy", "--consent", "relay",
 	})).Bytes())
-	if question.RiskLevel != reviewtransaction.RiskMedium || question.Headline != "Gentle AI can review this change before you call it done." {
+	if question.RiskLevel != reviewtransaction.RiskMedium || question.Headline != "Ordo can review this change before you call it done." {
 		t.Fatalf("medium consent identity/copy = %#v", question)
 	}
 	if question.Value != "Reviewing takes a little longer and makes the result safer." ||
@@ -499,7 +499,7 @@ func TestHeadlessSkipNoticeFollowsDefaultAndExplicitOn(t *testing.T) {
 	if err != nil {
 		t.Fatalf("headless start with default mode: %v\n%s", err, output.String())
 	}
-	if !strings.Contains(console.String(), reviewConsentSkippedNotice) {
+	if !strings.Contains(console.String(), reviewConsentSkippedNotice()) {
 		t.Fatalf("default-source start lost the skip notice:\n%s", console.String())
 	}
 
@@ -513,7 +513,7 @@ func TestHeadlessSkipNoticeFollowsDefaultAndExplicitOn(t *testing.T) {
 		t.Fatalf("headless start with explicit mode: %v\n%s", err, output.String())
 	}
 	explicitNotice := consoleExplicit.String()
-	if !strings.Contains(explicitNotice, reviewConsentSkippedNotice) {
+	if !strings.Contains(explicitNotice, reviewConsentSkippedNotice()) {
 		t.Fatalf("explicit-source start lost the skip notice:\n%s", explicitNotice)
 	}
 	if strings.Contains(explicitNotice, "by default") {

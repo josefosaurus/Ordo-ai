@@ -10,9 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/opencode"
+	"github.com/rivo/uniseg"
 )
 
 type Definition struct {
@@ -65,7 +67,7 @@ var legacySDDEngramDefinition = Definition{
 
 const gentleLogoPluginFile = "gentle-logo.tsx"
 
-const gentleLogoPluginSource = `// @ts-nocheck
+const gentleLogoPluginTemplate = `// @ts-nocheck
 /** @jsxImportSource @opentui/solid */
 import type { TuiPlugin } from "@opencode-ai/plugin/tui"
 import { useTerminalDimensions } from "@opentui/solid"
@@ -73,34 +75,15 @@ import { createMemo } from "solid-js"
 
 const id = "gentle-logo"
 
-const roseArt = [
-  "             ⣠⣾⣷⣶⣦⣤⣤⣄⣠⣄⣀  ⢀⣀⣀",
-  "          ⢀⣴⣿⣿⠿⣋⣭⣭⣯⣭⣍⣭⣿⣟⠛⠛⠿⠿⣿⣷⣄",
-  "      ⢀⣴⣾⡟⢻⣿⡟⠁⣼⣿⠏⣵⢻⣿⣻⣿⣿⢿⡻⣿⣿⣶⡌⢿⣿⣷⣦⣤⡄",
-  "   ⣤⣶⣾⣿⣿⠏ ⠈⢿⣄ ⢹⣏⠠⠟⣾⣿⣿⣿⣿⣿⠷⣏⣼⠟⢡⣿⡟⠋⢻⣿⣿⡄",
-  "   ⠈⣿⣿⣿⣿⡆   ⣽⢧⡘⠈⠳⣦⣍⠛⠛⢦⣉⣴⣛⣫⣭⣴⡟⠋  ⣾⣿⣿⡿",
-  "   ⢀⠹⣿⣿⣿⣷⣤⡄ ⠋ ⠙⢆ ⣠⠴⠟⠛⣛⣛⣛⠟⠋⠁⠺⡇ ⣀⣴⣿⣿⡟⠁",
-  "   ⠈⣀⠈⠛⠷⠿⣿⣿⣷⣤⣀ ⢠⠋   ⠈⠉⠉    ⣠⣴⣥⠾⠛⠉⣰⣿⣷",
-  "          ⠹⣯⣝⠛⠛⠷⢶⣤⣤⣀   ⢀⡠⠖⠋⠉⢉⣀⣀⣴⣾⣿⠿⠟⠃ ⠠⠦",
-  "⠁       ⠖  ⠘⠻⢿⣦⣄⡀  ⠉⠛⢦⠠⢊⠤⠴⢒⣛⣛⣩⣽⡿⠟⠁⢀⡀",
-  "⠲⠶⣦⠴⠶⠶⠶⠶⡶⠶⢶⣤⣄⡀⠨⠭⠽⠟⣓⢦⣀⠈⢇⡥⠖⠛⠋⠉⠉⠉    ⠈  ⢠⡤",
-  "  ⠈⢷ ⠐⠂⢤⣽⣄ ⠰⡎⠙⠳⣄⡀ ⠈⢣⠘⢦⠋⣀⡬⠟⠛⠛⠉⢀⣀⣀⣠⡤⠄⠃",
-  "   ⠈⢳⣀⡒⠉⠉⣉⠙⡲⣽⣄ ⣏⠳⡄ ⠘⡇ ⡾⠁ ⢀⡤⠖⣻⣿⡏⢡⡎ ⠰⠄",
-  "     ⠛⠻⢦⣄⣉⡁⣀⣀⣈⣙⣺⣌⡇⢠⢀⡇⡾  ⣴⣿⡷⠊ ⢲⣠⠟",
-  "          ⠈⠉    ⠈⠳⡄⣸⢱⠇⢀⣰⣯⣭⣥⠭⠾⠛⠃",
-  "                  ⡷⠡⡯⢖⠉   ⢠⠤",
-  "                ⡠⢊⡴⠤⠂⠃ ⠒",
-  "             ⢀⡴⢪⠔⣉⠔⠋",
-  "               ⠐⠈",
-]
+const roseArt = __BRAND_LOGO__
 
-const compactArt = ["✦ Gentle AI ✦"]
+const compactArt = [__BRAND_COMPACT__]
 
 const Logo = () => {
   const dim = useTerminalDimensions()
   const lines = createMemo(() => {
     const term = dim()
-    return term.height >= roseArt.length + 6 && term.width >= 64 ? roseArt : compactArt
+    return term.height >= roseArt.length + 6 && term.width >= __BRAND_MIN_WIDTH__ ? roseArt : compactArt
   })
 
   return (
@@ -127,6 +110,23 @@ const tui: TuiPlugin = async (api) => {
 const plugin = { id: "gentle-logo", tui }
 export default plugin
 `
+
+// gentleLogoPluginSource renders the OpenCode home logo plugin from the
+// active brand, so the logo and fallback name match the user's brand.
+func gentleLogoPluginSource() string {
+	b := brand.Current()
+	logo, _ := json.Marshal(b.Logo)
+	name, _ := json.Marshal("✦ " + b.Name + " ✦")
+	width := 0
+	for _, line := range b.Logo {
+		width = max(width, uniseg.StringWidth(line))
+	}
+	return strings.NewReplacer(
+		"__BRAND_LOGO__", string(logo),
+		"__BRAND_COMPACT__", string(name),
+		"__BRAND_MIN_WIDTH__", fmt.Sprint(width+4),
+	).Replace(gentleLogoPluginTemplate)
+}
 
 func Definitions() []Definition {
 	out := make([]Definition, len(definitions))
@@ -226,7 +226,7 @@ func installGentleLogo(homeDir string) (Result, error) {
 		return Result{}, fmt.Errorf("capture prior OpenCode TUI config state: %w", err)
 	}
 
-	pluginWrite, err := writeFileAtomicFn(pluginPath, []byte(gentleLogoPluginSource), 0o644)
+	pluginWrite, err := writeFileAtomicFn(pluginPath, []byte(gentleLogoPluginSource()), 0o644)
 	if err != nil {
 		// WriteFileAtomic can publish the replacement and still return an
 		// error (#1676), so compensate the source before returning;

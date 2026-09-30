@@ -17,8 +17,9 @@ func TestReviewProviderArtifactV1ContractsArePinned(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v1")
 	want := map[string]string{
 		"fixtures/capabilities-v1.4.fixture.json": "84e0db457b76b97b35c2be772dfc647f9eab66810ea98f64fed85645c3c266ba",
-		"fixtures/consent.fixture.json":           "b95d02fb3468cc7c017380f7193aff86691a47cbe3879eddb0092893d7b8bb5b",
-		"fixtures/start.fixture.json":             "3b963b221cd1560eb8872cbabbb5407096f593ced2f13eb9cb06eb61e4cca4d1",
+		// Ordo: the consent headline names the active brand (default "Ordo").
+		"fixtures/consent.fixture.json": "98ea566cd74e7161bbff9cb933d5698628f1b5be4d218dd2477145be5555d8a2",
+		"fixtures/start.fixture.json":   "3b963b221cd1560eb8872cbabbb5407096f593ced2f13eb9cb06eb61e4cca4d1",
 		// issue #2659: start-v2/status-v2 embed a freshly minted target_identity,
 		// and the purified identity domain legitimately changed that hash for
 		// every new snapshot. Deliberate, not drift.
@@ -57,7 +58,8 @@ func TestReviewProviderArtifactV20ContractsArePinned(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v2")
 	want := map[string]string{
 		"fixtures/capabilities.fixture.json": "8d5e1a8491db1a5a2f6329e8c1d5cd210dd175e0525ff4d51fa914351d2fcf08",
-		"fixtures/consent.fixture.json":      "66a3a9d7d3fe1b8956739616f333f8e38c2515bf8e0030e65f5213b415d48ad2",
+		// Ordo: the consent headline names the active brand (default "Ordo").
+		"fixtures/consent.fixture.json": "92ef1b7cb3cd0d78da7c6d7496c603b03772a0b049f23b5ba346ad606082f68e",
 		// issue #3922 / #4199 / gentle-pi#543: the native-git reviewer_result
 		// collect input no longer inlines changed_path_manifest -- it is
 		// already committed to by artifact_subject.changed_path_manifest_sha256
@@ -87,7 +89,8 @@ func TestReviewProviderArtifactV21ContractsArePinned(t *testing.T) {
 		// issue #2659: consent-v3 embeds a freshly minted target_identity;
 		// the purified identity domain legitimately changed that hash.
 		// Deliberate, not drift.
-		"fixtures/consent-v3.fixture.json":      "9b2f173bc35ac985ab07e3d97cba1d5a9f2cb6e25162addc03a78858b7deb081",
+		// Ordo: the consent headline names the active brand (default "Ordo").
+		"fixtures/consent-v3.fixture.json":      "cc3bb3d43ec0d0858ba9b4afcb51c7a9b10248d1d670d1b6e352777e8556c58f",
 		"schemas/capabilities-v2.1.schema.json": "95d2b8b46e9be6e6fbc874fc763029cb7994951336c8974dc1694834d64bf06e",
 		// Cross-lane battery conformance fix: the schema pinned the choice
 		// invocations to `--agent claude-code`, but the live emitter omits the

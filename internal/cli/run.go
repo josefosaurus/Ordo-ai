@@ -24,6 +24,7 @@ import (
 	opencodeagent "github.com/gentleman-programming/gentle-ai/v4/internal/agents/opencode"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/assets"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/backup"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/agentguidance"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/agenthooks"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/communitytool"
@@ -949,7 +950,7 @@ func (s nativeReviewAgentStep) Run() error {
 }
 
 func nativeReviewPreservedAction(path string) string {
-	return fmt.Sprintf("Native review agent %s was preserved, not updated: its existing bytes are unknown or modified. To receive updates, manually compare it with the current Gentle AI agent template, merge changes into your copy, and remove or replace the file only after saving your changes. Gentle AI will not adopt or delete it automatically.", path)
+	return fmt.Sprintf("Native review agent %s was preserved, not updated: its existing bytes are unknown or modified. To receive updates, manually compare it with the current %s agent template, merge changes into your copy, and remove or replace the file only after saving your changes. %s will not adopt or delete it automatically.", path, brand.Current().Name, brand.Current().Name)
 }
 
 type managedOpenCodePluginsInstallStep struct {
@@ -1015,7 +1016,7 @@ func OpenCodeSDKInstallProposal(homeDir string) (*OpenCodeSDKConsent, error) {
 		} else if manager == "" {
 			manager = "npm"
 		}
-		return nil, fmt.Errorf("automatic OpenCode SDK install refused: %w; run `%s` manually, then retry Gentle AI", err, openCodeSDKInstallContinuation(runtime.GOOS, config, manager, dependency))
+		return nil, fmt.Errorf("automatic OpenCode SDK install refused: %w; run `%s` manually, then retry %s", err, openCodeSDKInstallContinuation(runtime.GOOS, config, manager, dependency), brand.Current().Name)
 	}
 	executable, err := cmdLookPath("npm")
 	if err != nil {
@@ -1027,7 +1028,7 @@ func OpenCodeSDKInstallProposal(homeDir string) (*OpenCodeSDKConsent, error) {
 	}
 	if blocker := openCodeSDKIsolationBlocker(executable, physicalExe); blocker != "" {
 		// refusal:by-design world-action: credential isolation stays mandatory, so a manager that needs the user's shell environment runs manually
-		return nil, fmt.Errorf("automatic OpenCode SDK install refused: npm on PATH %s and cannot run in the credential-isolated installer environment; run `%s` manually in your normal shell, then retry Gentle AI", blocker, openCodeSDKInstallContinuation(runtime.GOOS, config, "npm", dependency))
+		return nil, fmt.Errorf("automatic OpenCode SDK install refused: npm on PATH %s and cannot run in the credential-isolated installer environment; run `%s` manually in your normal shell, then retry %s", blocker, openCodeSDKInstallContinuation(runtime.GOOS, config, "npm", dependency), brand.Current().Name)
 	}
 	exeDigest, err := openCodeSDKExecutableDigest(physicalExe)
 	if err != nil {
@@ -1201,7 +1202,7 @@ func (s openCodePluginDependencyPreflightStep) Run() error {
 		}
 		if !openCodeSDKInstalled(config, dependency) {
 			// refusal:by-design world-action: the external manager did not materialize the requested package
-			return fmt.Errorf("%s SDK install verification failed: %s completed without materializing %s in %s; package-manager changes are not covered by Gentle AI rollback; run `%s` manually in your normal shell, then retry", proposal.Manager, proposal.Manager, dependency, config, openCodeSDKInstallContinuation(runtime.GOOS, config, proposal.Manager, dependency))
+			return fmt.Errorf("%s SDK install verification failed: %s completed without materializing %s in %s; package-manager changes are not covered by %s rollback; run `%s` manually in your normal shell, then retry", proposal.Manager, proposal.Manager, dependency, config, brand.Current().Name, openCodeSDKInstallContinuation(runtime.GOOS, config, proposal.Manager, dependency))
 		}
 		return nil
 	}
@@ -1209,10 +1210,10 @@ func (s openCodePluginDependencyPreflightStep) Run() error {
 		location := openCodeSDKInstallContinuation(runtime.GOOS, config, "npm", dependency)
 		if runtime.GOOS == "windows" {
 			// refusal:by-design world-action: PowerShell must run the displayed manual install
-			return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; in PowerShell run: %s; then retry Gentle AI", dependency, location)
+			return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; in PowerShell run: %s; then retry %s", dependency, location, brand.Current().Name)
 		}
 		// refusal:by-design world-action: the operator must run the displayed manual install
-		return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; run `%s`, then retry Gentle AI", dependency, location)
+		return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; run `%s`, then retry %s", dependency, location, brand.Current().Name)
 	}
 	manager := openCodePluginPackageManager(config)
 	if manager == "" {
@@ -1232,10 +1233,10 @@ func (s openCodePluginDependencyPreflightStep) Run() error {
 	location := openCodeSDKInstallContinuation(runtime.GOOS, config, manager, dependency)
 	if runtime.GOOS == "windows" {
 		// refusal:by-design world-action: this command is generated for PowerShell, not cmd.exe
-		return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; in PowerShell run: %s; then retry Gentle AI", dependency, location)
+		return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; in PowerShell run: %s; then retry %s", dependency, location, brand.Current().Name)
 	}
 	// refusal:by-design world-action: the runnable package-manager command is selected from the user's package ownership and quoted config path at runtime
-	return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; run `%s`, then retry Gentle AI", dependency, location)
+	return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; run `%s`, then retry %s", dependency, location, brand.Current().Name)
 }
 
 // Bun ownership is a manual-only route even when Bun is unavailable on PATH.
@@ -1261,10 +1262,10 @@ func openCodeSDKManualBunError(config, dependency string) error {
 	location := openCodeSDKInstallContinuation(runtime.GOOS, config, "bun", dependency)
 	if runtime.GOOS == "windows" {
 		// refusal:by-design world-action: Bun-owned packages require an operator-run PowerShell continuation
-		return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; Bun-owned packages cannot be provisioned automatically; in PowerShell run: %s; then retry Gentle AI", dependency, location)
+		return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; Bun-owned packages cannot be provisioned automatically; in PowerShell run: %s; then retry %s", dependency, location, brand.Current().Name)
 	}
 	// refusal:by-design world-action: Bun-owned packages require an operator-run continuation
-	return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; Bun-owned packages cannot be provisioned automatically; run `%s`, then retry Gentle AI", dependency, location)
+	return fmt.Errorf("OpenCode V2 requires installed %s before managed plugins can be written; Bun-owned packages cannot be provisioned automatically; run `%s`, then retry %s", dependency, location, brand.Current().Name)
 }
 
 // The process receives no ambient package-manager auth, user configuration,
@@ -1292,7 +1293,7 @@ func openCodeSDKRunApprovedManager(proposal *OpenCodeSDKConsent) error {
 		return fmt.Errorf("OpenCode package manager executable changed before launch; review it again and retry")
 	}
 	if err := openCodeSDKCheckProjectConfig(proposal.ConfigDir); err != nil {
-		return fmt.Errorf("automatic OpenCode SDK install refused: %w; run `%s` manually, then retry Gentle AI", err, openCodeSDKInstallContinuation(runtime.GOOS, proposal.ConfigDir, proposal.Manager, proposal.Dependency))
+		return fmt.Errorf("automatic OpenCode SDK install refused: %w; run `%s` manually, then retry %s", err, openCodeSDKInstallContinuation(runtime.GOOS, proposal.ConfigDir, proposal.Manager, proposal.Dependency), brand.Current().Name)
 	}
 	state, err := openCodeSDKPackageState(proposal.ConfigDir)
 	if err != nil || state != proposal.stateSignature {
@@ -1308,7 +1309,7 @@ func openCodeSDKRunApprovedManager(proposal *OpenCodeSDKConsent) error {
 		return fmt.Errorf("OpenCode SDK config directory changed before launch; review it again and retry")
 	}
 	if err := openCodeSDKCheckProjectConfig(proposal.ConfigDir); err != nil {
-		return fmt.Errorf("automatic OpenCode SDK install refused: %w; run `%s` manually, then retry Gentle AI", err, openCodeSDKInstallContinuation(runtime.GOOS, proposal.ConfigDir, proposal.Manager, proposal.Dependency))
+		return fmt.Errorf("automatic OpenCode SDK install refused: %w; run `%s` manually, then retry %s", err, openCodeSDKInstallContinuation(runtime.GOOS, proposal.ConfigDir, proposal.Manager, proposal.Dependency), brand.Current().Name)
 	}
 	isolated, err := os.MkdirTemp("", "gentle-ai-opencode-sdk-")
 	if err != nil {
@@ -1329,7 +1330,7 @@ func openCodeSDKRunApprovedManager(proposal *OpenCodeSDKConsent) error {
 	// Never reflect raw command errors or output: both may embed credentials.
 	// Only the failure class (start, exit code, signal, deadline) is reported.
 	// refusal:by-design world-action: package manager failed without exposing its possibly sensitive output
-	return fmt.Errorf("%s SDK install failed: %s %s; package-manager changes are not covered by Gentle AI rollback; run `%s` manually in your normal shell, then retry", proposal.Manager, proposal.Manager, openCodeSDKFailureClass(err, ctx.Err(), openCodeSDKInstallTimeout), openCodeSDKInstallContinuation(runtime.GOOS, proposal.ConfigDir, proposal.Manager, proposal.Dependency))
+	return fmt.Errorf("%s SDK install failed: %s %s; package-manager changes are not covered by %s rollback; run `%s` manually in your normal shell, then retry", proposal.Manager, proposal.Manager, openCodeSDKFailureClass(err, ctx.Err(), openCodeSDKInstallTimeout), brand.Current().Name, openCodeSDKInstallContinuation(runtime.GOOS, proposal.ConfigDir, proposal.Manager, proposal.Dependency))
 }
 
 func openCodeSDKIsolatedEnv(isolated string, proposal *OpenCodeSDKConsent) []string {

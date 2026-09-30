@@ -243,7 +243,7 @@ func TestNegotiatedStartUndeclaredInteractiveKeepsConsentCeremony(t *testing.T) 
 		t.Fatalf("interactive negotiated refusal = %v, want errReviewDeclinedForCandidate\n%s", err, output.String())
 	}
 	prompt := assertReviewConsentPrompt(t, console.String(), "Review can help detect execution issues in these changes.")
-	if !bytes.Contains([]byte(prompt), []byte("Gentle AI can review this change before you call it done.")) {
+	if !bytes.Contains([]byte(prompt), []byte("Ordo can review this change before you call it done.")) {
 		t.Fatalf("interactive consent prompt lost its question: %q", prompt)
 	}
 }
@@ -295,7 +295,7 @@ func TestPlainStartConsentNoticeStaysByteIdentical(t *testing.T) {
 	if err := RunReviewFacadeStart([]string{"--cwd", repo, "--lineage", "review-plain-notice"}, &output); err != nil {
 		t.Fatalf("plain headless start: %v\n%s", err, output.String())
 	}
-	want := reviewConsentSkippedNotice + "\n"
+	want := reviewConsentSkippedNotice() + "\n"
 	if console.String() != want {
 		t.Fatalf("plain start notice drifted:\n got %q\nwant %q", console.String(), want)
 	}

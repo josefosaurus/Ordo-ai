@@ -25,7 +25,7 @@ type InstallFlags struct {
 	PiBackgroundSubagentsSet bool
 }
 
-const installChannelHelp = "Gentle AI channel: stable (default), beta, or nightly (alias for beta) — env: GENTLE_AI_CHANNEL"
+const installChannelHelp = "Release channel: stable (default), beta, or nightly (alias for beta) — env: GENTLE_AI_CHANNEL"
 
 func PrintInstallHelp(w io.Writer) {
 	fmt.Fprint(w, `USAGE
