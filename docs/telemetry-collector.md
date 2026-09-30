@@ -9,7 +9,7 @@ the client sends opportunistically, without ever learning who they are or
 where they run.
 
 The client side (when to send, `DO_NOT_TRACK`/`GENTLE_AI_TELEMETRY`/`CI`
-opt-out, `gentle-ai telemetry status|enable|disable|preview`) is implemented
+opt-out, `ordo telemetry status|enable|disable|preview`) is implemented
 on a sibling branch and is out of scope here. This document covers the
 collector: the wire contract it accepts, storage and retention, the deploy
 kit under `deploy/telemetry/`, and how to read `/v1/summary`.
@@ -59,7 +59,7 @@ IP address; see [No IP addresses, anywhere](#no-ip-addresses-anywhere).
 the schema is closed with either an `enum` (`event`, `os`, `arch`,
 `agents[]`, `components[]`, and `schema` itself) or a `pattern`
 (`install_id`, `version`, `sent_at`). `agents[]` and `components[]` accept
-only the fixed sets of known agent and component ids gentle-ai ships —
+only the fixed sets of known agent and component ids ordo ships —
 never an arbitrary string — and `additionalProperties: false` at every
 object level rejects any field this document doesn't name.
 `TestEventSchema_EveryStringPropertyIsClosed` walks the schema and fails
@@ -337,7 +337,7 @@ once, under its newest version/agents/RDD state); *any* event makes it
   `gentle-engram`) and the GitHub API (`--github-repo`, repeatable, default
   `Gentleman-Programming/gentle-ai`) — see
   [External download counts](#external-download-counts). Nothing here
-  comes from a gentle-ai install; it is a public count of who downloaded
+  comes from a ordo install; it is a public count of who downloaded
   the tools, not telemetry about how they are used.
 
 All of this is computed on demand in `BuildSummary`
@@ -411,7 +411,7 @@ connection.
 contract bundling, release provenance, minisign signing); bolting a second,
 unrelated binary onto the same `archives:`/`builds:` block would either
 duplicate those hooks unnecessarily or silently bundle `gentle-telemetry`
-into the `gentle-ai` release archive. Until there is a real need for signed
+into the `ordo` release archive. Until there is a real need for signed
 releases of the collector, build it directly:
 
 ```
@@ -803,7 +803,7 @@ into the "Gentle AI" folder. Its panels:
 | Version distribution | Install-days per version over the trailing 30 days — a proxy for upgrade lag. |
 | Events per day | Raw event volume from the `events` table directly, so — unlike every other panel here — it is bounded by `--retention-days`: older days are gone once purged, since `rollups_daily` does not keep a raw event count. |
 | npm downloads per day | Daily download counts for `--npm-package` (gentle-pi, gentle-engram by default), from `rollups_daily.npm_downloads_day`. See [External download counts](#external-download-counts) — this is a public count, not telemetry. |
-| gentle-ai release downloads | Cumulative GitHub release asset download counts per tag, from `rollups_daily.github_release_downloads_total` — the latest known total per tag, not a per-day delta. See [External download counts](#external-download-counts) — also a public count, not telemetry. |
+| ordo release downloads | Cumulative GitHub release asset download counts per tag, from `rollups_daily.github_release_downloads_total` — the latest known total per tag, not a per-day delta. See [External download counts](#external-download-counts) — also a public count, not telemetry. |
 
 **Reverse proxy**: the `:443` block in `apache/telemetry-vhost.conf.tmpl`
 proxies `/grafana/` to `127.0.0.1:3000`; `install.sh --with-grafana` sets
@@ -844,7 +844,7 @@ read this log anyway; they only ever see the SQLite database.
 ## External download counts
 
 Alongside the collector's own telemetry, the daily job also fetches two
-**public** counts that have nothing to do with any gentle-ai install:
+**public** counts that have nothing to do with any ordo install:
 
 - **npm downloads** (`--npm-package`, repeatable, default `gentle-pi`,
   `gentle-engram`): `GET https://api.npmjs.org/downloads/point/last-day/<pkg>`,

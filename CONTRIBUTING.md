@@ -1,6 +1,6 @@
 # Contributing to Gentle AI™
 
-Thank you for your interest in contributing to **Gentle AI** (`gentle-ai`) — a Go CLI/TUI ecosystem configurator for AI coding agents.
+Thank you for your interest in contributing to **Gentle AI** (`ordo`) — a Go CLI/TUI ecosystem configurator for AI coding agents.
 
 Before you dive in, please read this guide fully. We have a structured workflow to keep the project organized and maintainable.
 
@@ -112,7 +112,7 @@ For disclosure boundaries, required details, attribution rules, and reviewer exp
 ```bash
 git clone https://github.com/Gentleman-Programming/gentle-ai.git
 cd gentle-ai
-go build -o gentle-ai ./cmd/gentle-ai
+go build -o ordo ./cmd/gentle-ai
 ```
 
 ### Run Locally
@@ -159,13 +159,13 @@ chmod +x docker-test.sh
 
 ### Running the Cross-Lane Battery
 
-The cross-lane battery ([`scripts/cross-lane-battery.sh`](scripts/cross-lane-battery.sh), implemented in [`scripts/crosslane/`](scripts/crosslane/)) is a local, out-of-CI regression net. It drives one real `gentle-ai` binary end to end across the supported agent-host review integration boundaries. It is deliberately not wired into CI because its optional tiers spend real reviewer model runs and real host sessions.
+The cross-lane battery ([`scripts/cross-lane-battery.sh`](scripts/cross-lane-battery.sh), implemented in [`scripts/crosslane/`](scripts/crosslane/)) is a local, out-of-CI regression net. It drives one real `ordo` binary end to end across the supported agent-host review integration boundaries. It is deliberately not wired into CI because its optional tiers spend real reviewer model runs and real host sessions.
 
 Build a binary first, then run the tier you can afford:
 
 ```bash
-go build -o /tmp/gentle-ai ./cmd/gentle-ai
-./scripts/cross-lane-battery.sh --binary /tmp/gentle-ai [--with-model] [--with-host] [--keep-work]
+go build -o /tmp/ordo ./cmd/gentle-ai
+./scripts/cross-lane-battery.sh --binary /tmp/ordo [--with-model] [--with-host] [--keep-work]
 ```
 
 | Tier | Flags | Cost profile | What it covers |

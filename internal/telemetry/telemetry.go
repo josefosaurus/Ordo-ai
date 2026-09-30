@@ -15,7 +15,7 @@ import "time"
 // EventSchema identifies the JSON POST body sent to the collector.
 const EventSchema = "gentle-ai.telemetry-event/v1"
 
-// StatusSchema identifies the `gentle-ai telemetry status` projection.
+// StatusSchema identifies the `ordo telemetry status` projection.
 const StatusSchema = "gentle-ai.telemetry-status/v1"
 
 // EventInstall and EventHeartbeat are the two event kinds the contract
@@ -38,7 +38,7 @@ const EndpointEnvVar = "GENTLE_AI_TELEMETRY_ENDPOINT"
 // enrollment step, before any event is ever built or sent. That one
 // enrollment run sends nothing at all; the first real send only happens on
 // a later trigger. It is never printed by the sender itself.
-const NoticeLine = "Gentle AI sends anonymous usage metrics (version, OS, agents, counters) and may send anonymous runtime usage from supported Pi/OpenCode/Codex integrations (public model, effort, agent class, available token usage, timing, error categories); runtime usage is never stored locally; run gentle-ai telemetry disable to opt out."
+const NoticeLine = "Gentle AI sends anonymous usage metrics (version, OS, agents, counters) and may send anonymous runtime usage from supported Pi/OpenCode/Codex integrations (public model, effort, agent class, available token usage, timing, error categories); runtime usage is never stored locally; run ordo telemetry disable to opt out."
 
 // MaxPayloadBytes bounds the JSON POST body per the issue's contract.
 const MaxPayloadBytes = 4096

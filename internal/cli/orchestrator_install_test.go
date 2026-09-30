@@ -109,7 +109,7 @@ func TestInstallAndSyncDeliverOrchestratorOnceForEveryRuntime(t *testing.T) {
 				"Native Compact Review Orchestration",
 				"Gentle AI Provider Defect Handoff",
 				"Receipt-driven development is user-owned",
-				"gentle-ai review mode enable|disable|status",
+				"ordo review mode enable|disable|status",
 				"The native RDD refuter owns native review claims",
 			} {
 				if got := strings.Contains(prompt, marker); got != rdd {
@@ -117,7 +117,7 @@ func TestInstallAndSyncDeliverOrchestratorOnceForEveryRuntime(t *testing.T) {
 				}
 			}
 			if !rdd {
-				for _, forbidden := range []string{"gentle-ai review", "RDD", "receipt", "refuter", "native review"} {
+				for _, forbidden := range []string{"ordo review", "RDD", "receipt", "refuter", "native review"} {
 					if strings.Contains(prompt, forbidden) {
 						t.Errorf("non-RDD runtime prompt carries %q", forbidden)
 					}

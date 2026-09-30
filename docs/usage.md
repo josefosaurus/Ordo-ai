@@ -24,7 +24,7 @@ ODD runs by default on every request, in every configured runtime, without you a
 - **Task size:** about 400 authored changed lines (additions plus deletions) per task is only a planning heuristic, not a task acceptance criterion, hard cap, counter-trigger, automatic stop, forced split, or RDD trigger. Keep the smallest coherent behavior with its tests and docs. If the correct, clear solution naturally exceeds it, briefly explain why and continue without size-only rework loops. Never delete spaces, blank lines, or comments for cosmetic savings, omit tests, minify, add gratuitous abstractions, or split artificially. Forward the same advisory-only instruction to delegated subagents. Existing repository policy and separate PR size gates remain unchanged.
 - **Changes:** accepted user, review, or verification changes update affected intent and tasks together, preserve valid completed and unrelated work, and add new tasks or reopen invalidated tasks with a reason. Findings alone do not authorize expansion or automatic acceptance; routine corrections stay with their tasks. Checkoffs require observed outcomes and applicable proof; they are not approval or a review receipt. New business scope still needs your authorization.
 - **TDD:** resolve on/off from existing project/session configuration or explicit user choice, retaining source and exact runner in the feature document when present; tests existing does not enable it. Forward mode/source/runner to every implementation worker and refresh on resume. Enabled means observed RED before implementation → GREEN → REFACTOR; disabled still runs ordinary functional checks. Unknown/conflicting mode or a missing runner needs only the clarification affecting the next action—never invent precedence or a runner.
-- **Checking:** run applicable functional checks per task; a TODO checkbox does not trigger a review cycle. The native review candidate is a work-unit commit or a PR slice, never a TODO checkbox and never the accumulated feature branch. After each work-unit commit, when RDD is enabled, assess it with `gentle-ai review assess --cwd <repo> --agent <runtime> --base-ref <last reviewed boundary> --committed-only --json` and read `review_due` and `review_due_reason` from the returned envelope. When `review_due` is `true` (`high_risk` or `slice_budget_reached`), execute the returned `next_transition.command` verbatim — it is the exact preflight STATUS invocation for the same `--base-ref`/`--committed-only` selectors — and follow the transitions it returns; the reviewed boundary advances to this commit once that review is acknowledged. When `review_due` is `false`, record the reason (`passive`, `under_budget`, or `already_reviewed`) and continue: a `passive` commit needs no review and the boundary advances immediately, an `under_budget` medium commit stays pending in the slice until a later commit reaches the delivery budget, and `already_reviewed` means this exact range is already covered by terminal authority. The first boundary is the branch point, and every reviewed boundary becomes the next base. Record the assessed tier and outcome per task: `review_due`/`review_due_reason`, or the transition's acknowledged/declined/unavailable outcome. Existing risk, consent, and authority stay unchanged; never infer low risk from a failed assessment. Never skip an existing delivery gate.
+- **Checking:** run applicable functional checks per task; a TODO checkbox does not trigger a review cycle. The native review candidate is a work-unit commit or a PR slice, never a TODO checkbox and never the accumulated feature branch. After each work-unit commit, when RDD is enabled, assess it with `ordo review assess --cwd <repo> --agent <runtime> --base-ref <last reviewed boundary> --committed-only --json` and read `review_due` and `review_due_reason` from the returned envelope. When `review_due` is `true` (`high_risk` or `slice_budget_reached`), execute the returned `next_transition.command` verbatim — it is the exact preflight STATUS invocation for the same `--base-ref`/`--committed-only` selectors — and follow the transitions it returns; the reviewed boundary advances to this commit once that review is acknowledged. When `review_due` is `false`, record the reason (`passive`, `under_budget`, or `already_reviewed`) and continue: a `passive` commit needs no review and the boundary advances immediately, an `under_budget` medium commit stays pending in the slice until a later commit reaches the delivery budget, and `already_reviewed` means this exact range is already covered by terminal authority. The first boundary is the branch point, and every reviewed boundary becomes the next base. Record the assessed tier and outcome per task: `review_due`/`review_due_reason`, or the transition's acknowledged/declined/unavailable outcome. Existing risk, consent, and authority stay unchanged; never infer low risk from a failed assessment. Never skip an existing delivery gate.
 - **Delivery:** at feature-document creation, forecast authored changed lines (additions plus deletions, generated files excluded) from the task list, and keep a running count from work-unit commits. Choose one delivery strategy per feature: `ask-on-risk` (default), `auto-chain`, `single-pr`, or `exception-ok`. When the forecast or running count exceeds about 400 authored changed lines, apply the chosen strategy before the next commit. `ask-on-risk` asks once for the chain strategy (`stacked-to-main` or `feature-branch-chain`); `auto-chain` asks only for a missing chain strategy and slices automatically. Cache both choices, and record slice boundaries (which commits each PR holds) in the feature document. Resolve the `work-unit-commits` and `chained-pr` skills by registry name before planning or creating any PR.
 - **RDD consent:** when enabled, native candidate risk assessment comes first: passive/low stays silent with structural checks, no reviewer, and no consent ceremony; medium/high presents existing candidate consent and runs the native review plan only on grant. Declining uses ordinary policy. Disabled RDD never starts or prompts; ordinary checks remain. This is prospective change risk, not defect severity or a model-selected threshold. Failed assessment never implies low risk; existing native continuations and authority still apply.
 - **Resume:** before implementation or resume, the parent reads the full feature-specific Engram observation and actual task file, reconciles current code and evidence, and passes the locator and relevant context; the worker reads the document before edits. Read back both writes: they are not atomic. If Engram is unavailable, keep local progress and report the pending mirror; preserve conflicting versions rather than silently overwriting one.
@@ -100,9 +100,9 @@ Gentle Shell (the `gentle-pi` package) owns its separate ODD prompt delivery. Up
 | --------- | ----------- | --------------------------------------------------------------------------------- |
 | Gentleman | `gentleman` | Teaching-oriented mentor persona — pushes back on bad practices, explains the why |
 | Neutral   | `neutral`   | Same teacher, same philosophy, no regional language — warm and professional       |
-| Custom    | `custom`    | Keep your existing persona/config unmanaged — gentle-ai does not inject a persona |
+| Custom    | `custom`    | Keep your existing persona/config unmanaged — ordo does not inject a persona |
 
-`custom` is a compatibility/ownership choice, not a persona editor. Use it when you already have your own persona instructions and want gentle-ai to leave them alone.
+`custom` is a compatibility/ownership choice, not a persona editor. Use it when you already have your own persona instructions and want ordo to leave them alone.
 
 ---
 
@@ -111,7 +111,7 @@ Gentle Shell (the `gentle-pi` package) owns its separate ODD prompt delivery. Up
 Just run it — the Bubbletea TUI guides you through agent selection, components, skills, presets, and managed uninstall flows:
 
 ```bash
-gentle-ai
+ordo
 ```
 
 The uninstall flow is also available from the TUI menu. It lets you:
@@ -120,7 +120,7 @@ The uninstall flow is also available from the TUI menu. It lets you:
 - select which managed components to remove (for example `persona` or `context7`)
 - confirm the exact uninstall scope before applying changes
 
-Before any managed file is modified, `gentle-ai` creates a backup snapshot so the configuration can be restored later if needed.
+Before any managed file is modified, `ordo` creates a backup snapshot so the configuration can be restored later if needed.
 
 ### Receipt-Driven Development during installation
 
@@ -133,7 +133,7 @@ The selection defaults to ON when no global preference exists; choose **Disable 
 Set `GENTLE_AI_NO_ANIMATION=1` to keep TUI spinner frames static:
 
 ```bash
-GENTLE_AI_NO_ANIMATION=1 gentle-ai
+GENTLE_AI_NO_ANIMATION=1 ordo
 ```
 
 This disables only spinner animation; install, update, sync, and uninstall operations continue normally. Unset the variable, or use any value other than `1`, to keep the default animation behavior.
@@ -148,29 +148,29 @@ First-time setup — detects your tools, configures agents, injects all componen
 
 ```bash
 # Full ecosystem for multiple agents
-gentle-ai install \
+ordo install \
   --agent claude-code,opencode,gemini-cli \
   --preset full-gentleman
 
 # Minimal setup for Cursor
-gentle-ai install \
+ordo install \
   --agent cursor \
   --preset minimal
 
 # OpenClaw setup after installing OpenClaw manually
-gentle-ai install \
+ordo install \
   --agent openclaw \
   --preset full-gentleman
 
 # Pick specific components and skills
-gentle-ai install \
+ordo install \
   --agent claude-code \
   --component engram,skills,context7,persona,permissions \
   --skill go-testing,skill-creator,branch-pr,issue-creation \
   --persona gentleman
 
 # Dry-run first (preview plan without applying changes)
-gentle-ai install --dry-run \
+ordo install --dry-run \
   --agent claude-code,opencode \
   --preset full-gentleman
 ```
@@ -180,9 +180,9 @@ gentle-ai install --dry-run \
 Refresh the project-local skill registry used by orchestrators before they delegate work:
 
 ```bash
-gentle-ai skill-registry refresh
-gentle-ai skill-registry refresh --force
-gentle-ai skill-registry refresh --cwd /path/to/project --quiet
+ordo skill-registry refresh
+ordo skill-registry refresh --force
+ordo skill-registry refresh --cwd /path/to/project --quiet
 ```
 
 The command scans project skills first (`skills/`, `.opencode/skills/`, `.claude/skills/`, `.github/skills/`, and other supported workspace skill roots), then global agent skill directories. Project-local skills win over same-name global skills.
@@ -199,94 +199,94 @@ The installer’s **Community Tools/Plugins** screen offers opt-in integrations 
 
 ### sync
 
-Refresh managed assets to the current version. Run it after replacing or upgrading the `gentle-ai` binary, including with `brew upgrade`, `gentle-ai upgrade`, or `go install`. It does NOT reinstall binaries (engram, GGA) — only updates managed prompts, skills, MCP configs, and agent guidance.
+Refresh managed assets to the current version. Run it after replacing or upgrading the `ordo` binary, including with `brew upgrade`, `ordo upgrade`, or `go install`. It does NOT reinstall binaries (engram, GGA) — only updates managed prompts, skills, MCP configs, and agent guidance.
 
 Managed reviewer and runtime assets are version-bound to the binary. Until sync succeeds, review lifecycle operations fail closed when managed writer provenance is missing or mismatched.
 
-> **Important:** `gentle-ai sync` updates the agents recorded as installed by Gentle AI™, not every AI agent config directory on your machine.
+> **Important:** `ordo sync` updates the agents recorded as installed by Gentle AI™, not every AI agent config directory on your machine.
 >
 > Gentle AI stores your selected install targets in `~/.gentle-ai/state.json`. Future `sync` runs use that stored selection so Gentle AI does not accidentally write into tools you did not choose to manage. If you rerun install and select only one agent, that new selection becomes the default sync scope.
 >
-> Before syncing, you can preview the active scope with `gentle-ai sync --dry-run`. If you want to sync agents outside the stored selection, pass them explicitly with `--agent`.
+> Before syncing, you can preview the active scope with `ordo sync --dry-run`. If you want to sync agents outside the stored selection, pass them explicitly with `--agent`.
 
 ```bash
 # Preview which agents sync will update
-gentle-ai sync --dry-run
+ordo sync --dry-run
 
 # Sync the agents currently registered in ~/.gentle-ai/state.json
-gentle-ai sync
+ordo sync
 
 # Sync specific agents only
-gentle-ai sync --agent claude-code --agent opencode
+ordo sync --agent claude-code --agent opencode
 
 # Refresh OpenClaw workspace instructions and MCP config
-gentle-ai sync --agent openclaw
+ordo sync --agent openclaw
 ```
 
 Sync is safe and idempotent — running it twice produces no changes the second time. When files change, the summary reports the changed file count and lists the changed file paths.
 
 `sync` refreshes the managed component set for the selected agents. It does not support `--component`; use `--include-permissions` or `--include-theme` for the opt-in components that are excluded from the default sync scope.
 
-After upgrading the binary, `gentle-ai sync --dry-run` previews the selected targets; `gentle-ai sync` refreshes their primary remote-authorization guidance. To select a specific managed client, use e.g. `gentle-ai sync --agent opencode`. This behavioral section is delivered with unconditional routing guidance, without requiring persona or `--include-permissions`. It requires explicit destination, operation, and credential/session authorization before remote work or ambient access discovery/reuse.
+After upgrading the binary, `ordo sync --dry-run` previews the selected targets; `ordo sync` refreshes their primary remote-authorization guidance. To select a specific managed client, use e.g. `ordo sync --agent opencode`. This behavioral section is delivered with unconditional routing guidance, without requiring persona or `--include-permissions`. It requires explicit destination, operation, and credential/session authorization before remote work or ambient access discovery/reuse.
 
 This update covers the 15 non-Pi primary instruction carriers only. Executor roles and Pi's package-owned instructions require separate behavioral coverage. Existing automation modes and remembered approvals may suppress runtime prompts. The guidance is not a sandbox or a fresh-human-per-execution guarantee. Shared settings merging and historical profile cleanup (compatibility for existing user configurations) preserve existing permission-rule order.
 
-For OpenCode native remote-command asks, opt in separately: `gentle-ai sync --agent opencode --include-permissions` (or `--agent kilocode` for the shared generated configuration). Defaults ask for direct `ssh`, `scp`, `sftp`, and `rsync`, bare or with arguments; local-only rsync also asks conservatively. Existing restrictions and explicit custom allows remain authoritative, so custom configurations may still allow remote commands. Defaults do not rewrite those personal allows. Agent overrides and remembered approvals may also bypass a prompt.
+For OpenCode native remote-command asks, opt in separately: `ordo sync --agent opencode --include-permissions` (or `--agent kilocode` for the shared generated configuration). Defaults ask for direct `ssh`, `scp`, `sftp`, and `rsync`, bare or with arguments; local-only rsync also asks conservatively. Existing restrictions and explicit custom allows remain authoritative, so custom configurations may still allow remote commands. Defaults do not rewrite those personal allows. Agent overrides and remembered approvals may also bypass a prompt.
 
 Matcher fixtures follow OpenCode [v1.2.27 wildcard matching](https://github.com/anomalyco/opencode/blob/v1.2.27/packages/opencode/src/util/wildcard.ts) and its last-matching permission evaluation. They do not prove interception of absolute executable paths, env wrappers, interpreters, or arbitrary compound shell syntax; the runtime extracts command nodes separately. Kilocode runtime equivalence is not verified. Issue #4324 remains open for all-client/all-role completion.
 
 For OpenClaw, sync reads the active workspace from `~/.openclaw/openclaw.json` (`agents.defaults.workspace`). It writes `AGENTS.md` / `SOUL.md` into that workspace, while MCP servers stay in the global OpenClaw config under `mcp.servers`.
 
-For Hermes, gentle-ai is detect-only: it cannot install Hermes. Install Hermes manually first. Detection is driven by the `~/.hermes` config directory (the binary being on `PATH` is reported separately). Once Hermes is detected, `gentle-ai install --agent hermes` injects context7 and Engram™ MCP blocks into `~/.hermes/config.yaml`, writes ODD guidance and persona into `~/.hermes/SOUL.md`, and copies skills to `~/.hermes/skills/`. Use `gentle-ai sync --agent hermes` to update the managed configuration after upgrades.
+For Hermes, ordo is detect-only: it cannot install Hermes. Install Hermes manually first. Detection is driven by the `~/.hermes` config directory (the binary being on `PATH` is reported separately). Once Hermes is detected, `ordo install --agent hermes` injects context7 and Engram™ MCP blocks into `~/.hermes/config.yaml`, writes ODD guidance and persona into `~/.hermes/SOUL.md`, and copies skills to `~/.hermes/skills/`. Use `ordo sync --agent hermes` to update the managed configuration after upgrades.
 
 ### uninstall
 
-Remove only the `gentle-ai` managed configuration from one or more agents. This does not uninstall external packages or binaries — it removes managed prompt sections, MCP entries, skills/config fragments, and other managed files, then updates `state.json` accordingly.
+Remove only the `ordo` managed configuration from one or more agents. This does not uninstall external packages or binaries — it removes managed prompt sections, MCP entries, skills/config fragments, and other managed files, then updates `state.json` accordingly.
 
-Before any change is applied, `gentle-ai` creates a backup snapshot of the affected files.
+Before any change is applied, `ordo` creates a backup snapshot of the affected files.
 
 ```bash
 # Partial uninstall for specific agents
-gentle-ai uninstall \
+ordo uninstall \
   --agent claude-code \
   --agent opencode
 
 # Partial uninstall for specific components only
-gentle-ai uninstall \
+ordo uninstall \
   --agent claude-code \
   --component persona,context7
 
 # Complete uninstall of managed config from all supported agents
-gentle-ai uninstall --all
+ordo uninstall --all
 
 # Skip confirmation prompt
-gentle-ai uninstall --agent cursor --component skills --yes
+ordo uninstall --agent cursor --component skills --yes
 ```
 
-If no `--component` flag is provided for a partial uninstall, `gentle-ai` removes all managed uninstallable components for the selected agent set.
+If no `--component` flag is provided for a partial uninstall, `ordo` removes all managed uninstallable components for the selected agent set.
 
 ### update / upgrade
 
-Check for and install new versions of `gentle-ai` itself. The pre-upgrade backup snapshot covers only the agents recorded in `state.InstalledAgents` (`~/.gentle-ai/state.json`) — not every agent config directory that exists on your machine.
+Check for and install new versions of `ordo` itself. The pre-upgrade backup snapshot covers only the agents recorded in `state.InstalledAgents` (`~/.gentle-ai/state.json`) — not every agent config directory that exists on your machine.
 
 ```bash
 # Check if a newer version is available
-gentle-ai update
+ordo update
 
 # Upgrade to the latest release (downloads new binary, replaces current)
-gentle-ai upgrade
+ordo upgrade
 ```
 
-After any upgrade or manual binary replacement, run `gentle-ai sync` to refresh all managed assets to the new version's content.
+After any upgrade or manual binary replacement, run `ordo sync` to refresh all managed assets to the new version's content.
 
-If GitHub rate-limits update checks, export `GITHUB_TOKEN` or `GH_TOKEN` before running `gentle-ai update`/`upgrade`.
+If GitHub rate-limits update checks, export `GITHUB_TOKEN` or `GH_TOKEN` before running `ordo update`/`upgrade`.
 
 If Homebrew refuses an upgrade from an untrusted tap, trust only the artifact Homebrew names and retry the upgrade:
 
 ```bash
-# Formula tools, for example gentle-ai
-brew trust --formula gentleman-programming/tap/gentle-ai
-brew upgrade gentle-ai
+# Formula tools, for example ordo
+brew trust --formula gentleman-programming/tap/ordo
+brew upgrade ordo
 
 # Cask tools, for example engram
 brew trust --cask gentleman-programming/tap/engram
@@ -317,7 +317,7 @@ The TUI **Configure Models** screen lets you assign models to supported agents, 
 Read-only ecosystem health diagnostics — no changes made to your configuration:
 
 ```bash
-gentle-ai doctor
+ordo doctor
 ```
 
 Checks performed:
@@ -334,9 +334,9 @@ Each check reports **pass**, **warn**, or **fail** with an optional remedy hint.
 ### version
 
 ```bash
-gentle-ai version
-gentle-ai --version
-gentle-ai -v
+ordo version
+ordo --version
+ordo -v
 ```
 
 ---
@@ -381,31 +381,31 @@ For OpenCode background execution, see [Native OpenCode background subagents](op
 
 ```bash
 # First time: install everything
-brew install gentleman-programming/tap/gentle-ai
-gentle-ai install --agent claude-code,cursor --preset full-gentleman
+brew install gentleman-programming/tap/ordo
+ordo install --agent claude-code,cursor --preset full-gentleman
 
 # After a new release: upgrade + sync
-brew upgrade gentle-ai
-gentle-ai sync
+brew upgrade ordo
+ordo sync
 
 # Remove only managed persona config from one agent
-gentle-ai uninstall --agent claude-code --component persona
+ordo uninstall --agent claude-code --component persona
 
 # Adding a new agent later
-gentle-ai install --agent windsurf --preset full-gentleman
+ordo install --agent windsurf --preset full-gentleman
 ```
 
 ### Homebrew upgrade troubleshooting
 
 Homebrew 6 can require explicit trust for non-official taps and, on Linux, can
-sandbox builds with Bubblewrap. `gentle-ai upgrade` and `scripts/install.sh`
+sandbox builds with Bubblewrap. `ordo upgrade` and `scripts/install.sh`
 auto-trust only the Gentle AI formula. For the broader tap-wide trust option,
 see the [update and upgrade guidance](#update--upgrade). Manual upgrades may
 still need this one-time command:
 
 ```bash
-brew trust --formula gentleman-programming/tap/gentle-ai
-brew upgrade gentle-ai
+brew trust --formula gentleman-programming/tap/ordo
+brew upgrade ordo
 ```
 
 On Linux, if Homebrew reports that Bubblewrap cannot create a rootless sandbox,
@@ -420,7 +420,7 @@ sudo sysctl -w user.max_user_namespaces=28633
 sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
 ```
 
-Use `HOMEBREW_NO_SANDBOX_LINUX=1 brew upgrade gentle-ai` only as a final
+Use `HOMEBREW_NO_SANDBOX_LINUX=1 brew upgrade ordo` only as a final
 workaround when your distro policy forbids the namespace settings; it disables
 Homebrew's Linux sandbox for that command.
 
@@ -429,7 +429,7 @@ Homebrew's Linux sandbox for that command.
 
 ## Dependency Management
 
-`gentle-ai` auto-detects prerequisites before installation and provides platform-specific guidance:
+`ordo` auto-detects prerequisites before installation and provides platform-specific guidance:
 
 - **Detected tools**: git, curl, node, npm, brew, go
 - **Version checks**: validates minimum versions where applicable

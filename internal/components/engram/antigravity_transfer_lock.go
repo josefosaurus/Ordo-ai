@@ -66,7 +66,7 @@ func canonicalAntigravityConfigHome(configHome string) (string, error) {
 // guarding every managed Antigravity mutation for one physical config home.
 // One non-blocking attempt on a background context: contention returns a busy
 // error wrapping filecoord.ErrBusy with retry advice, and the caller owns
-// pacing. The lock is cooperative — it serializes gentle-ai writers, never
+// pacing. The lock is cooperative — it serializes ordo writers, never
 // arbitrary external editors — and its lease must be released by the caller,
 // which joins release failures into the operation's error.
 func acquireAntigravityCoordinationLock(configHomeDir string) (*filecoord.Lease, error) {
@@ -81,7 +81,7 @@ func acquireAntigravityCoordinationLock(configHomeDir string) (*filecoord.Lease,
 	lease, err := filecoord.Acquire(context.Background(), target, root)
 	if err != nil {
 		if errors.Is(err, filecoord.ErrBusy) {
-			return nil, fmt.Errorf("another gentle-ai writer already holds the Antigravity coordination lock for %q; no Antigravity files were modified — retry once that run completes: %w", target, err)
+			return nil, fmt.Errorf("another ordo writer already holds the Antigravity coordination lock for %q; no Antigravity files were modified — retry once that run completes: %w", target, err)
 		}
 		return nil, fmt.Errorf("acquire Antigravity coordination lock: %w", err)
 	}

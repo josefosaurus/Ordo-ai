@@ -1813,7 +1813,7 @@ func (state *CompactState) CloseCleanReviewOnLastEvent() error {
 
 // ErrInvalidFindingLocation identifies reviewer locations that cannot be used
 // as repository line evidence.
-var ErrInvalidFindingLocation = errors.New("invalid reviewer finding location; correct it to repository/path:<positive-line> or repository/path:<positive-start>-<positive-end> before running gentle-ai review capture-result again")
+var ErrInvalidFindingLocation = errors.New("invalid reviewer finding location; correct it to repository/path:<positive-line> or repository/path:<positive-start>-<positive-end> before running ordo review capture-result again")
 
 // FindingLocationErrorReason is a stable machine-readable validation reason.
 type FindingLocationErrorReason string

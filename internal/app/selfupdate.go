@@ -75,7 +75,7 @@ func defaultPromptForUpdate(stdout io.Writer, stdin io.Reader, currentVersion, l
 // selfUpdateTimeout is the maximum time allowed for the update check + upgrade.
 const selfUpdateTimeout = 7 * time.Second
 
-// selfUpdate checks for and applies a gentle-ai update before normal dispatch.
+// selfUpdate checks for and applies an ordo update before normal dispatch.
 // Returns nil on success or skip; errors are non-fatal (caller logs and continues).
 //
 // Guard evaluation order (per spec):
@@ -120,7 +120,7 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 		},
 	)
 
-	// Find the gentle-ai result.
+	// Find the ordo result.
 	var target *update.UpdateResult
 	for i := range results {
 		if results[i].Tool.Name == "gentle-ai" {
@@ -222,20 +222,20 @@ func restartAfterGentleAIUpgrade(latestVersion string, stdout io.Writer) error {
 	// PendingSync=true and completing the deferred sync. This sidesteps the
 	// Windows binary-lock issue and gives a consistent single path across all OSes.
 	// Tradeoff: Unix loses seamless re-exec restart; mitigated by clear copy below.
-	_, _ = fmt.Fprintf(stdout, "Updated to v%s — restart gentle-ai to continue.\n", latestVersion)
+	_, _ = fmt.Fprintf(stdout, "Updated to v%s — restart ordo to continue.\n", latestVersion)
 	return nil
 }
 
 // printPostUpgradeDoctorAdvisory prints a non-blocking informational advisory
-// suggesting the user run 'gentle-ai doctor' to verify ecosystem health after
-// a successful gentle-ai upgrade. It is purely informational: it does not run
+// suggesting the user run 'ordo doctor' to verify ecosystem health after
+// a successful ordo upgrade. It is purely informational: it does not run
 // any checks, does not change exit status, and does not block the upgrade.
 //
 // The advisory is shown in two places:
-//  1. After a successful `gentle-ai upgrade` CLI invocation (printed by runUpgrade).
+//  1. After a successful `ordo upgrade` CLI invocation (printed by runUpgrade).
 //  2. On the next launch under the new binary when PendingSync=true is observed
 //     (covers the TUI self-update path, where the new binary was not yet running
 //     when the upgrade completed).
 func printPostUpgradeDoctorAdvisory(stdout io.Writer) {
-	_, _ = fmt.Fprintf(stdout, "\n[info]    Run 'gentle-ai doctor' to verify ecosystem health after upgrade\n")
+	_, _ = fmt.Fprintf(stdout, "\n[info]    Run 'ordo doctor' to verify ecosystem health after upgrade\n")
 }

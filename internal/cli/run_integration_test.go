@@ -1558,7 +1558,7 @@ func TestRunInstallAntigravityInitializesCLISettingsAfterEngramSetup(t *testing.
 	// This test targets antigravity settings initialization after engram
 	// setup, not agent install behavior, so simulate Antigravity as already
 	// installed (its Detect looks for ~/.gemini/antigravity) — otherwise
-	// gentle-ai correctly refuses to proceed for an undetected agent.
+	// ordo correctly refuses to proceed for an undetected agent.
 	if err := os.MkdirAll(filepath.Join(home, ".gemini", "antigravity"), 0o755); err != nil {
 		t.Fatalf("MkdirAll(.gemini/antigravity): %v", err)
 	}
@@ -1617,7 +1617,7 @@ func TestRunInstallDeduplicatesSharedEngramSetupSlugs(t *testing.T) {
 
 	// This test targets shared-slug engram setup dedup, not agent install
 	// behavior, so simulate Antigravity as already installed (its Detect
-	// looks for ~/.gemini/antigravity) — otherwise gentle-ai correctly
+	// looks for ~/.gemini/antigravity) — otherwise ordo correctly
 	// refuses to proceed for an undetected agent.
 	if err := os.MkdirAll(filepath.Join(home, ".gemini", "antigravity"), 0o755); err != nil {
 		t.Fatalf("MkdirAll(.gemini/antigravity): %v", err)
@@ -2187,7 +2187,7 @@ func TestRunInstallUpgradeIdempotency(t *testing.T) {
 			orchestratorCount, content)
 	}
 
-	// 3. No duplicate gentle-ai marker blocks — each section's open marker
+	// 3. No duplicate ordo marker blocks — each section's open marker
 	// must appear exactly once.
 	for _, sectionID := range []string{"engram-protocol"} {
 		openMarker := "<!-- gentle-ai:" + sectionID + " -->"
@@ -2562,7 +2562,7 @@ func TestRunInstallKimiBootstrapsHub(t *testing.T) {
 
 	// This test targets kimiSystemPromptHubStep bootstrap content, not agent
 	// install behavior, so simulate Kimi as already installed — otherwise
-	// gentle-ai correctly refuses to proceed for an undetected runtime.
+	// ordo correctly refuses to proceed for an undetected runtime.
 	restoreKimiLookPath := kimi.LookPathOverride
 	kimi.LookPathOverride = func(string) (string, error) { return "/usr/local/bin/kimi", nil }
 	t.Cleanup(func() { kimi.LookPathOverride = restoreKimiLookPath })

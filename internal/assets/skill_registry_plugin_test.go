@@ -79,14 +79,14 @@ func assertSpawnEnoentDiagnostic(t *testing.T, label, got string) {
 	if strings.Contains(got, "was not found on the PATH") {
 		t.Errorf("%s must not assert PATH absence as the cause: %q", label, got)
 	}
-	if !strings.Contains(got, "could not complete the gentle-ai skill-registry refresh") {
+	if !strings.Contains(got, "could not complete the ordo skill-registry refresh") {
 		t.Errorf("%s must state the refresh could not be completed: %q", label, got)
 	}
 	if !strings.Contains(got, "the missing resource was not identified") {
 		t.Errorf("%s must state the missing resource was not identified: %q", label, got)
 	}
-	if strings.Contains(got, "gentle-ai executable") {
-		t.Errorf("%s must not attribute the missing resource to the gentle-ai executable: %q", label, got)
+	if strings.Contains(got, "ordo executable") {
+		t.Errorf("%s must not attribute the missing resource to the ordo executable: %q", label, got)
 	}
 	if !strings.Contains(got, "OpenCode") {
 		t.Errorf("%s must name the OpenCode runtime context: %q", label, got)
@@ -94,7 +94,7 @@ func assertSpawnEnoentDiagnostic(t *testing.T, label, got string) {
 	if !strings.Contains(got, "Once the OpenCode runtime environment is valid") {
 		t.Errorf("%s must use neutral follow-up guidance: %q", label, got)
 	}
-	if !strings.Contains(got, "gentle-ai skill-registry refresh --no-gitignore --cwd <project>") {
+	if !strings.Contains(got, "ordo skill-registry refresh --no-gitignore --cwd <project>") {
 		t.Errorf("%s must suggest a manual continuation matching the automatic refresh: %q", label, got)
 	}
 	if strings.Contains(got, "--cwd '") {
@@ -119,10 +119,10 @@ const NUL = String.fromCharCode(0)
 const cwdNormal = "/Users/me/repos/example"
 const cwdRealControlChars = "/tmp/weird" + LF + "name" + NUL + "dir"
 
-const errEnoentSpawn = Object.assign(new Error("spawn gentle-ai ENOENT"), {
-  code: "ENOENT", syscall: "spawn gentle-ai", path: "gentle-ai",
+const errEnoentSpawn = Object.assign(new Error("spawn ordo ENOENT"), {
+  code: "ENOENT", syscall: "spawn ordo", path: "ordo",
 })
-const errEnoentNoSyscall = Object.assign(new Error("spawn gentle-ai ENOENT"), {
+const errEnoentNoSyscall = Object.assign(new Error("spawn ordo ENOENT"), {
   code: "ENOENT",
 })
 const errEnoentAccess = Object.assign(new Error("ENOENT: no such file or directory, access '/nonexistent'"), {
@@ -170,7 +170,7 @@ console.log(JSON.stringify({
 	// Non-spawn ENOENT (access/stat on the working directory) must not be
 	// blamed on the binary or reported as an incomplete refresh, and must
 	// name the cwd instead.
-	if got := result["invalidCwd"]; !strings.Contains(got, "could not access the working directory") || strings.Contains(got, "could not complete the gentle-ai skill-registry refresh") {
+	if got := result["invalidCwd"]; !strings.Contains(got, "could not access the working directory") || strings.Contains(got, "could not complete the ordo skill-registry refresh") {
 		t.Errorf("invalidCwd must name the cwd, not the binary: %q", got)
 	}
 
@@ -199,7 +199,7 @@ console.log(JSON.stringify({
 }
 
 // TestSkillRegistryPluginMissingExecutableLifecycle executes the real plugin
-// with a real project marker and a PATH that cannot resolve gentle-ai. It
+// with a real project marker and a PATH that cannot resolve ordo. It
 // proves the plugin call returns without waiting for the child failure and
 // that the eventual asynchronous diagnostic is exactly one actionable line.
 func TestSkillRegistryPluginMissingExecutableLifecycle(t *testing.T) {

@@ -14,16 +14,16 @@ Strict TDD follows the configured mode, source, and exact runner. When enabled, 
 
 ## Review is a separate choice
 
-Receipt-Driven Development (RDD) checks an exact change candidate when enabled. The user controls the switch with `gentle-ai review mode status`, `gentle-ai review mode enable`, and `gentle-ai review mode disable`. Review risk, consent, and authority come from the native review contract, not task checkboxes or model guesses. Disabling RDD leaves ordinary checks and repository delivery policy intact; a review result does not authorize commit, push, or release. See [Review](review-integration.md).
+Receipt-Driven Development (RDD) checks an exact change candidate when enabled. The user controls the switch with `ordo review mode status`, `ordo review mode enable`, and `ordo review mode disable`. Review risk, consent, and authority come from the native review contract, not task checkboxes or model guesses. Disabling RDD leaves ordinary checks and repository delivery policy intact; a review result does not authorize commit, push, or release. See [Review](review-integration.md).
 
 ## Delegation and skills
 
 The orchestrator can delegate broad exploration, multi-file writing, and independent verification to focused workers when the selected agent supports it. Workers receive a bounded mission and relevant exact skill paths; the parent verifies outcomes rather than treating self-report as proof. Native delegation capabilities differ by agent; see [Supported Agents](agents.md).
 
-The skill registry catalogs project and installed skills. On supported clients, startup hooks refresh it with a cache; to refresh manually from a project use `gentle-ai skill-registry refresh --force`. Pi startup behavior belongs to the separately installed Gentle Shell package, not to this binary. See [Usage](usage.md#skill-registry-refresh) and [Pi integration](pi.md).
+The skill registry catalogs project and installed skills. On supported clients, startup hooks refresh it with a cache; to refresh manually from a project use `ordo skill-registry refresh --force`. Pi startup behavior belongs to the separately installed Gentle Shell package, not to this binary. See [Usage](usage.md#skill-registry-refresh) and [Pi integration](pi.md).
 
 Engram™, when installed and active, saves project decisions and discoveries across sessions. The agent uses its memory tools automatically. To inspect or sync memories manually, use `engram tui` or `engram sync`; [Engram documentation](engram.md) explains the integration.
 
 ## Maintain your installation
 
-Run `gentle-ai doctor` for read-only diagnostics. After replacing or upgrading the binary, preview with `gentle-ai sync --dry-run` and run `gentle-ai sync` to refresh managed agent assets. Sync targets agents recorded as installed unless you explicitly select others. Uninstall removes managed configuration, not unrelated user data or external packages; inspect its scope before confirming. See [install, update, and uninstall](usage.md#cli-commands).
+Run `ordo doctor` for read-only diagnostics. After replacing or upgrading the binary, preview with `ordo sync --dry-run` and run `ordo sync` to refresh managed agent assets. Sync targets agents recorded as installed unless you explicitly select others. Uninstall removes managed configuration, not unrelated user data or external packages; inspect its scope before confirming. See [install, update, and uninstall](usage.md#cli-commands).

@@ -20,17 +20,17 @@
       "answer": "granted",
       "label": "Review this change",
       "effect": "Reviews only this change; later medium- or high-risk changes ask again, and delivery needs separate approval.",
-      "invocation": "gentle-ai review start --contract gentle-ai.review-integration/v2 --cwd /repo --target sha256:136dc6556e3bac8c2e7f7af7cc5ec361f449e383a997638128729059fefa06a5 --projection workspace --lineage review-consent-fixture --consent granted"
+      "invocation": "ordo review start --contract gentle-ai.review-integration/v2 --cwd /repo --target sha256:136dc6556e3bac8c2e7f7af7cc5ec361f449e383a997638128729059fefa06a5 --projection workspace --lineage review-consent-fixture --consent granted"
     },
     {
       "answer": "declined",
       "label": "Skip this time",
       "effect": "Skips only this change; no review record is created, and future reviews stay enabled.",
-      "invocation": "gentle-ai review start --contract gentle-ai.review-integration/v2 --cwd /repo --target sha256:136dc6556e3bac8c2e7f7af7cc5ec361f449e383a997638128729059fefa06a5 --projection workspace --lineage review-consent-fixture --consent declined"
+      "invocation": "ordo review start --contract gentle-ai.review-integration/v2 --cwd /repo --target sha256:136dc6556e3bac8c2e7f7af7cc5ec361f449e383a997638128729059fefa06a5 --projection workspace --lineage review-consent-fixture --consent declined"
     }
   ],
   "off_path": {
-    "note": "To turn reviews off for good, run 'gentle-ai review mode disable'.",
-    "command": "gentle-ai review mode disable"
+    "note": "To turn reviews off for good, run 'ordo review mode disable'.",
+    "command": "ordo review mode disable"
   }
 }

@@ -244,7 +244,7 @@ func TestOpenCodeInstallOwnsDefaultAgentAndShare(t *testing.T) {
 }
 
 // TestUninstallRemovesRestoredSharedAndCommandFiles proves uninstall removes
-// only the restored files gentle-ai owns and keeps user-authored neighbors.
+// only the restored files ordo owns and keeps user-authored neighbors.
 func TestUninstallRemovesRestoredSharedAndCommandFiles(t *testing.T) {
 	home := installFullGentleman(t, model.AgentOpenCode)
 	adapter, err := agents.NewAdapter(model.AgentOpenCode)

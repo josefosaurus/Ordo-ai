@@ -187,7 +187,7 @@ func TestOpenCodeReviewTransportPluginUsesActiveHostWithoutVersionOrEnvironmentG
 	}
 	// The plugin must still use the active OpenCode host process and not
 	// branch on OPENCODE_DISABLE_* env gates. Issue #3049 introduces a
-	// gentle-ai --version handshake, so the original blanket --version
+	// ordo --version handshake, so the original blanket --version
 	// ban is narrowed to a positive check on the handshake symbol so a
 	// future env-gate bypass cannot reintroduce the forbidden probe.
 	for _, forbidden := range []string{
@@ -201,8 +201,8 @@ func TestOpenCodeReviewTransportPluginUsesActiveHostWithoutVersionOrEnvironmentG
 	if !strings.Contains(source, `spawn(TRANSPORT.Command, ["review", "opencode-transport"]`) {
 		t.Fatal("OpenCode transport plugin must spawn only the shared Go transport")
 	}
-	if !strings.Contains(source, "spawn(\"gentle-ai\", [\"--version\"]") {
-		t.Fatal("OpenCode transport plugin must use the gentle-ai --version handshake from issue #3049")
+	if !strings.Contains(source, "spawn(\"ordo\", [\"--version\"]") {
+		t.Fatal("OpenCode transport plugin must use the ordo --version handshake from issue #3049")
 	}
 }
 
@@ -244,12 +244,12 @@ console.log(JSON.stringify({ refused, output: after.output }))
 }
 
 // posixRelayFixture answers one start frame with a Go-materialized prompt,
-// one completion frame with a captured result, and a leading `gentle-ai
+// one completion frame with a captured result, and a leading `ordo
 // --version` probe so the binary handshake can run without per-test mocking.
 const posixRelayFixture = `#!/bin/sh
 if [ "$1" = "--version" ]; then
   printf '%s\n' "$$" >> "$GENTLE_AI_PROBE_LOG"
-  printf 'gentle-ai 2.4.0\n'
+  printf 'ordo 2.4.0\n'
   exit 0
 fi
 IFS= read -r start
@@ -260,12 +260,12 @@ printf '%s\n' "$complete" >> "$GENTLE_AI_RELAY_LOG"
 printf '%s\n' '{"schema":"gentle-ai.provider-transport/v1","operation":"result","output":"captured"}'
 `
 
-// posixOldRelayFixture pretends to be a pre-v1 `gentle-ai`: older semver on
+// posixOldRelayFixture pretends to be a pre-v1 `ordo`: older semver on
 // `--version`, no relay frames, so a path-skew refusal short-circuits.
 const posixOldRelayFixture = `#!/bin/sh
 if [ "$1" = "--version" ]; then
   printf '%s\n' "$$" >> "$GENTLE_AI_PROBE_LOG"
-  printf 'gentle-ai 1.9.0\n'
+  printf 'ordo 1.9.0\n'
   exit 0
 fi
 exit 0
@@ -276,12 +276,12 @@ func TestOpenCodeReviewTransportPluginBinaryHandshakeRefusesSkew(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Pre-write an older `gentle-ai` shim into a temp dir so the test can
+	// Pre-write an older `ordo` shim into a temp dir so the test can
 	// prepend it to PATH ahead of the bundled harness binary. The shim only
 	// answers `--version`; the relay frames never reach it because the
 	// plugin must refuse before spawning.
 	oldBin := t.TempDir()
-	if err := os.WriteFile(filepath.Join(oldBin, "gentle-ai"), []byte(posixOldRelayFixture), 0o700); err != nil {
+	if err := os.WriteFile(filepath.Join(oldBin, "ordo"), []byte(posixOldRelayFixture), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	const harness = `import plugin from "./plugin.mts"
@@ -307,7 +307,7 @@ console.log(JSON.stringify({ prompt: before.args.prompt, refused }))
 		"opencode_review_transport_binary_skew",
 		"1.9.0",
 		"2.0.0",
-		"which -a gentle-ai",
+		"which -an ordo",
 	} {
 		if !strings.Contains(result.Refused, want) {
 			t.Fatalf("skew refusal %q must contain %q", result.Refused, want)
@@ -478,7 +478,7 @@ func TestOpenCodeReviewTransportPluginPassesThroughIsolatedLegacyHook(t *testing
 	// managed plugin from before current instances shared a global registry.
 	const legacy = `import { spawn } from "node:child_process"
 const REVIEW_AGENTS = new Set(["review-risk", "review-resilience", "review-readability", "review-reliability", "review-refuter", "review-validator"])
-const TRANSPORT = { Command: "gentle-ai", Schema: "gentle-ai.provider-transport/v1", Start: "start", Prompt: "prompt", Complete: "complete", Result: "result" }
+const TRANSPORT = { Command: "ordo", Schema: "gentle-ai.provider-transport/v1", Start: "start", Prompt: "prompt", Complete: "complete", Result: "result" }
 function startRelay(cwd, prompt) {
   const child = spawn(TRANSPORT.Command, ["review", "opencode-transport"], { cwd, stdio: ["pipe", "pipe", "pipe"] })
   let buffered = ""
@@ -589,7 +589,7 @@ console.log(JSON.stringify({ ok: true }))
 import { appendFileSync } from "node:fs"
 import { createInterface } from "node:readline"
 if (process.argv[2] === "--version") {
-  process.stdout.write("gentle-ai 2.4.0\n")
+  process.stdout.write("ordo 2.4.0\n")
   process.exit(0)
 }
 const materializationHeader = "GENTLE_AI_REVIEW_PROVIDER_MATERIALIZATION "
@@ -664,7 +664,7 @@ func runOpenCodeTransportPluginHarness(t *testing.T, modules map[string]string, 
 		t.Fatal(err)
 	}
 	if relay != "" {
-		if err := os.WriteFile(filepath.Join(bin, "gentle-ai"), []byte(relay), 0o700); err != nil {
+		if err := os.WriteFile(filepath.Join(bin, "ordo"), []byte(relay), 0o700); err != nil {
 			t.Fatal(err)
 		}
 	}

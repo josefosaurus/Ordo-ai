@@ -31,6 +31,12 @@ func TestDefaultIsOrdo(t *testing.T) {
 	}
 }
 
+func TestCommandIsOrdo(t *testing.T) {
+	if Command != "ordo" {
+		t.Fatalf("Command = %q, want %q", Command, "ordo")
+	}
+}
+
 func TestLoadWithoutOverrideReturnsDefault(t *testing.T) {
 	b, warnings := Load(t.TempDir())
 	if len(warnings) != 0 || b.Name != Default().Name {

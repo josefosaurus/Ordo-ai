@@ -827,7 +827,7 @@ func boundedOpenCodeTaskPayload(payload []byte) ([]byte, error) {
 }
 
 func openCodeTransportFailure(code string) error {
-	return fmt.Errorf("%s: OpenCode Task transport did not produce a capturable reviewer result; run `gentle-ai review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition` before retrying", code)
+	return fmt.Errorf("%s: OpenCode Task transport did not produce a capturable reviewer result; run `ordo review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition` before retrying", code)
 }
 
 // openCodeTransportCaptureRefusalCause classifies a provider-role capture
@@ -848,11 +848,11 @@ func openCodeTransportCaptureRefusalCause(err error) string {
 }
 
 func openCodeTransportCaptureRefusal(err error) error {
-	return fmt.Errorf("opencode_provider_role_result_refused (cause: %s): OpenCode Task transport did not produce a capturable reviewer result; run `gentle-ai review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition` before retrying", openCodeTransportCaptureRefusalCause(err))
+	return fmt.Errorf("opencode_provider_role_result_refused (cause: %s): OpenCode Task transport did not produce a capturable reviewer result; run `ordo review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition` before retrying", openCodeTransportCaptureRefusalCause(err))
 }
 
 func openCodeTransportAuthorityUnavailable(cause error) error {
-	return fmt.Errorf("opencode_review_transport_authority_unavailable: OpenCode Task transport did not produce a capturable reviewer result; run `gentle-ai review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition` before retrying: %w", cause)
+	return fmt.Errorf("opencode_review_transport_authority_unavailable: OpenCode Task transport did not produce a capturable reviewer result; run `ordo review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition` before retrying: %w", cause)
 }
 
 // Bounded refusal reasons the V2 relay may surface to the parent. The plugin

@@ -127,7 +127,7 @@ func PrepareUninstall(settingsPath string) (*UninstallPlan, error) {
 	return &UninstallPlan{settingsPath: settingsPath, settingsExist: exists, current: current, owned: owned}, nil
 }
 func (p *UninstallPlan) Apply(cleaned []byte, settingsExist bool) (changed, removed bool, err error) {
-	// Only an ownership record proves that gentle-ai may roll back this
+	// Only an ownership record proves that ordo may roll back this
 	// field. A user-modified default is not ours to change or release.
 	if p.owned == nil || !p.settingsExist || !p.current.present || p.current.value != ManagedAgent {
 		return false, false, nil

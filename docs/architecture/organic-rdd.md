@@ -17,7 +17,7 @@ Receipt-Driven Development (RDD) reviews a finished candidate without taking own
 **The switch is user-owned, and defaults to ON.** RDD is opt-out: unset state
 reports `on` decided by `default`, without persisting a preference. Explicit
 global or clone-local OFF wins. Automation never toggles the mode automatically.
-Use `gentle-ai review mode disable` to opt out; ordinary repository policy
+Use `ordo review mode disable` to opt out; ordinary repository policy
 always governs delivery. Enabling RDD revalidates the current
 candidate instead of resuming stale obligations.
 
@@ -68,7 +68,7 @@ Review completion is evidence about the completed transaction, not delivery auth
 
 ## Runtime boundary
 
-The atomic lifecycle is rendered only for Claude Code, OpenCode, Codex, and Pi. Generic and non-RDD runtime guidance keeps ordinary SDD behavior and makes no review-transport promise. Pi receives the review execution contract through `orchestration/pi.md` in the provider contract bundle, which gentle-pi mirrors and injects at session start; gentle-ai writes nothing into the Pi system prompt.
+The atomic lifecycle is rendered only for Claude Code, OpenCode, Codex, and Pi. Generic and non-RDD runtime guidance keeps ordinary SDD behavior and makes no review-transport promise. Pi receives the review execution contract through `orchestration/pi.md` in the provider contract bundle, which gentle-pi mirrors and injects at session start; ordo writes nothing into the Pi system prompt.
 
 ## Historical compatibility
 

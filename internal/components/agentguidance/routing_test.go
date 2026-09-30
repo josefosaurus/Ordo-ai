@@ -271,7 +271,7 @@ func TestRenderRoutingOrganicTaskContinuity(t *testing.T) {
 		}},
 		{"native risk before candidate consent", []string{
 			"When RDD is enabled, first use the existing native candidate risk assessment",
-			"gentle-ai review assess --cwd <repo> --json",
+			"ordo review assess --cwd <repo> --json",
 			"Passive/low uses silent structural checks with no reviewer or consent ceremony",
 			"Medium/high relays the existing candidate consent",
 			"native review runs only on grant",
@@ -359,7 +359,7 @@ func TestRenderRoutingClosesEachTaskWithAWorkUnitCommitAndReviewsIt(t *testing.T
 		}},
 		{"assess each commit against the last reviewed boundary", []string{
 			"Run applicable functional checks per task, not a review cycle per TODO checkbox",
-			"run `gentle-ai review assess --cwd <repo> --agent <runtime> --base-ref <last reviewed boundary> --committed-only --json` on that commit and read `review_due` and `review_due_reason`",
+			"run `ordo review assess --cwd <repo> --agent <runtime> --base-ref <last reviewed boundary> --committed-only --json` on that commit and read `review_due` and `review_due_reason`",
 		}},
 		{"a due assessment hands over the exact preflight transition", []string{
 			"When `review_due` is true (`high_risk`, or `slice_budget_reached` for a medium range that reached the delivery budget of about 400 authored changed lines), execute the returned `next_transition.command` verbatim",
@@ -476,14 +476,14 @@ func TestRenderRoutingMakesTheReviewKillSwitchDiscoverable(t *testing.T) {
 				t.Fatalf("RenderRouting(%q) error = %v", agent.ID, err)
 			}
 			if !model.SupportsReceiptDrivenDevelopment(agent.ID) {
-				if strings.Contains(rendered, "gentle-ai review mode") {
+				if strings.Contains(rendered, "ordo review mode") {
 					t.Fatalf("RenderRouting(%q) names the RDD switch on a runtime without RDD:\n%s", agent.ID, rendered)
 				}
 				return
 			}
 
 			for _, want := range []string{
-				"gentle-ai review mode enable|disable|status",
+				"ordo review mode enable|disable|status",
 				"`status` is read-only",
 				"deciding source and the effective mode",
 			} {

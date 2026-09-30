@@ -27,7 +27,7 @@ var DefaultSpawn Spawner = SpawnDetachedSend
 
 // osExecutable resolves the running binary's path. It is a var so a test can
 // point it at a small fixture executable that records its argv and stdin
-// instead of the real gentle-ai binary.
+// instead of the real ordo binary.
 var osExecutable = os.Executable
 
 // SpawnDetachedSend starts `<self> telemetry send` as a background process,

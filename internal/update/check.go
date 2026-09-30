@@ -170,7 +170,7 @@ func checkSingleTool(ctx context.Context, tool ToolInfo, currentBuildVersion str
 			return result
 		}
 		if tool.DetectCmd == nil {
-			// gentle-ai with no build version (shouldn't happen, but handle gracefully).
+			// ordo with no build version (shouldn't happen, but handle gracefully).
 			result.Status = VersionUnknown
 		} else {
 			// Binary not found on PATH.

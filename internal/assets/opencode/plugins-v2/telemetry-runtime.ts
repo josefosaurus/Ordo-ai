@@ -60,7 +60,7 @@ export default Plugin.define({
           } })
           if (Buffer.byteLength(body) > 16384 || veto()) continue
           try {
-            const child = execFile("gentle-ai", ["telemetry", "runtime", "opencode", "--json"],
+            const child = execFile("ordo", ["telemetry", "runtime", "opencode", "--json"],
               { timeout: 4000, killSignal: "SIGKILL", maxBuffer: 1024, windowsHide: true }, () => children.delete(child))
             children.add(child)
             child.stdin?.on("error", () => {})

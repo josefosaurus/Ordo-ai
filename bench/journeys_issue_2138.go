@@ -69,7 +69,7 @@ func issue2138AssertReviewRoles(sandbox *Sandbox, observation Observation) error
 		}
 		if name == "review-validator" {
 			bash, ok := role.Permission["bash"].(map[string]any)
-			if !ok || bash["gentle-ai review inspect-candidate --purpose targeted-validation *"] != "allow" || bash["*"] != "deny" {
+			if !ok || bash["ordo review inspect-candidate --purpose targeted-validation *"] != "allow" || bash["*"] != "deny" {
 				return fmt.Errorf("validator bash boundary = %v", role.Permission["bash"])
 			}
 		}

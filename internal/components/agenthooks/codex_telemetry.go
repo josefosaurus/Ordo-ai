@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 )
@@ -46,7 +47,7 @@ func InstallCodexTelemetry(homeDir string, adapter agents.Adapter) (Result, erro
 		hooksMap = map[string]any{}
 	}
 	changed := false
-	const telemetryCommand = `gentle-ai telemetry runtime codex --json`
+	const telemetryCommand = brand.Command + ` telemetry runtime codex --json`
 	for _, event := range []string{"SubagentStop", "Stop"} {
 		if codexHookCommandExists(hooksMap, event, telemetryCommand) {
 			continue

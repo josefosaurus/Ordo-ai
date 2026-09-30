@@ -390,7 +390,7 @@ var removeAntigravityGlobalFile = os.Remove
 
 // antigravityGlobalManagedState is what a reread of the global Antigravity MCP
 // config observed: the exact managed entry (Present), no registration (Absent),
-// or an unproven entry gentle-ai does not manage (Foreign).
+// or an unproven entry ordo does not manage (Foreign).
 type antigravityGlobalManagedState int
 
 const (
@@ -611,7 +611,7 @@ func classifyAntigravityOwnershipTransferFailure(mcpPath string, transfer antigr
 			detail = "the installed plugin assets could not be verified on disk"
 			removalErr = fmt.Errorf("%w: %w", removalErr, errors.Join(verifyErrs...))
 		}
-		return fmt.Errorf("%w; the global config %q registers Engram through an entry gentle-ai does not manage, so the final Engram availability state is uncertain and no plugin asset was restored (%s)", removalErr, mcpPath, detail)
+		return fmt.Errorf("%w; the global config %q registers Engram through an entry ordo does not manage, so the final Engram availability state is uncertain and no plugin asset was restored (%s)", removalErr, mcpPath, detail)
 	}
 	if verifyErrs != nil {
 		return fmt.Errorf("%w; the managed global registration is absent on readback but the installed plugin assets could not be verified on disk, so the final Engram ownership state is uncertain and no plugin asset was restored: %w", removalErr, errors.Join(verifyErrs...))
@@ -767,7 +767,7 @@ func injectWithOptions(configHomeDir, promptDir string, adapter agents.Adapter, 
 		if adapter.Agent() == model.AgentAntigravity {
 			// #797: Engram registration for Antigravity is plugin-owned only.
 			// The global ~/.gemini/antigravity-cli/mcp_config.json is shared
-			// with other MCP servers (e.g. Context7), so gentle-ai never
+			// with other MCP servers (e.g. Context7), so ordo never
 			// writes it for Engram and removes only its own exact managed
 			// duplicate entry left behind by older versions.
 			//
@@ -995,7 +995,7 @@ func upsertCodexTableKeyBeforeMCPServers(content, section, key, rawValue string)
 func injectClaudeUserConfig(homeDir string, adapter agents.Adapter) (InjectionResult, error) {
 	// The plugin and direct MCP entry expose the same Engram tools. When the
 	// plugin is enabled, suppress direct registration without deleting any
-	// existing entry: matching config shape is not proof that gentle-ai owns it.
+	// existing entry: matching config shape is not proof that ordo owns it.
 	if claudeEngramPluginEnabled(homeDir) {
 		return InjectionResult{}, nil
 	}
@@ -1264,7 +1264,7 @@ func isStandardAgent(id model.AgentID) bool {
 // Code).
 //
 // Engram v1.10.3+ writes an absolute command path when `engram setup` is run.
-// gentle-ai runs Inject() after setup, so we must not overwrite that absolute
+// ordo runs Inject() after setup, so we must not overwrite that absolute
 // path with the relative "engram" string from defaultEngramServerJSON.
 //
 // Logic:
@@ -1427,7 +1427,7 @@ func isStableHomebrewEngramPath(path string) bool {
 }
 
 // isManagedAntigravityGlobalEngramServer reports whether server is exactly the
-// Engram entry gentle-ai itself wrote to the global Antigravity mcp_config.json:
+// Engram entry ordo itself wrote to the global Antigravity mcp_config.json:
 // only the command and args keys, an engram command, and one of the historical
 // args shapes (the default invocation, or the pre-#797 agent tool profile).
 // Anything else may be user-authored or third-party and is left untouched.
@@ -1462,7 +1462,7 @@ func isManagedAntigravityGlobalEngramServer(server map[string]any) bool {
 }
 
 // removeManagedAntigravityGlobalEngram removes the duplicate global Engram
-// registration gentle-ai wrote to the Antigravity mcp_config.json before
+// registration ordo wrote to the Antigravity mcp_config.json before
 // registration became plugin-owned (#797). Only the exact managed shape is
 // touched: the file is removed when it holds nothing but the managed Engram
 // entry; otherwise only the engram key is dropped and every other server and
@@ -1478,7 +1478,7 @@ func removeManagedAntigravityGlobalEngram(path string) (bool, []string, error) {
 	}
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
-		// Not valid JSON — nothing gentle-ai owns can be identified here.
+		// Not valid JSON — nothing ordo owns can be identified here.
 		return false, nil, nil
 	}
 	mcpServers, ok := root["mcpServers"].(map[string]any)

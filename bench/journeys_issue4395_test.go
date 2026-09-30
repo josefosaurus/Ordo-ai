@@ -25,7 +25,7 @@ func TestIssue4395JourneyRequiresReviewModeScope(t *testing.T) {
 }
 
 func TestIssue4395GlobalModeCapabilityRejectsBinaryWithoutScope(t *testing.T) {
-	sandbox := fakeBinary(t, `echo "Usage: gentle-ai review mode [--cwd <repo>] [--json]"`)
+	sandbox := fakeBinary(t, `echo "Usage: ordo review mode [--cwd <repo>] [--json]"`)
 	supported, reason := newCapabilityProbe(sandbox).supported(issue4395GlobalModeCapability)
 	if supported {
 		t.Fatal("supported = true, want false when review mode help omits --scope")
@@ -36,7 +36,7 @@ func TestIssue4395GlobalModeCapabilityRejectsBinaryWithoutScope(t *testing.T) {
 }
 
 func TestSharedModeCapabilityDoesNotRequireScope(t *testing.T) {
-	sandbox := fakeBinary(t, `echo "Usage: gentle-ai review mode [--cwd <repo>] [--json]"`)
+	sandbox := fakeBinary(t, `echo "Usage: ordo review mode [--cwd <repo>] [--json]"`)
 	supported, reason := newCapabilityProbe(sandbox).supported(modeCapability)
 	if !supported {
 		t.Fatalf("supported = false (%s), want true without --scope", reason)

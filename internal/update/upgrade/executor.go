@@ -49,7 +49,7 @@ var snapshotCreator = func(snapshotDir string, paths []string) (backup.Manifest,
 	return backup.NewSnapshotter().Create(snapshotDir, paths)
 }
 
-// AppVersion is the gentle-ai version written into backup manifests created by
+// AppVersion is the ordo version written into backup manifests created by
 // the upgrade executor. Set by app.go before calling Execute so that upgrade
 // backups record the version that created them.
 // Default "dev" matches the ldflags default in app.Version.
@@ -441,7 +441,7 @@ func writeBackupDiagnostic(w io.Writer, format string, args ...any) {
 //
 // The backup snapshot is created before any executable upgrade — this is the
 // architectural guarantee that config is safe even if an upgrade fails mid-way.
-// Windows gentle-ai provenance is preflighted first because its manual fallback
+// Windows ordo provenance is preflighted first because its manual fallback
 // must remain a true zero-mutation outcome.
 func Execute(ctx context.Context, results []update.UpdateResult, profile system.PlatformProfile, homeDir string, dryRun bool, progress ...io.Writer) UpgradeReport {
 	options := ExecuteOptions{}
@@ -679,7 +679,7 @@ func executeOne(ctx context.Context, r update.UpdateResult, profile system.Platf
 }
 
 // effectiveMethod resolves the actual upgrade strategy for a tool on a given platform.
-// Priority order: plugin → brew-owned package → gentle-ai self-upgrade policy →
+// Priority order: plugin → brew-owned package → ordo self-upgrade policy →
 // go-install → declared method.
 //
 //  1. OpenCode plugins are always handled by their own method — never overridden.
@@ -706,7 +706,7 @@ func effectiveMethod(tool update.ToolInfo, profile system.PlatformProfile) updat
 	return tool.InstallMethod
 }
 
-// gentleAISelfUpgradeMethod resolves how gentle-ai upgrades itself, once
+// gentleAISelfUpgradeMethod resolves how ordo upgrades itself, once
 // Homebrew ownership has already been ruled out.
 //
 // Trust anchors differ by platform, and that is the whole point of this
@@ -716,7 +716,7 @@ func effectiveMethod(tool update.ToolInfo, profile system.PlatformProfile) updat
 //     an authenticated connection and verified with minisign, so they always
 //     return InstallBinary. This function is the ONLY place gentle-ai's method is
 //     decided, which is what makes that guarantee structural rather than
-//     incidental: gentle-ai never reaches the generic
+//     incidental: ordo never reaches the generic
 //     `GoAvailable && GoImportPath != ""` rule, so declaring a GoImportPath for
 //     the Windows path below cannot silently move Linux or macOS off minisign.
 //     Regression guards: TestGentleAIOnLinuxNeverRoutesToGoInstall and

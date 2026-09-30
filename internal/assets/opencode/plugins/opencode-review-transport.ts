@@ -25,7 +25,7 @@ function decodeReviewSessionID(info: unknown): string | undefined {
 }
 
 const TRANSPORT = {
-  Command: "gentle-ai",
+  Command: "ordo",
   Schema: "gentle-ai.provider-transport/v1",
   Start: "start",
   Prompt: "prompt",
@@ -83,14 +83,14 @@ function taskKey(sessionID: string, callID: string, subagentType: string): strin
 // can never masquerade as a captured reviewer result.
 const RELAY_REFUSED_CODE = "opencode_review_transport_relay_refused"
 
-// Binary handshake (issue #3049): a stale PATH `gentle-ai` can answer the
+// Binary handshake (issue #3049): a stale PATH `ordo` can answer the
 // relay for a newer binary's authority without knowing the provider-transport/v1
 // capability. Probe `--version` via PATH before the relay spawn and refuse on
 // skew or ENOENT; the OS resolves the binary so no manual PATH walk is needed.
 const BINARY_SKEW_CODE = "opencode_review_transport_binary_skew"
 const BINARY_UNAVAILABLE_CODE = "opencode_review_transport_binary_unavailable"
 
-// Minimum semver a PATH `gentle-ai` must report to serve the relay; older
+// Minimum semver a PATH `ordo` must report to serve the relay; older
 // versions predate the provider-transport/v1 capability baked into this
 // plugin and are refused with BINARY_SKEW_CODE before the relay spawn.
 const MIN_GENTLE_AI_VERSION = "2.0.0"
@@ -112,11 +112,11 @@ function relayRefusedOutput(reason: string): string {
   return `${RELAY_REFUSED_CODE}: ${reason}`
 }
 
-// Parse `gentle-ai <semver>\n` from `--version` stdout. Anything else is
+// Parse `ordo <semver>\n` from `--version` stdout. Anything else is
 // treated as a probe failure so a binary that does not implement the
 // version command cannot be mistaken for a healthy handshake.
 function parseGentleAiVersion(stdout: string): string | undefined {
-  const match = /^gentle-ai\s+(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\s*$/m.exec(stdout)
+  const match = /^ordo\s+(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\s*$/m.exec(stdout)
   return match?.[1]
 }
 
@@ -144,7 +144,7 @@ function compareSemver(pathVersion: string, minVersion: string): number {
 
 function runGentleAiVersion(): Promise<{ code: number | null; stdout: string } | null> {
   return new Promise((settle) => {
-    const child = spawn("gentle-ai", ["--version"], { stdio: ["ignore", "pipe", "pipe"] })
+    const child = spawn("ordo", ["--version"], { stdio: ["ignore", "pipe", "pipe"] })
     let stdout = ""
     let done = false
     const finish = (value: { code: number | null; stdout: string } | null) => {
@@ -168,15 +168,15 @@ async function probeGentleAiBinary(): Promise<{ version: string } | null> {
 
 function binarySkewReason(pathVersion: string): string {
   return (
-    `${BINARY_SKEW_CODE}: PATH gentle-ai reports version ${pathVersion}, ` +
+    `${BINARY_SKEW_CODE}: PATH ordo reports version ${pathVersion}, ` +
     `which is older than the minimum ${MIN_GENTLE_AI_VERSION} this plugin requires. ` +
-    `Inspect the path with: which -a gentle-ai`
+    `Inspect the path with: which -an ordo`
   )
 }
 
 function binaryUnavailableReason(): string {
   return (
-    `${BINARY_UNAVAILABLE_CODE}: gentle-ai --version could not be spawned (ENOENT or spawn error); ` +
+    `${BINARY_UNAVAILABLE_CODE}: ordo --version could not be spawned (ENOENT or spawn error); ` +
     `the relay child cannot start. See issue #2971 for the install-side fix.`
   )
 }

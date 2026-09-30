@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 )
@@ -46,7 +47,7 @@ func InstallRetainedClaudeHooks(homeDir string, adapter agents.Adapter) (Result,
 	if !ok {
 		hooks = map[string]any{}
 	}
-	command := fmt.Sprintf("gentle-ai review stop-hook --agent %s", adapter.Agent())
+	command := fmt.Sprintf("%s review stop-hook --agent %s", brand.Command, adapter.Agent())
 	entries := []struct {
 		key, matcher, command string
 		timeout               int
@@ -54,8 +55,8 @@ func InstallRetainedClaudeHooks(homeDir string, adapter agents.Adapter) (Result,
 	}{
 		{"Stop", "", command, 60, false},
 		{"SessionStart", "startup|resume|clear|compact", command, 30, false},
-		{"SubagentStop", "", "gentle-ai telemetry runtime claude --json", 5, true},
-		{"Stop", "", "gentle-ai telemetry runtime claude --json", 5, true},
+		{"SubagentStop", "", brand.Command + " telemetry runtime claude --json", 5, true},
+		{"Stop", "", brand.Command + " telemetry runtime claude --json", 5, true},
 	}
 	changed := false
 	for _, e := range entries {

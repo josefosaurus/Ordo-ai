@@ -1898,7 +1898,7 @@ func TestReportUpgradedGentleAI(t *testing.T) {
 
 	report.Results[1].Status = upgrade.UpgradeFailed
 	if reportUpgradedGentleAI(report) {
-		t.Fatal("reportUpgradedGentleAI() = true for failed gentle-ai upgrade")
+		t.Fatal("reportUpgradedGentleAI() = true for failed ordo upgrade")
 	}
 }
 
@@ -2721,7 +2721,7 @@ func TestStartUninstall_FullRemoveHomebrewManagedBinaryAddsManualAction(t *testi
 	if len(msg.Result.ManualActions) == 0 {
 		t.Fatal("ManualActions should include Homebrew uninstall guidance")
 	}
-	if !strings.Contains(msg.Result.ManualActions[0], "brew uninstall gentle-ai") {
+	if !strings.Contains(msg.Result.ManualActions[0], "brew uninstall ordo") {
 		t.Fatalf("manual action = %q, want brew uninstall guidance", msg.Result.ManualActions[0])
 	}
 }
@@ -5412,7 +5412,7 @@ func executeUpgradeSyncSequence(t *testing.T, m Model) []tea.Msg {
 }
 
 // TestStartUpgradeSync_SetsPendingSyncWhenGentleAIUpgraded verifies that when
-// the UpgradeFn reports gentle-ai as upgraded, the syncCmd branch of
+// the UpgradeFn reports ordo as upgraded, the syncCmd branch of
 // startUpgradeSync writes PendingSync=true to state.json before returning
 // SyncDoneMsg. This is the TUI-path equivalent of the selfupdate.go path tested
 // in TestSelfUpdate_SetsPendingSyncOnSuccess.
@@ -5425,7 +5425,7 @@ func TestStartUpgradeSync_SetsPendingSyncWhenGentleAIUpgraded(t *testing.T) {
 	m.Screen = ScreenUpgradeSync
 	m.OperationRunning = true
 
-	// UpgradeFn reports gentle-ai as successfully upgraded.
+	// UpgradeFn reports ordo as successfully upgraded.
 	m.UpgradeFn = func(_ context.Context, _ []update.UpdateResult) upgrade.UpgradeReport {
 		return upgrade.UpgradeReport{
 			Results: []upgrade.ToolUpgradeResult{
@@ -5460,12 +5460,12 @@ func TestStartUpgradeSync_SetsPendingSyncWhenGentleAIUpgraded(t *testing.T) {
 		t.Fatalf("state.Read(%q) error = %v (PendingSync was not written)", home, err)
 	}
 	if !s.PendingSync {
-		t.Errorf("PendingSync = false after gentle-ai self-upgrade in TUI flow, want true")
+		t.Errorf("PendingSync = false after ordo self-upgrade in TUI flow, want true")
 	}
 }
 
 // TestStartUpgradeSync_DoesNotSetPendingSyncWhenGentleAINotUpgraded verifies
-// that when gentle-ai was NOT upgraded (e.g. only engram was upgraded), the
+// that when ordo was NOT upgraded (e.g. only engram was upgraded), the
 // syncCmd branch does NOT set PendingSync, and sync proceeds normally via SyncFn.
 func TestStartUpgradeSync_DoesNotSetPendingSyncWhenGentleAINotUpgraded(t *testing.T) {
 	home := t.TempDir()
@@ -5495,10 +5495,10 @@ func TestStartUpgradeSync_DoesNotSetPendingSyncWhenGentleAINotUpgraded(t *testin
 
 	// SyncFn must have been called (not the deferred-PendingSync path).
 	if !syncCalled {
-		t.Errorf("SyncFn was not called — expected normal sync when gentle-ai was not upgraded")
+		t.Errorf("SyncFn was not called — expected normal sync when ordo was not upgraded")
 	}
 
-	// PendingSync must NOT be set when gentle-ai was not upgraded.
+	// PendingSync must NOT be set when ordo was not upgraded.
 	// state.json may not exist at all if nothing wrote it; that is expected and
 	// means PendingSync was never set (correct). Any other read error is
 	// unexpected and should fail the test loudly.
@@ -5551,7 +5551,7 @@ func TestStartUpgradeSync_NoClobberOnCorruptStateFile(t *testing.T) {
 	m.Screen = ScreenUpgradeSync
 	m.OperationRunning = true
 
-	// UpgradeFn reports gentle-ai as successfully upgraded.
+	// UpgradeFn reports ordo as successfully upgraded.
 	m.UpgradeFn = func(_ context.Context, _ []update.UpdateResult) upgrade.UpgradeReport {
 		return upgrade.UpgradeReport{
 			Results: []upgrade.ToolUpgradeResult{

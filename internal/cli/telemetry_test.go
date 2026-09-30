@@ -687,7 +687,7 @@ func TestTelemetryRecordReviewOutcomeStateDisabledSkipsAfterRead(t *testing.T) {
 
 // TestTelemetryRecordReviewOutcomeTriggersAtMostOneHeartbeatPerDay is the
 // direct regression test for the Gentle Pi scenario: a host that drives
-// gentle-ai only through `review ...` must still get a heartbeat, but no
+// ordo only through `review ...` must still get a heartbeat, but no
 // more than the ordinary 24h limit already enforces. It seeds an install
 // already past enrollment and its one-time install send, with a heartbeat
 // window that has already expired, so the very first review closure below

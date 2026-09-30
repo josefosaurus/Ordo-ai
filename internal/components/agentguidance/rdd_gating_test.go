@@ -26,7 +26,7 @@ var rddVocabulary = []string{
 	"Provider Defect Handoff",
 	"receipt-driven development",
 	"Receipt-driven development is user-owned",
-	"gentle-ai review",
+	"ordo review",
 	"review assess",
 	"review_due",
 	"review-integration",
@@ -111,8 +111,8 @@ func TestInstalledPromptCarriesRDDOnlyOnRDDRuntimes(t *testing.T) {
 				}
 				for _, want := range []string{
 					"The native RDD refuter owns native review claims; never duplicate or bypass it.",
-					"gentle-ai review mode enable|disable|status",
-					"gentle-ai review assess --cwd <repo> --json",
+					"ordo review mode enable|disable|status",
+					"ordo review assess --cwd <repo> --json",
 					"**RDD on**",
 				} {
 					if !strings.Contains(prompt, want) {
@@ -164,7 +164,7 @@ func TestRenderRoutingGatesRDDByRuntime(t *testing.T) {
 func TestStripReceiptDrivenDevelopmentFailsClosedOnUnknownReviewWording(t *testing.T) {
 	t.Parallel()
 
-	content := "### Delegation Rules\n\nRun `gentle-ai review status` after every task.\n"
+	content := "### Delegation Rules\n\nRun `ordo review status` after every task.\n"
 	if _, err := stripReceiptDrivenDevelopment(content); err == nil {
 		t.Fatal("stripReceiptDrivenDevelopment kept unknown review wording without failing")
 	}

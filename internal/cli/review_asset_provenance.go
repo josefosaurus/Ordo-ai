@@ -8,7 +8,7 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/state"
 )
 
-const managedAssetProvenanceRefusal = "managed reviewer assets are outdated; run `gentle-ai sync`"
+const managedAssetProvenanceRefusal = "managed reviewer assets are outdated; run `ordo sync`"
 
 // managedAssetDigest returns a content digest of the managed assets this
 // binary embeds. It deliberately does NOT use the review capabilities build
@@ -87,7 +87,7 @@ func checkManagedReviewerAssets() managedAssetProvenance {
 // or one with no digest recorded, means no managed assets were ever installed
 // here, so there is nothing stale to protect against and nothing this refusal
 // could tell the caller to repair. Refusing that shape would block every user
-// who never ran `gentle-ai install` from reviewing at all.
+// who never ran `ordo install` from reviewing at all.
 func authorizeManagedReviewerAssets() error {
 	if checkManagedReviewerAssets().stale() {
 		return errors.New(managedAssetProvenanceRefusal)

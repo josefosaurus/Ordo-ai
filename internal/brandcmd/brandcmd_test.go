@@ -121,7 +121,7 @@ func TestShowReportsBrokenOverrideAndResetRecovers(t *testing.T) {
 
 func TestHelp(t *testing.T) {
 	out, err := run(t, t.TempDir())
-	if err != nil || !strings.Contains(out, "gentle-ai brand set name") {
+	if err != nil || !strings.Contains(out, "ordo brand set name") {
 		t.Fatalf("help = %q, %v", out, err)
 	}
 }

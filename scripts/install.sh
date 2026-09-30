@@ -16,7 +16,10 @@ set -euo pipefail
 
 GITHUB_OWNER="Gentleman-Programming"
 GITHUB_REPO="gentle-ai"
-BINARY_NAME="gentle-ai"
+BINARY_NAME="ordo"
+# GO_MAIN_PACKAGE is the Go main package directory (cmd/<name>); go install
+# names the binary after it, so install_go renames it to BINARY_NAME.
+GO_MAIN_PACKAGE="gentle-ai"
 BREW_TAP="Gentleman-Programming/homebrew-tap"
 BREW_FORMULA_REF="gentleman-programming/tap/${BINARY_NAME}"
 
@@ -148,8 +151,8 @@ detect_platform() {
 # GoReleaser v2 {{ .Os }} produces GOOS values (lowercase: darwin, linux)
 # GoReleaser {{ .Arch }} produces GOARCH values (amd64, arm64)
 # Examples:
-#   gentle-ai_1.0.0_darwin_arm64.tar.gz
-#   gentle-ai_1.0.0_linux_amd64.tar.gz
+#   ordo_1.0.0_darwin_arm64.tar.gz
+#   ordo_1.0.0_linux_amd64.tar.gz
 # ============================================================================
 
 get_archive_name() {
@@ -367,7 +370,7 @@ install_go() {
     # a module whose tags are vN.x unless the import path carries the major
     # version suffix. The path is now derived from go.mod at ${ref}, so the
     # suffix travels with whatever the repo actually declares.
-    local go_package="${module}/cmd/${BINARY_NAME}@${ref}"
+    local go_package="${module}/cmd/${GO_MAIN_PACKAGE}@${ref}"
 
     info "Running: go install ${go_package}"
     if [ "${CHANNEL}" = "beta" ]; then
@@ -394,6 +397,11 @@ install_go() {
     gobin="$(go env GOBIN)"
     if [ -z "$gobin" ]; then
         gobin="$(go env GOPATH)/bin"
+    fi
+
+    if [ "$GO_MAIN_PACKAGE" != "$BINARY_NAME" ] && [ -f "${gobin}/${GO_MAIN_PACKAGE}" ]; then
+        mv -f -- "${gobin}/${GO_MAIN_PACKAGE}" "${gobin}/${BINARY_NAME}" ||
+            fatal "Failed to rename ${gobin}/${GO_MAIN_PACKAGE} to ${BINARY_NAME}"
     fi
 
     if [[ ":$PATH:" != *":$gobin:"* ]]; then

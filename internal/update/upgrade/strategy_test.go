@@ -123,7 +123,7 @@ func TestRunStrategy_GoInstallUpgrade(t *testing.T) {
 //
 // The composition happens inside goInstallUpgrade, which is reached from
 // runStrategy only on a Windows profile with Go on PATH and a declared
-// GoImportPath — gentleAISelfUpgradeMethod routes gentle-ai on Linux and
+// GoImportPath — gentleAISelfUpgradeMethod routes ordo on Linux and
 // macOS to InstallBinary (the minisign-verified release download) and the
 // beta channel bypasses this path through goInstallMainUpgrade. The previous
 // rewrite used a Linux profile and never reached the composition: the
@@ -142,7 +142,7 @@ func TestRunStrategy_GoInstallUpgradeCrossMajorDerivesSuffixFromVersion(t *testi
 		}
 	}
 	if tool.GoImportPath == "" {
-		t.Fatal("shipped gentle-ai registry entry must declare GoImportPath")
+		t.Fatal("shipped ordo registry entry must declare GoImportPath")
 	}
 
 	tests := []struct {
@@ -397,7 +397,7 @@ func TestRunStrategy_GoInstallFailure(t *testing.T) {
 }
 
 // TestEffectiveMethodGentleAIOnWindowsUsesFailClosedBinaryPolicy verifies that
-// Windows never routes gentle-ai through a remote installer, and that when no
+// Windows never routes ordo through a remote installer, and that when no
 // usable `go install` target is declared it falls back to the binary strategy —
 // which on Windows is an explicit refusal naming a runnable source-install
 // command, not a download.
@@ -446,7 +446,7 @@ func TestEffectiveMethodGentleAIOnWindowsUsesFailClosedBinaryPolicy(t *testing.T
 // --- TestEffectiveMethod_NonGentleAIToolsOnWindowsUseBinary ---
 
 // TestEffectiveMethod_NonGentleAIToolsOnWindowsUseBinary verifies that tools
-// OTHER than gentle-ai on Windows still use their declared install method
+// OTHER than ordo on Windows still use their declared install method
 // (binary, script, etc.).
 func TestEffectiveMethod_NonGentleAIToolsOnWindowsUseBinary(t *testing.T) {
 	tests := []struct {

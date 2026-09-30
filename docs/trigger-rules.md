@@ -66,11 +66,11 @@ reported as decided by `default`:
 
 | Command | Effect |
 |---|---|
-| `gentle-ai review mode status --cwd <repo>` | Report the global source, clone-local source, deciding source, and effective mode without mutation. |
-| `gentle-ai review mode enable --scope global --cwd <repo>` | Explicitly enable receipt-driven development globally for future candidates. |
-| `gentle-ai review mode disable --cwd <repo>` | Disable receipt-driven development globally. |
-| `gentle-ai review mode disable --scope clone --cwd <repo>` | Disable it only for this clone; no other clone inherits the override. |
-| `gentle-ai review mode enable --scope clone --cwd <repo>` | Clear this clone's off-only override. Inherit global mode or default ON; an explicit global OFF still wins. |
+| `ordo review mode status --cwd <repo>` | Report the global source, clone-local source, deciding source, and effective mode without mutation. |
+| `ordo review mode enable --scope global --cwd <repo>` | Explicitly enable receipt-driven development globally for future candidates. |
+| `ordo review mode disable --cwd <repo>` | Disable receipt-driven development globally. |
+| `ordo review mode disable --scope clone --cwd <repo>` | Disable it only for this clone; no other clone inherits the override. |
+| `ordo review mode enable --scope clone --cwd <repo>` | Clear this clone's off-only override. Inherit global mode or default ON; an explicit global OFF still wins. |
 
 Any disabled source wins. A clone may opt out but cannot require review for the
 user. Automation must never toggle the mode automatically or persist the default
@@ -98,11 +98,11 @@ holding authoritative artifacts, so until now a degraded store had no exit.
 
 | Command | Effect |
 |---|---|
-| `gentle-ai review store-reset --cwd <repo>` | Report, per category, what a reset would remove and what it would preserve. Removes nothing. |
-| `gentle-ai review store-reset --cwd <repo> --confirm` | Remove this clone's review lineage state. Irreversible. |
-| `gentle-ai review store-reset --cwd <repo> --confirm --include-in-flight` | Also remove reviews that have not reached a terminal state. |
-| `gentle-ai review store-reset --cwd <repo> --confirm --include-adapter-reviews` | Also remove the adapter-written `reviews/` graph store, which the lease and the in-flight refusal do not cover. |
-| `gentle-ai review store-reset --cwd <repo> --json` | The same report, machine-readable. |
+| `ordo review store-reset --cwd <repo>` | Report, per category, what a reset would remove and what it would preserve. Removes nothing. |
+| `ordo review store-reset --cwd <repo> --confirm` | Remove this clone's review lineage state. Irreversible. |
+| `ordo review store-reset --cwd <repo> --confirm --include-in-flight` | Also remove reviews that have not reached a terminal state. |
+| `ordo review store-reset --cwd <repo> --confirm --include-adapter-reviews` | Also remove the adapter-written `reviews/` graph store, which the lease and the in-flight refusal do not cover. |
+| `ordo review store-reset --cwd <repo> --json` | The same report, machine-readable. |
 
 Every sub-action is user-initiated only; no adapter and no automation reaches
 it, because the verb carries no negotiated contract row. Preview is the default
@@ -160,7 +160,7 @@ in-flight work is never one keystroke away.
 
 ## Installation and refresh
 
-`gentle-ai install` and `gentle-ai sync` project the same canonical rules into
+`ordo install` and `ordo sync` project the same canonical rules into
 every supported adapter, independently of whether the optional SDD component is
 selected:
 
@@ -172,8 +172,8 @@ selected:
   managed router template.
 
 ```bash
-gentle-ai install   # full install
-gentle-ai sync      # refresh managed content
+ordo install   # full install
+ordo sync      # refresh managed content
 ```
 
 Refresh is idempotent: the managed projection is replaced without duplication.

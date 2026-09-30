@@ -29,7 +29,7 @@ const installChannelHelp = "Release channel: stable (default), beta, or nightly 
 
 func PrintInstallHelp(w io.Writer) {
 	fmt.Fprint(w, `USAGE
-  gentle-ai install [flags]
+  ordo install [flags]
 
 FLAGS
   --agent, --agents <list>           Agents to install

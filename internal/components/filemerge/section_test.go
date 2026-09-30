@@ -398,7 +398,7 @@ func TestStripLegacyPersonaBlock_NoFingerprintReturnsSame(t *testing.T) {
 }
 
 func TestStripLegacyPersonaBlock_FingerprintInsideMarkerReturnsSame(t *testing.T) {
-	// Fingerprints only exist inside gentle-ai markers — should NOT be stripped.
+	// Fingerprints only exist inside ordo markers — should NOT be stripped.
 	input := "# My Config\n\n" + gentleAiMarkerSection
 	result := StripLegacyPersonaBlock(input)
 	if result != input {
@@ -425,7 +425,7 @@ func TestStripLegacyPersonaBlock_LegacyBlockBeforeMarkersStripped(t *testing.T) 
 	}
 	// The marked section must survive.
 	if !strings.Contains(result, "<!-- gentle-ai:persona -->") {
-		t.Fatal("stripped result missing gentle-ai marker section")
+		t.Fatal("stripped result missing ordo marker section")
 	}
 }
 
@@ -459,7 +459,7 @@ func TestStripLegacyPersonaBlock_OnlyTwoOfThreeFingerprints(t *testing.T) {
 func TestStripLegacyPersonaBlock_MixedZone_OnlyOneFingerprint_PreMarker(t *testing.T) {
 	// Edge case: "## Rules" appears in user content before the first marker,
 	// but the other two fingerprints ("## Personality" and "Senior Architect")
-	// exist only inside a gentle-ai marker block.
+	// exist only inside an ordo marker block.
 	//
 	// Old behaviour (bug): one fingerprint in the pre-marker zone was enough to
 	// trigger stripping, destroying the user's "## Rules" section.
@@ -551,7 +551,7 @@ func TestStripLegacyPersonaBlock_UserContentBeforeAndAfterMarkersPreserved(t *te
 	result := StripLegacyPersonaBlock(input)
 
 	if !strings.Contains(result, "# Custom section") {
-		t.Fatal("content after gentle-ai markers must be preserved")
+		t.Fatal("content after ordo markers must be preserved")
 	}
 }
 

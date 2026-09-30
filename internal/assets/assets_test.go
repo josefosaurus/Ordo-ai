@@ -278,7 +278,7 @@ import { syncBuiltinESMExports } from "node:module"
 const calls = []
 const held = []
 childProcess.execFile = (file, args, options, callback) => {
-  assert.equal(file,"gentle-ai")
+  assert.equal(file,"ordo")
   assert.deepEqual(args,["telemetry","runtime","opencode","--json"])
   assert.equal(options.timeout,4000); assert.equal(options.maxBuffer,1024)
   const call = { args, body: "", killed:false }; calls.push(call)
@@ -686,7 +686,7 @@ func TestOpenCodeReviewTransportPluginContract(t *testing.T) {
 		// that swallows hook errors still cannot deliver an unbound child's
 		// prose as a reviewer completion.
 		`opencode_review_transport_relay_refused`, `refused.set(key, reason)`, `output.args.prompt = relayRefusedPrompt(reason)`, `output.output = relayRefusedOutput(refusal)`,
-		// Issue #3049 binary handshake: the plugin probes PATH for gentle-ai
+		// Issue #3049 binary handshake: the plugin probes PATH for ordo
 		// before spawning the relay child and refuses with two typed codes
 		// that route through the same refused-prompt / refused-output
 		// machinery so a refused handshake still fails the Task loudly.
@@ -820,7 +820,7 @@ func TestSkillRegistryPluginContract(t *testing.T) {
 			t.Fatalf("skill-registry.ts missing %q", want)
 		}
 	}
-	// stdout belongs to OpenCode commands whose output gentle-ai parses
+	// stdout belongs to OpenCode commands whose output ordo parses
 	// (`opencode models --verbose`); plugin logging must stay on stderr.
 	for _, forbidden := range []string{"console.info", "console.log"} {
 		if strings.Contains(src, forbidden) {

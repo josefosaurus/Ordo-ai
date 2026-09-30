@@ -217,7 +217,7 @@ func TestSyncWorkspaceScopeDeclaresAndVerifiesPersonaWorkspaceTarget(t *testing.
 }
 
 // TestRunSyncWorkspaceScopeUpdatesWorkspaceWithoutGlobalMutation is the
-// isolated CLI regression for issue #1074: `gentle-ai sync --scope=workspace`
+// isolated CLI regression for issue #1074: `ordo sync --scope=workspace`
 // must refresh workspace-scoped managed files while every global file —
 // including persisted state, telemetry counters, backups, and plugins —
 // stays byte-identical with identical permissions.

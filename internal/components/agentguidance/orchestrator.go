@@ -60,7 +60,7 @@ var nonRDDLeakMarkers = []string{
 	"refuter",
 	"native review",
 	"Native review",
-	"gentle-ai review",
+	"ordo review",
 	"review-integration",
 	"Native Compact Review Orchestration",
 	"Provider Defect Handoff",

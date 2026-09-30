@@ -336,7 +336,7 @@ func (result ReviewIntegrationConsentResult) Validate() error {
 		return err
 	}
 	for _, choice := range result.Choices {
-		if !strings.HasPrefix(choice.Invocation, "gentle-ai review start ") ||
+		if !strings.HasPrefix(choice.Invocation, "ordo review start ") ||
 			!strings.Contains(choice.Invocation, " --target "+result.TargetIdentity) ||
 			!strings.Contains(choice.Invocation, " --consent "+choice.Answer) {
 			return fmt.Errorf("consent choice %q does not name a runnable candidate-scoped invocation", choice.Answer) // refusal:by-design world-action: this envelope is built and validated by the same file; the exit is a code fix, not a command

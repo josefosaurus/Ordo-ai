@@ -29,7 +29,7 @@ func TestSetAddRemoveShowReset(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(out, "gentle-ai sync") {
+	if !strings.Contains(out, "ordo sync") {
 		t.Fatalf("edits must say how to apply them: %q", out)
 	}
 

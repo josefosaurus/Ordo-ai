@@ -54,7 +54,7 @@ func TestRunArgsSyncPrintsPartialReportAndFails(t *testing.T) {
 	if !errors.As(err, &partial) {
 		t.Fatalf("RunArgs(sync) error = %v, want *cli.PartialSyncError so the exit code is non-zero", err)
 	}
-	for _, want := range []string{"Agents synced: claude-code", "Agents skipped: opencode", "opencode --version", "gentle-ai sync"} {
+	for _, want := range []string{"Agents synced: claude-code", "Agents skipped: opencode", "opencode --version", "ordo sync"} {
 		if !strings.Contains(out.String(), want) {
 			t.Errorf("sync output missing %q:\n%s", want, out.String())
 		}

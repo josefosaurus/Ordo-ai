@@ -9,7 +9,7 @@ Gentle AI configures Pi support, but the separate Gentle Shell (`gentle-pi`) pac
 Install Pi separately and make sure `pi` is available on `PATH`, then run:
 
 ```bash
-gentle-ai install --agent pi
+ordo install --agent pi
 pi
 ```
 
@@ -38,17 +38,17 @@ Engram on Pi uses the native tools `gentle-engram` registers, not MCP, so Gentle
 
 ## Optional CodeGraph
 
-CodeGraph is an optional Gentle AI integration. When selected, Gentle AI merges its MCP entry without overwriting a conflicting user entry. Compatible Pi children receive tools or lazy-init guidance through managed overlays, not edits to package-owned child files. Guidance resolves a safe project root and initializes a missing index once; a stale index requires upstream recovery, not a claim that old graph results reflect current source. `gentle-ai sync` reconciles managed configuration, which is distinct from index freshness. Uninstall removes only manifest-owned entries and reports drifted child files instead of deleting them.
+CodeGraph is an optional Gentle AI integration. When selected, Gentle AI merges its MCP entry without overwriting a conflicting user entry. Compatible Pi children receive tools or lazy-init guidance through managed overlays, not edits to package-owned child files. Guidance resolves a safe project root and initializes a missing index once; a stale index requires upstream recovery, not a claim that old graph results reflect current source. `ordo sync` reconciles managed configuration, which is distinct from index freshness. Uninstall removes only manifest-owned entries and reports drifted child files instead of deleting them.
 
 ## Review and checks
 
-Strict TDD follows the resolved configuration and exact test runner: observe RED, GREEN and REFACTOR when enabled; otherwise run applicable functional checks. RDD is separate and controlled by the user's `gentle-ai review mode status`, `gentle-ai review mode enable`, and `gentle-ai review mode disable` choices. Candidate consent and native authority do not authorize commits or releases. The review execution contract is provided to Pi through the provider bundle and mirrored by Gentle Shell, not by writing a Gentle AI system prompt block. See [Review](review-integration.md).
+Strict TDD follows the resolved configuration and exact test runner: observe RED, GREEN and REFACTOR when enabled; otherwise run applicable functional checks. RDD is separate and controlled by the user's `ordo review mode status`, `ordo review mode enable`, and `ordo review mode disable` choices. Candidate consent and native authority do not authorize commits or releases. The review execution contract is provided to Pi through the provider bundle and mirrored by Gentle Shell, not by writing a Gentle AI system prompt block. See [Review](review-integration.md).
 
 ## Gentle Shell and its own home
 
-[Gentle Shell](https://www.npmjs.com/package/gentle-pi) is a standalone launcher for Pi. By default it uses its own isolated Pi agent home, `~/.gentle-shell/agent`; `gentle-shell --link` uses `~/.pi/agent` live. On first run and whenever its pinned Gentle AI version changes, Gentle Shell provisions the isolated home with its pinned `gentle-ai install --agent pi --scope global`. `gentle-shell setup` reruns provisioning. Credentials are not copied between homes; a newly provisioned home needs its own `/login`.
+[Gentle Shell](https://www.npmjs.com/package/gentle-pi) is a standalone launcher for Pi. By default it uses its own isolated Pi agent home, `~/.gentle-shell/agent`; `gentle-shell --link` uses `~/.pi/agent` live. On first run and whenever its pinned Gentle AI version changes, Gentle Shell provisions the isolated home with its pinned `ordo install --agent pi --scope global`. `gentle-shell setup` reruns provisioning. Credentials are not copied between homes; a newly provisioned home needs its own `/login`.
 
-`PI_CODING_AGENT_DIR` redirects agent-owned install/sync files; it does not move Pi's `~/.pi` config root. Persona selection, background-subagent policy, uninstall targets, skill-registry scanning and Pi config detection may still resolve against `~/.pi` in an isolated Gentle Shell home. Preview changes with `gentle-ai sync --dry-run`, then run `gentle-ai sync`. Uninstall backs up managed configuration and preserves unrelated user data; it does not uninstall Pi.
+`PI_CODING_AGENT_DIR` redirects agent-owned install/sync files; it does not move Pi's `~/.pi` config root. Persona selection, background-subagent policy, uninstall targets, skill-registry scanning and Pi config detection may still resolve against `~/.pi` in an isolated Gentle Shell home. Preview changes with `ordo sync --dry-run`, then run `ordo sync`. Uninstall backs up managed configuration and preserves unrelated user data; it does not uninstall Pi.
 
 ## Next steps
 

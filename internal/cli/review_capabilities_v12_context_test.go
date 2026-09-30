@@ -40,12 +40,16 @@ func TestReviewCapabilitiesV13AdvertisesProviderAdmissionAndRecovery(t *testing.
 func TestReviewCapabilitiesV10ThroughV12ArtifactsRemainByteIdentical(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v1")
 	want := map[string]string{
-		"fixtures/capabilities.fixture.json":      "b3ca822189a236f2d891628c665ca23e308bf5185a1701e1f07231bd970461bb",
-		"fixtures/capabilities-v1.1.fixture.json": "1b3dc40dce7bfb5d3ecc7e92af68d66e71b733ba0b0f71ba94d3c633adc48bcf",
-		"fixtures/capabilities-v1.2.fixture.json": "2970d21cd95a7fcaea6547c47a591a5151046e7ede658b3e8c5b9a9c5d106b65",
+		"fixtures/capabilities.fixture.json": "b3ca822189a236f2d891628c665ca23e308bf5185a1701e1f07231bd970461bb",
+		// Ordo: command renamed to ordo.
+		"fixtures/capabilities-v1.1.fixture.json": "980240c4c760683717efb9fe01eb495fc97afce72cf246068ae43a3489f4000c",
+		// Ordo: command renamed to ordo.
+		"fixtures/capabilities-v1.2.fixture.json": "1177ff6db81b3edef6ce17049e19375a9245ed8b6b8e4b01d8c70f0fcf8ab298",
 		"schemas/capabilities.schema.json":        "ad333177494a251beac153f74bd751fa77126a9968aad69e64fc2abf15cff0f7",
-		"schemas/capabilities-v1.1.schema.json":   "2b14162284f375f8563e49d3a28caaa0aabb572094d8d290eb61844b1353af78",
-		"schemas/capabilities-v1.2.schema.json":   "df1722adcd9c999edbef090bfd5d9a9713f6852a9bc9cb79684ef7c9c91c0d62",
+		// Ordo: command renamed to ordo.
+		"schemas/capabilities-v1.1.schema.json": "befc1d0b89a7d5ddd260c0bc32519ec7005fd14f4c8fc066e5f12248a7e3784b",
+		// Ordo: command renamed to ordo.
+		"schemas/capabilities-v1.2.schema.json": "aa05843c639c9ec6ddaf9924d2bbe8e12e7f14930661049ad0971cac1036a50b",
 	}
 	for name, expected := range want {
 		payload, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(name)))

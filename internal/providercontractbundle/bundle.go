@@ -212,11 +212,11 @@ func validPiFacadeLifecycle(content string) bool {
 			return false
 		}
 	}
-	// The user-owned kill switch (`gentle-ai review mode ...`) is ordinary CLI
+	// The user-owned kill switch (`ordo review mode ...`) is ordinary CLI
 	// with no facade operation, so the contract may legitimately name it; every
-	// other raw "gentle-ai review " lifecycle route is still forbidden.
-	stripped := strings.ReplaceAll(content, "gentle-ai review mode ", "")
-	return !strings.Contains(stripped, "gentle-ai review ")
+	// other raw "ordo review " lifecycle route is still forbidden.
+	stripped := strings.ReplaceAll(content, "ordo review mode ", "")
+	return !strings.Contains(stripped, "ordo review ")
 }
 
 var bundleREADME = []byte(`# Gentle AI review provider contract

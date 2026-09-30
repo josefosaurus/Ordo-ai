@@ -152,8 +152,8 @@ func openCodeV2HostE2EInputs(t *testing.T) openCodeV2HostInputs {
 	return in
 }
 
-// openCodeV2HostShim puts this test binary on the host PATH as gentle-ai. The
-// plugin spawns `gentle-ai review opencode-transport`; the stand-in routes it
+// openCodeV2HostShim puts this test binary on the host PATH as ordo. The
+// plugin spawns `ordo review opencode-transport`; the stand-in routes it
 // to the real RunReview with the review-enabled HOME of this test. For the real
 // gate, the relay PATH also resolves `opencode` to the real V2 host binary.
 func openCodeV2HostShim(t *testing.T, in openCodeV2HostInputs, gate openCodeV2Gate) string {
@@ -178,7 +178,7 @@ func openCodeV2HostShim(t *testing.T, in openCodeV2HostInputs, gate openCodeV2Ga
 		}
 		path = runtimeDir + ":" + path
 	}
-	shim := filepath.Join(t.TempDir(), "gentle-ai")
+	shim := filepath.Join(t.TempDir(), "ordo")
 	script := "#!/bin/sh\nexec /usr/bin/env HOME=" + quote(os.Getenv("HOME")) +
 		" GENTLE_AI_TEST_CLI_STANDIN=1 DO_NOT_TRACK=1" + gateEnvironment + " PATH=" + quote(path) +
 		" " + quote(executable) + " \"$@\"\n"

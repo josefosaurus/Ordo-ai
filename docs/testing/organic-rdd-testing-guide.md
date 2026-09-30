@@ -14,7 +14,7 @@
 > Before you start, write down which candidate you are testing:
 >
 > ```
-> gentle-ai --version          # or "$RC_BIN" --version
+> ordo --version          # or "$RC_BIN" --version
 > ```
 >
 > **Put that string in your report.** If a step disagrees with what you see, the first question is always whether the guide is describing a newer commit than your binary. Say which one you ran and we can tell the difference; without it we cannot.
@@ -28,7 +28,7 @@ The binaries are on the prerelease page: **https://github.com/Gentleman-Programm
    ```
    sha256sum -c SHA256SUMS.txt --ignore-missing
    ```
-3. Make it runnable and confirm which build you have. **You do not need gentle-ai installed already** — this works on a clean machine:
+3. Make it runnable and confirm which build you have. **You do not need ordo installed already** — this works on a clean machine:
    ```
    RC_BIN="$(pwd)/gentle-ai_2.2.0-rc.1_<os>_<arch>"
    chmod +x "$RC_BIN"
@@ -39,11 +39,11 @@ The binaries are on the prerelease page: **https://github.com/Gentleman-Programm
    mkdir -p /tmp/rdd-bin && ln -sf "$RC_BIN" /tmp/rdd-bin/gentle-ai
    export PATH="/tmp/rdd-bin:$PATH"
    ```
-5. **Only if you already had gentle-ai installed** and want to replace it, back the old one up first:
+5. **Only if you already had ordo installed** and want to replace it, back the old one up first:
    ```
-   command -v gentle-ai && cp "$(command -v gentle-ai)" ~/gentle-ai.backup
+   command -v ordo && cp "$(command -v ordo)" ~/ordo.backup
    ```
-   Roll back with `mv ~/gentle-ai.backup "$(command -v gentle-ai)"` when you are done.
+   Roll back with `mv ~/ordo.backup "$(command -v ordo)"` when you are done.
 
 ## Setup (once)
 
@@ -60,20 +60,20 @@ The binaries are on the prerelease page: **https://github.com/Gentleman-Programm
 
 ### Flow 1: Routing without SDD (the main fix)
 
-1. [ ] `gentle-ai install --scope workspace --agents claude-code --components permissions` → **Expected**: it installs and ends with "You're ready", without asking anything about SDD.
+1. [ ] `ordo install --scope workspace --agents claude-code --components permissions` → **Expected**: it installs and ends with "You're ready", without asking anything about SDD.
 2. [ ] Open `$HOME/demo/.claude/CLAUDE.md` → **Expected**: a routing section with **direct inline**, **delegated direct** and **optional SDD**.
 3. [ ] Search for `WorkRun` or `work-capabilities` → **Expected**: **zero results**. If it shows up, that is a bug.
-4. [ ] Search for `review mode` → **Expected**: `gentle-ai review mode enable|disable|status` shows up.
+4. [ ] Search for `review mode` → **Expected**: `ordo review mode enable|disable|status` shows up.
 5. [ ] Run the same install again → **Expected**: same output and the files do NOT change.
 
 ### Flow 2: Kill switch
 
-1. [ ] `gentle-ai review mode status --cwd $HOME/demo --json` → **Expected**: effective `on`, source `default`, with both sources unset — receipt-driven development defaults to ON without persisting a user decision. This check requires a fresh home and clone with no explicit preference.
+1. [ ] `ordo review mode status --cwd $HOME/demo --json` → **Expected**: effective `on`, source `default`, with both sources unset — receipt-driven development defaults to ON without persisting a user decision. This check requires a fresh home and clone with no explicit preference.
 2. [ ] Repeat `status` → **Expected**: the same unset sources and default ON; read-only status must not save a preference. Candidate consent remains separate from this mode default.
-3. [ ] `gentle-ai review mode enable --scope global --cwd $HOME/demo` then `status` → **Expected**: effective `on`, source `global`.
-4. [ ] `gentle-ai review mode disable --cwd $HOME/demo` → **Expected**: it confirms reviews are off.
+3. [ ] `ordo review mode enable --scope global --cwd $HOME/demo` then `status` → **Expected**: effective `on`, source `global`.
+4. [ ] `ordo review mode disable --cwd $HOME/demo` → **Expected**: it confirms reviews are off.
 5. [ ] `status` again → **Expected**: effective `off`, source `global` (an explicit off, not the default).
-6. [ ] `gentle-ai review start --cwd $HOME/demo` → **Expected**: refused without reviewer work, naming the global OFF source and `gentle-ai review mode enable --scope=global`. If you turned it off at clone scope, the message must name `--scope=global` **then** `--scope=clone`: both may be OFF. Clearing only the clone override inherits global mode or default ON; an explicit global OFF still wins.
+6. [ ] `ordo review start --cwd $HOME/demo` → **Expected**: refused without reviewer work, naming the global OFF source and `ordo review mode enable --scope=global`. If you turned it off at clone scope, the message must name `--scope=global` **then** `--scope=clone`: both may be OFF. Clearing only the clone override inherits global mode or default ON; an explicit global OFF still wins.
 7. [ ] `enable --scope global` and `status` → **Expected**: `on` again.
 8. [ ] `disable --scope clone`, clone (`git clone $HOME/demo $HOME/demo2`) and `status` in `demo2` → **Expected**: `demo2` gives **on** (the global enable still applies) — turning a clone off is NOT inherited.
 9. [ ] **Before moving on**: `enable --scope clone` in `demo` → **Expected**: `on`.
@@ -81,7 +81,7 @@ The binaries are on the prerelease page: **https://github.com/Gentleman-Programm
 ### Flow 3: Documentation-only change (zero ceremony)
 
 1. [ ] Edit `README.md` (plain text) and stage **only that file**: `git add README.md`.
-2. [ ] `gentle-ai review start --cwd $HOME/demo` → **Expected**: `risk_level: low`, `selected_lenses: []` — zero reviewers, no question; START closes and burns the review.
+2. [ ] `ordo review start --cwd $HOME/demo` → **Expected**: `risk_level: low`, `selected_lenses: []` — zero reviewers, no question; START closes and burns the review.
 
 ### Current review lifecycle (use for every flow below)
 
@@ -98,7 +98,7 @@ The binaries are on the prerelease page: **https://github.com/Gentleman-Programm
 
 ### Flow 5: The consent question (needs a real terminal)
 
-1. [ ] With a tier 1/2 change ready, `review start` in an interactive terminal → **Expected**: **two** options — `1) Run the review now` / `2) Not now, just this once` — and a final line naming `gentle-ai review mode disable`. **There is no option 3.**
+1. [ ] With a tier 1/2 change ready, `review start` in an interactive terminal → **Expected**: **two** options — `1) Run the review now` / `2) Not now, just this once` — and a final line naming `ordo review mode disable`. **There is no option 3.**
 2. [ ] Answer `2` → **Expected**: it does not review this candidate.
 3. [ ] ANOTHER change and `review start` → **Expected**: it asks again.
 4. [ ] Answer `1` → **Expected**: it reviews, and the next change no longer asks.
@@ -132,7 +132,7 @@ git push -u origin HEAD
 
 ## Flows 9 to 13: what we fixed with your feedback
 
-These flows are new. Each one reproduces a bug someone in the community found in earlier rounds. They need a binary **later than Refresh 4**. Check which build you have with `gentle-ai doctor`: it names the binary you actually invoked and its version, and warns when that differs from the one on your `PATH`. If yours predates the current refresh, download it again from the release page or build from the PR branch.
+These flows are new. Each one reproduces a bug someone in the community found in earlier rounds. They need a binary **later than Refresh 4**. Check which build you have with `ordo doctor`: it names the binary you actually invoked and its version, and warns when that differs from the one on your `PATH`. If yours predates the current refresh, download it again from the release page or build from the PR branch.
 
 ### Flow 9: Published commits stay ordinary delivery
 
@@ -152,7 +152,7 @@ Reported by @lu149e, with the root cause confirmed by @Denver2828.
 1. [ ] `mkdir $HOME/unborn && cd $HOME/unborn && git init -b main`.
 2. [ ] Create a code file, `gofmt` if it applies, and `git add -A`. **Do not commit yet.**
 3. [ ] `git rev-parse --verify HEAD` → **Expected**: it fails, because there is no first commit yet. That is correct.
-4. [ ] `gentle-ai review start --cwd "$PWD"` → **Expected**: the review **starts**. It used to blow up with `Needed a single revision`.
+4. [ ] `ordo review start --cwd "$PWD"` → **Expected**: the review **starts**. It used to blow up with `Needed a single revision`.
 
 ### Flow 11: STATUS transitions run exactly as returned
 
@@ -161,7 +161,7 @@ This one is for people using agents. A controller must not infer a lifecycle act
 1. [ ] With a review in progress, ask for the next transition:
 
 ```
-gentle-ai review status --next-transition --contract gentle-ai.review-integration/v2
+ordo review status --next-transition --contract gentle-ai.review-integration/v2
 ```
 
 2. [ ] First read `next_transition.kind`. If it is `execute`, run the returned operation with its ordered argument tokens exactly as returned → **Expected**: the transition runs without reordered, synthesized, or added arguments.
@@ -244,7 +244,7 @@ macOS puts `$TMPDIR` under `/var/folders/...`, and `/var` is a symlink to `/priv
 ```
 echo "one more line" >> guide.md
 git add guide.md
-gentle-ai review start --cwd .
+ordo review start --cwd .
 # For this docs-only low-risk case, START closes and burns the review.
 ```
 
@@ -298,7 +298,7 @@ Run everything below with output going **outside** the repo.
 1. [ ] Ask for the next transition and retain its execute operation and ordered argument tokens:
 
 ```
-gentle-ai review status --next-transition --contract gentle-ai.review-integration/v2 --cwd . > /tmp/rdd-out/nt.json
+ordo review status --next-transition --contract gentle-ai.review-integration/v2 --cwd . > /tmp/rdd-out/nt.json
 ```
 
 2. [ ] Now change the workspace, exactly as a linter would: `echo "lint output" > lint-report.txt` **inside the repo**.
@@ -319,8 +319,8 @@ The `cause` naming the real reason is the point. A bare `invalid_request` with a
 
 Windows never auto-updated: it detected a new version and handed you a command to run yourself. With Go on PATH it now upgrades through a pinned `go install`. All the evidence we have is synthetic — this flow is the first real execution.
 
-1. [ ] On Windows with Go 1.25.10+ on PATH, run a command that triggers the update check with an older gentle-ai installed → **Expected**: it upgrades itself. It does **not** print "requires manual update", and it does **not** send you to a releases page.
-2. [ ] `gentle-ai --version` afterwards → **Expected**: the new version.
+1. [ ] On Windows with Go 1.25.10+ on PATH, run a command that triggers the update check with an older ordo installed → **Expected**: it upgrades itself. It does **not** print "requires manual update", and it does **not** send you to a releases page.
+2. [ ] `ordo --version` afterwards → **Expected**: the new version.
 3. [ ] **Report the full output even when it works.** This path has never run outside a test double.
 4. [ ] On Windows **without** Go → **Expected**: it still refuses, and the refusal names the exact `go install github.com/...@vX.Y.Z` command plus the Go version needed. A releases URL as the only guidance is the defect.
 
@@ -331,7 +331,7 @@ Windows never auto-updated: it detected a new version and handed you a command t
 1. [ ] Arrange the mismatch on purpose: `export GOBIN=$HOME/go-elsewhere` (a directory that is **not** on your PATH), then trigger the upgrade.
 2. [ ] → **Expected**: the upgrade still reports success, **and** warns naming **both absolute paths** — where it wrote and what your shell runs.
 3. [ ] → **Expected**: it never silently reports a clean success. If it does, you would keep running the old binary believing you updated, which is the defect this replaced.
-4. [ ] If your `gentle-ai` is a symlink into the go-install directory → **Expected**: treated as a match, no warning. A spurious warning there is also a defect.
+4. [ ] If your `ordo` is a symlink into the go-install directory → **Expected**: treated as a match, no warning. A spurious warning there is also a defect.
 
 ---
 
@@ -370,7 +370,7 @@ into whichever of the two it happens to reach first.
 2. [ ] Run the ordinary review lifecycle there:
 
 ```
-gentle-ai review start --cwd .
+ordo review start --cwd .
 # Follow each STATUS-issued review capture-result invocation.
 # The final admitted capture closes and burns the review.
 ```
@@ -402,10 +402,10 @@ a typed refusal, not a stack of failed writes.
 sudo mount -o remount,ro <mountpoint>     # or: sudo mount -o ro,bind /src /ro-copy
 ```
 
-2. [ ] `gentle-ai review status --cwd .` → **Expected**: it works. Status is
+2. [ ] `ordo review status --cwd .` → **Expected**: it works. Status is
    read-only by contract and must not need to write anything, not even a lock
    file.
-3. [ ] `gentle-ai review start --cwd .` → **Expected**: a typed refusal naming
+3. [ ] `ordo review start --cwd .` → **Expected**: a typed refusal naming
    that the store is not writable. A raw `EROFS` or
    `read-only file system` with no continuation is the defect.
 4. [ ] → **Expected**: nothing was half-created. After the refusal,
@@ -490,7 +490,7 @@ reported as a permanent corruption.
 
 ```powershell
 1..20 | ForEach-Object {
-  gentle-ai review start --cwd .
+  ordo review start --cwd .
   # Follow each STATUS-issued review capture-result invocation.
   # The final admitted capture closes and burns the review.
 }
@@ -551,19 +551,19 @@ read, a restored VM snapshot, a laptop resuming with a dead battery, or a
 container starting with a host clock behind the one that wrote the state.
 
 1. [ ] Establish a baseline: start a review, follow every STATUS-issued capture
-   until it closes, then record `gentle-ai review status --cwd .`.
+   until it closes, then record `ordo review status --cwd .`.
 2. [ ] Move the clock backwards by an hour **after** closure:
 
 ```
 sudo date -s "-1 hour"        # or restore a VM snapshot taken an hour ago
 ```
 
-3. [ ] Run `gentle-ai review status --cwd .` → **Expected**: the same lineage
+3. [ ] Run `ordo review status --cwd .` → **Expected**: the same lineage
    and closed state. No time-based refusal or `authority_corrupted`.
 4. [ ] The kill switch keeps a timestamp for provenance. Test that directly:
-   `gentle-ai review mode disable`, then `gentle-ai review mode enable`, then
+   `ordo review mode disable`, then `ordo review mode enable`, then
    move the clock back past `rdd_mode_recorded_at` in
-   `$HOME/.gentle-ai/state.json`, then run `gentle-ai review mode status --json`
+   `$HOME/.gentle-ai/state.json`, then run `ordo review mode status --json`
    → **Expected**: `effective: on`, with the source that decided it.
 5. [ ] Move the clock **forwards** by a day and repeat steps 3 and 4 →
    **Expected**: identical answers. A rule that only holds in one direction is
@@ -578,20 +578,20 @@ sudo date -s "-1 hour"        # or restore a VM snapshot taken an hour ago
 **Historical candidate rationale, superseded.** The `v2.2.0-rc.1` friction
 harness drove the binary but could not drive a document. At that time, its
 candidate procedure treated the product as closed when reviews were off and
-`gentle-ai sdd-status <change> --json` reported the archive dependency `ready`
+`ordo sdd-status <change> --json` reported the archive dependency `ready`
 with a `reviewGate` carrying `delivery: "disabled/unmanaged"` whose `result`
 was never `allow`. It then contrasted that result with the candidate
 `sdd-archive` skill, which required `reviewGate.result: allow`. The procedure
 below is preserved only as superseded candidate history, not as current release
 behavior.
 
-1. [ ] `gentle-ai install` (or `gentle-ai sync`) into a throwaway HOME, then
+1. [ ] `ordo install` (or `ordo sync`) into a throwaway HOME, then
    read the installed `sdd-archive` skill and the shared review-ledger contract
    → **Historical candidate expectation, superseded:** both require
    `reviewGate.result: allow`.
 2. [ ] In a repository with a complete, verified SDD change, run
-   `gentle-ai review mode disable` and then
-   `gentle-ai sdd-status <change> --json` → **Historical candidate expectation,
+   `ordo review mode disable` and then
+   `ordo sdd-status <change> --json` → **Historical candidate expectation,
    superseded:** `archive` is not blocked, `reviewGate.delivery` is
    `disabled/unmanaged`, and `reviewGate.result` is **not** `allow`.
 3. [ ] Ask your agent to archive that change → **Historical candidate observation
@@ -608,12 +608,12 @@ behavior.
 
 Six things that made earlier reports measure the wrong thing. They are not bugs, they are environment traps:
 
-**Never write command output inside the repository under test.** The review target is derived from the workspace snapshot, so `gentle-ai ... > out.txt` run from inside the repo adds an untracked file and changes the very thing being measured. A transition proposed before the redirect no longer matches after it, and you get a refusal that has nothing to do with what you were testing. Keep a separate directory:
+**Never write command output inside the repository under test.** The review target is derived from the workspace snapshot, so `ordo ... > out.txt` run from inside the repo adds an untracked file and changes the very thing being measured. A transition proposed before the redirect no longer matches after it, and you get a refusal that has nothing to do with what you were testing. Keep a separate directory:
 
 ```
 mkdir -p /tmp/rdd-out
 cd $HOME/demo
-gentle-ai review start --cwd . > /tmp/rdd-out/o.txt 2> /tmp/rdd-out/e.txt
+ordo review start --cwd . > /tmp/rdd-out/o.txt 2> /tmp/rdd-out/e.txt
 ```
 
 This one cost the maintainer an hour of chasing a defect that was his own redirect. Flow 24 turns it into a deliberate test instead.
@@ -621,15 +621,15 @@ This one cost the maintainer an hour of chasing a defect that was his own redire
 **If an agent runs it, set `CI=1`.** The consent question only shows up when there is a real terminal. Many agent harnesses allocate a pseudo-terminal, so the tool asks… and nobody answers: the shell hangs until it is killed, and the flow ends up as PARTIAL for a reason that is not the product's.
 
 ```
-CI=1 gentle-ai review start
+CI=1 ordo review start
 ```
 
 With `CI=1` the tool reviews anyway and warns on stderr that it did not ask. It is the same path CI already uses. **Exception: Flow 5 is precisely the test for the question**, so that one needs a real terminal and does not take `CI=1`; if your environment does not have one, mark it N/A.
 
-**Exit codes get lost through a pipe.** In bash, `$?` gives you the status of the **last command in the pipeline**, not the binary's. If you run `gentle-ai ... | tee log.txt`, `$?` is `tee`'s and it is always 0. In PowerShell, `$LASTEXITCODE` does give you the binary's, and that is why the same case "behaved differently" between Windows and Linux. To measure properly:
+**Exit codes get lost through a pipe.** In bash, `$?` gives you the status of the **last command in the pipeline**, not the binary's. If you run `ordo ... | tee log.txt`, `$?` is `tee`'s and it is always 0. In PowerShell, `$LASTEXITCODE` does give you the binary's, and that is why the same case "behaved differently" between Windows and Linux. To measure properly:
 
 ```
-gentle-ai review start --projection staged --base-ref HEAD~1 > out.txt 2> err.txt
+ordo review start --projection staged --base-ref HEAD~1 > out.txt 2> err.txt
 echo "exit=$?"
 ```
 

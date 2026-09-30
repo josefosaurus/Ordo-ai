@@ -9,8 +9,8 @@ Gentle AI uses OpenCode's native subagents through its `task` permission. It doe
 Install and sync accept the same preference:
 
 ```bash
-gentle-ai install --agent opencode --opencode-background-subagents=on
-gentle-ai sync --agent opencode --opencode-background-subagents=off
+ordo install --agent opencode --opencode-background-subagents=on
+ordo sync --agent opencode --opencode-background-subagents=off
 ```
 
 Use `auto`, `on`, or `off`. You can also set `GENTLE_AI_OPENCODE_BACKGROUND_SUBAGENTS=auto|on|off`. The CLI flag takes precedence, then a non-empty environment variable, then the previous managed choice in Gentle AI state; the default is `auto`. An interactive installer may ask for a choice when no prior or explicit setting exists. Cancelling installation does not save a new preference.

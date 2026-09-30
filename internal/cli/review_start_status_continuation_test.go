@@ -37,7 +37,7 @@ func startStatusContinuationExecution(t *testing.T, started ReviewIntegrationSta
 		}
 		tokens = append(tokens, argument.Token)
 	}
-	if execution.Command != "gentle-ai review status "+strings.Join(tokens, " ") {
+	if execution.Command != "ordo review status "+strings.Join(tokens, " ") {
 		t.Fatalf("START continuation command %q does not execute exactly its arguments %v", execution.Command, tokens)
 	}
 	for index, name := range []string{"contract", "next-transition", "lineage", "repository-context"} {
@@ -167,7 +167,7 @@ func TestOpenCodeRunsTheStartStatusContinuationVerbatim(t *testing.T) {
 	// filesystem path), so the shipped contract says to run it with the
 	// repository as the process working directory.
 	fields := strings.Fields(execution.Command)
-	if len(fields) < 3 || fields[0] != "gentle-ai" || fields[1] != "review" || fields[2] != "status" {
+	if len(fields) < 3 || fields[0] != "ordo" || fields[1] != "review" || fields[2] != "status" {
 		t.Fatalf("continuation command = %q", execution.Command)
 	}
 	previous, err := os.Getwd()

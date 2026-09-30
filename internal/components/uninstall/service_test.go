@@ -956,7 +956,7 @@ func TestCompleteUninstallKeepsExecutableRemovalAction(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "To completely remove gentle-ai from your system, delete the executable (e.g., rm -f $(which gentle-ai))"
+	want := "To completely remove ordo from your system, delete the executable (e.g., rm -f $(which ordo))"
 	if !slices.Contains(result.ManualActions, want) {
 		t.Fatalf("ManualActions = %v, want %q", result.ManualActions, want)
 	}
@@ -1753,7 +1753,7 @@ func TestFullAgentClaudeRemovesSkillRegistryHook(t *testing.T) {
       {
         "matcher": "",
         "hooks": [
-          {"type": "command", "command": "gentle-ai skill-registry refresh --quiet --no-gitignore --cwd \"${CLAUDE_PROJECT_DIR:-$PWD}\" || true"},
+          {"type": "command", "command": "ordo skill-registry refresh --quiet --no-gitignore --cwd \"${CLAUDE_PROJECT_DIR:-$PWD}\" || true"},
           {"type": "command", "command": "echo keep"}
         ]
       }
@@ -1767,7 +1767,7 @@ func TestFullAgentClaudeRemovesSkillRegistryHook(t *testing.T) {
     "SubagentStop": [
       {
         "hooks": [
-          {"type": "command", "command": "gentle-ai telemetry runtime codex --json", "async": true},
+          {"type": "command", "command": "ordo telemetry runtime codex --json", "async": true},
           {"type": "command", "command": "echo subagent keep"}
         ]
       }
@@ -1775,7 +1775,7 @@ func TestFullAgentClaudeRemovesSkillRegistryHook(t *testing.T) {
     "Stop": [
       {
         "hooks": [
-          {"type": "command", "command": "gentle-ai telemetry runtime codex --json", "async": true},
+          {"type": "command", "command": "ordo telemetry runtime codex --json", "async": true},
           {"type": "command", "command": "echo stop keep"}
         ]
       }
@@ -1803,7 +1803,7 @@ func TestFullAgentClaudeRemovesSkillRegistryHook(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(raw)
-	if strings.Contains(text, "gentle-ai skill-registry refresh") || strings.Contains(text, "gentle-ai telemetry runtime codex") {
+	if strings.Contains(text, "ordo skill-registry refresh") || strings.Contains(text, "ordo telemetry runtime codex") {
 		t.Fatalf("managed hook should be removed:\n%s", text)
 	}
 	if !strings.Contains(text, "echo keep") || !strings.Contains(text, "echo pre") || !strings.Contains(text, "echo subagent keep") || !strings.Contains(text, "echo stop keep") {
@@ -1833,7 +1833,7 @@ func TestFullAgentClaudeRemovesReviewAndPreflightHooks(t *testing.T) {
       {
         "matcher": "",
         "hooks": [
-          {"type": "command", "command": "gentle-ai review stop-hook --agent claude-code", "timeout": 60},
+          {"type": "command", "command": "ordo review stop-hook --agent claude-code", "timeout": 60},
           {"type": "command", "command": "echo keep"}
         ]
       }
@@ -1842,7 +1842,7 @@ func TestFullAgentClaudeRemovesReviewAndPreflightHooks(t *testing.T) {
       {
         "matcher": "startup|resume|clear|compact",
         "hooks": [
-          {"type": "command", "command": "gentle-ai review stop-hook --agent claude-code", "timeout": 30},
+          {"type": "command", "command": "ordo review stop-hook --agent claude-code", "timeout": 30},
           {"type": "command", "command": "echo custom session-start"}
         ]
       }
@@ -1854,14 +1854,14 @@ func TestFullAgentClaudeRemovesReviewAndPreflightHooks(t *testing.T) {
       },
       {
         "matcher": "Agent",
-        "hooks": [{"type": "command", "command": "gentle-ai sdd-preflight-hook --agent claude-code"}]
+        "hooks": [{"type": "command", "command": "ordo sdd-preflight-hook --agent claude-code"}]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "AskUserQuestion",
         "hooks": [
-          {"type": "command", "command": "gentle-ai sdd-preflight-hook --agent claude-code"},
+          {"type": "command", "command": "ordo sdd-preflight-hook --agent claude-code"},
           {"type": "command", "command": "echo post keep"}
         ]
       }
@@ -1869,7 +1869,7 @@ func TestFullAgentClaudeRemovesReviewAndPreflightHooks(t *testing.T) {
     "SessionEnd": [
       {
         "matcher": "",
-        "hooks": [{"type": "command", "command": "gentle-ai sdd-preflight-hook --agent claude-code"}]
+        "hooks": [{"type": "command", "command": "ordo sdd-preflight-hook --agent claude-code"}]
       }
     ]
   }
@@ -1895,7 +1895,7 @@ func TestFullAgentClaudeRemovesReviewAndPreflightHooks(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(raw)
-	if strings.Contains(text, "gentle-ai review stop-hook") || strings.Count(text, "gentle-ai sdd-preflight-hook") != 3 {
+	if strings.Contains(text, "ordo review stop-hook") || strings.Count(text, "ordo sdd-preflight-hook") != 3 {
 		t.Fatalf("review hooks should be removed; unmarked legacy hooks preserved:\n%s", text)
 	}
 	if !strings.Contains(text, "echo keep") || !strings.Contains(text, "echo pre") || !strings.Contains(text, "echo post keep") || !strings.Contains(text, "echo custom session-start") {
@@ -1914,7 +1914,7 @@ func TestFullAgentClaudeRemovesTelemetryHooks(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	initial := `{"hooks":{"Stop":[{"matcher":"","hooks":[{"type":"command","command":"gentle-ai telemetry runtime claude --json","async":true},{"type":"command","command":"echo keep"}]}],"SubagentStop":[{"matcher":"","hooks":[{"type":"command","command":"gentle-ai telemetry runtime claude --json","async":true}]}]}}`
+	initial := `{"hooks":{"Stop":[{"matcher":"","hooks":[{"type":"command","command":"ordo telemetry runtime claude --json","async":true},{"type":"command","command":"echo keep"}]}],"SubagentStop":[{"matcher":"","hooks":[{"type":"command","command":"ordo telemetry runtime claude --json","async":true}]}]}}`
 	if err := os.WriteFile(settingsPath, []byte(initial), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -1961,7 +1961,7 @@ func TestFullAgentCodexRemovesSkillRegistryHook(t *testing.T) {
       {
         "matcher": "startup|resume|clear|compact",
         "hooks": [
-          {"type": "command", "command": "gentle-ai skill-registry refresh --quiet --no-gitignore --cwd \"$PWD\" || true"},
+          {"type": "command", "command": "ordo skill-registry refresh --quiet --no-gitignore --cwd \"$PWD\" || true"},
           {"type": "command", "command": "echo keep"}
         ]
       }
@@ -1995,7 +1995,7 @@ func TestFullAgentCodexRemovesSkillRegistryHook(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(raw)
-	if strings.Contains(text, "gentle-ai skill-registry refresh") {
+	if strings.Contains(text, "ordo skill-registry refresh") {
 		t.Fatalf("managed hook should be removed:\n%s", text)
 	}
 	if !strings.Contains(text, "echo keep") || !strings.Contains(text, "echo pre") {

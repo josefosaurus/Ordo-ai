@@ -112,7 +112,7 @@ func SupportFilePaths(homeDir string, adapter agents.Adapter, skillIDs []model.S
 	return append(paths, commands...), nil
 }
 
-// AllSkillCommandPaths returns every skill command gentle-ai may own for the
+// AllSkillCommandPaths returns every skill command ordo may own for the
 // adapter, independent of the current selection. Uninstall and upgrade
 // snapshots use it so a deselected skill's command is still accounted for.
 func AllSkillCommandPaths(homeDir string, adapter agents.Adapter) ([]string, error) {

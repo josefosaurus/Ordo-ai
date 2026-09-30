@@ -2,7 +2,7 @@
 // performs once Gentle AI stopped owning implementation: the agent implements
 // organically, and Gentle AI's authority begins only after a candidate exists.
 //
-// Every assertion here is driven through the real gentle-ai binary and the real
+// Every assertion here is driven through the real ordo binary and the real
 // `review` command surface against real Git repositories and a real bare remote.
 // There is no runtime fixture, no TLS control plane, and no bearer session: the
 // retired control plane cannot be proven, only the shipped product can.
@@ -186,7 +186,7 @@ func runOrganicActor(role string) int {
 func assertOrganicDelegatedWorkerStaysInRoute(repo string) error {
 	binary := os.Getenv(organicActorBinaryEnvironment)
 	if binary == "" {
-		return errors.New("delegated actor has no gentle-ai binary to observe authority with")
+		return errors.New("delegated actor has no ordo binary to observe authority with")
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), organicLocalTimeout)
 	defer cancel()
@@ -1868,7 +1868,7 @@ var organicRoutingGuidanceRequiredFragments = []string{
 // switch. Only RDD-capable runtimes (Claude Code, Codex, OpenCode) receive
 // it; every other runtime is ODD-only and must not.
 var organicRoutingGuidanceRDDFragments = []string{
-	"gentle-ai review mode enable|disable|status",
+	"ordo review mode enable|disable|status",
 	"disabled/unmanaged",
 }
 
@@ -1896,7 +1896,7 @@ func TestOrganicConfiguredAgentReceivesRoutingGuidanceCursor(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Cursor's Detect looks for ~/.cursor, which this fake isolated HOME
-	// never has. Simulate Cursor as already installed so gentle-ai does not
+	// never has. Simulate Cursor as already installed so ordo does not
 	// correctly refuse an undetected agent here — this test targets
 	// routing-guidance delivery, not agent install behavior.
 	if err := os.MkdirAll(filepath.Join(home, ".cursor"), 0o755); err != nil {
@@ -2575,7 +2575,7 @@ func TestOrganicRuntimeCurrentReviewHardening(t *testing.T) {
 			t.Fatal("differing result replaced an occupied reviewer slot")
 		}
 		if !strings.Contains(conflictStderr, "reviewer_result_slot_occupied") ||
-			!strings.Contains(conflictStderr, "gentle-ai review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition") ||
+			!strings.Contains(conflictStderr, "ordo review status --cwd <repo> --contract gentle-ai.review-integration/v2 --next-transition") ||
 			!strings.Contains(conflictStderr, "authoritative continuation") {
 			t.Fatalf("occupied-slot continuation = %q", conflictStderr)
 		}
@@ -3011,7 +3011,7 @@ func (harness *organicHarness) gentle(arguments ...string) []byte {
 	harness.t.Helper()
 	stdout, stderr, err := runOrganicCommand(harness.t, organicBinary, harness.repo.worktree, harness.environment(), arguments...)
 	if err != nil {
-		harness.t.Fatalf("gentle-ai %v: %v\nstdout:\n%s\nstderr:\n%s", arguments, err, stdout, stderr)
+		harness.t.Fatalf("ordo %v: %v\nstdout:\n%s\nstderr:\n%s", arguments, err, stdout, stderr)
 	}
 	return []byte(stdout)
 }
@@ -3360,15 +3360,15 @@ func (harness *organicHarness) enableReview() organicModeResult {
 }
 
 // organicNamedContinuation returns the argument tokens of the first
-// `gentle-ai ...` command a product message names, read exactly as an operator
+// `ordo ...` command a product message names, read exactly as an operator
 // would: to the end of the line, stopping at the first `<placeholder>` whose
 // value the operator supplies.
 func organicNamedContinuation(t *testing.T, message string) []string {
 	t.Helper()
-	const product = "gentle-ai "
+	const product = "ordo "
 	index := strings.Index(message, product)
 	if index < 0 {
-		t.Fatalf("message names no runnable gentle-ai command: %q", message)
+		t.Fatalf("message names no runnable ordo command: %q", message)
 	}
 	tail := message[index+len(product):]
 	if cut := strings.IndexAny(tail, "\n"); cut >= 0 {
@@ -3383,19 +3383,19 @@ func organicNamedContinuation(t *testing.T, message string) []string {
 		tokens = append(tokens, token)
 	}
 	if len(tokens) == 0 {
-		t.Fatalf("message names no runnable gentle-ai command: %q", message)
+		t.Fatalf("message names no runnable ordo command: %q", message)
 	}
 	return tokens
 }
 
-// runNamedReviewStart dispatches a `gentle-ai review start ...` continuation
+// runNamedReviewStart dispatches a `ordo review start ...` continuation
 // read out of a product message, with the working directory already at the
 // repository so the invocation runs exactly as printed. extra carries only an
 // operator-supplied placeholder value the message asked for.
 func (harness *organicHarness) runNamedReviewStart(tokens []string, extra ...string) organicStartResult {
 	harness.t.Helper()
 	if len(tokens) < 2 || tokens[0] != "review" || tokens[1] != "start" {
-		harness.t.Fatalf("named continuation is %v, want gentle-ai review start", tokens)
+		harness.t.Fatalf("named continuation is %v, want ordo review start", tokens)
 	}
 	payload := harness.gentle(append(append([]string{}, tokens...), extra...)...)
 	var started organicStartResult
@@ -3957,7 +3957,7 @@ func buildOrganicBinary(workspace string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	name := "gentle-ai"
+	name := "ordo"
 	if runtime.GOOS == "windows" {
 		name += ".exe"
 	}
@@ -3968,11 +3968,11 @@ func buildOrganicBinary(workspace string) (string, error) {
 	command.Dir = moduleRoot
 	command.Env = os.Environ()
 	if output, err := command.CombinedOutput(); err != nil {
-		return "", fmt.Errorf("build the gentle-ai test binary: %w\n%s", err, output)
+		return "", fmt.Errorf("build the ordo test binary: %w\n%s", err, output)
 	}
 	info, err := os.Stat(path)
 	if err != nil || !info.Mode().IsRegular() {
-		return "", fmt.Errorf("built gentle-ai binary %q is unusable: %v", path, err)
+		return "", fmt.Errorf("built ordo binary %q is unusable: %v", path, err)
 	}
 	return path, nil
 }
@@ -4031,7 +4031,7 @@ func equalOrganicStrings(left, right []string) bool {
 
 // TestRealAgentOrganicJourneys runs the same organic journeys through a real
 // configured agent. The agent runtime, its sub-agent mechanism, its tool calls,
-// the gentle-ai binary, and the repository are all real; only the model is a
+// the ordo binary, and the repository are all real; only the model is a
 // fixture, because a scripted model is what makes an agent journey repeatable.
 func TestRealAgentOrganicJourneys(t *testing.T) {
 	if os.Getenv(realAgentE2EEnvironment) != "1" {

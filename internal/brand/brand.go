@@ -25,6 +25,14 @@ import (
 //go:embed default.yaml
 var defaultYAML []byte
 
+// Command is the executable name users and agents type to run the CLI. It
+// is fixed at build time and, unlike the rest of the brand, is not
+// per-user editable: printed continuations, agent hooks, and plugins must
+// all name the binary that is actually installed. The state directory
+// (~/.gentle-ai), GENTLE_AI_* variables, and gentle-ai.* schema identifiers
+// are protocol names and deliberately do not follow it.
+const Command = "ordo"
+
 // OverrideFile is the per-user override file name inside ~/.gentle-ai.
 const OverrideFile = "brand.yaml"
 

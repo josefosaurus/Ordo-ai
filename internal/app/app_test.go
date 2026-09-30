@@ -139,7 +139,7 @@ func TestListBackupsWithSourceMetadata(t *testing.T) {
 	}
 }
 
-// TestRunArgsRestoreListIsDispatched verifies that `gentle-ai restore --list`
+// TestRunArgsRestoreListIsDispatched verifies that `ordo restore --list`
 // is correctly dispatched through RunArgs and produces a meaningful response
 // (either a backup list or a "no backups" message — never "unknown command").
 func TestRunArgsRestoreListIsDispatched(t *testing.T) {
@@ -320,7 +320,7 @@ func TestRunArgsRestoreHelpBypassesSystemDetection(t *testing.T) {
 			}
 			out := buf.String()
 			for _, want := range []string{
-				"gentle-ai restore [--list | latest | <id>] [--yes]",
+				"ordo restore [--list | latest | <id>] [--yes]",
 				"list available backups without restoring",
 				"skip confirmation prompt",
 			} {
@@ -404,7 +404,7 @@ func TestRunArgsReviewSubcommandHelpExitsSuccessfully(t *testing.T) {
 			if err := RunArgs([]string{command, "--help"}, &output); err != nil {
 				t.Fatalf("RunArgs(%s --help) error = %v", command, err)
 			}
-			if !strings.Contains(output.String(), "Usage: gentle-ai "+command+" [flags]") {
+			if !strings.Contains(output.String(), "Usage: ordo "+command+" [flags]") {
 				t.Fatalf("RunArgs(%s --help) output:\n%s", command, output.String())
 			}
 		})
@@ -443,7 +443,7 @@ func TestRunArgsDispatchesReviewModeBeforePlatformValidation(t *testing.T) {
 	if err := RunArgs([]string{"review", "mode", "--help"}, &output); err != nil {
 		t.Fatalf("RunArgs(review mode --help) error = %v", err)
 	}
-	if !strings.Contains(output.String(), "gentle-ai review mode <enable|disable|status>") {
+	if !strings.Contains(output.String(), "ordo review mode <enable|disable|status>") {
 		t.Fatalf("review mode help missing:\n%s", output.String())
 	}
 
@@ -725,7 +725,7 @@ func TestTUIExecuteWithBackgroundPreservesConcurrentCLIStateMutation(t *testing.
 
 func buildAppCandidateBinary(t *testing.T) string {
 	t.Helper()
-	binary := filepath.Join(t.TempDir(), "gentle-ai")
+	binary := filepath.Join(t.TempDir(), "ordo")
 	if runtime.GOOS == "windows" {
 		binary += ".exe"
 	}
@@ -1408,7 +1408,7 @@ func TestLoadPersistedAssignmentsWiresEffort(t *testing.T) {
 	}
 }
 
-// TestVersionBeforeSystemGuards verifies that `gentle-ai version` returns the
+// TestVersionBeforeSystemGuards verifies that `ordo version` returns the
 // version string without going through system detection or platform guards.
 func TestVersionBeforeSystemGuards(t *testing.T) {
 	var buf bytes.Buffer
@@ -1416,8 +1416,8 @@ func TestVersionBeforeSystemGuards(t *testing.T) {
 	if err != nil {
 		t.Fatalf("version should not fail: %v", err)
 	}
-	if !strings.Contains(buf.String(), "gentle-ai") {
-		t.Error("version output should contain 'gentle-ai'")
+	if !strings.HasPrefix(buf.String(), "ordo ") {
+		t.Errorf("version output = %q, want it to start with 'ordo '", buf.String())
 	}
 }
 
@@ -1442,15 +1442,15 @@ func TestHelpCommand(t *testing.T) {
 }
 
 // TestUnknownCommandSuggestsHelp verifies that an unrecognised command returns
-// an error whose message suggests running 'gentle-ai help'.
+// an error whose message suggests running 'ordo help'.
 func TestUnknownCommandSuggestsHelp(t *testing.T) {
 	var buf bytes.Buffer
 	err := RunArgs([]string{"notacommand"}, &buf)
 	if err == nil {
 		t.Fatal("unknown command should return error")
 	}
-	if !strings.Contains(err.Error(), "gentle-ai help") {
-		t.Error("unknown command error should suggest 'gentle-ai help'")
+	if !strings.Contains(err.Error(), "ordo help") {
+		t.Error("unknown command error should suggest 'ordo help'")
 	}
 }
 
@@ -2106,7 +2106,7 @@ func writeAppSDDStatusFile(t *testing.T, path string, content string) {
 }
 
 // TestRunArgs_TUIRestartsAfterGentleAIUpgradeResult verifies that when the TUI
-// reports a successful gentle-ai upgrade, RunArgs calls restartAfterGentleAIUpgrade
+// reports a successful ordo upgrade, RunArgs calls restartAfterGentleAIUpgrade
 // which (after task 4.6) prints the restart guidance message instead of re-execing.
 func TestRunArgs_TUIRestartsAfterGentleAIUpgradeResult(t *testing.T) {
 	assumeInteractiveTTY(t)
@@ -2140,7 +2140,7 @@ func TestRunArgs_TUIRestartsAfterGentleAIUpgradeResult(t *testing.T) {
 		t.Fatalf("RunArgs(TUI) error = %v", err)
 	}
 	// After task 4.6: restart message is printed, no re-exec occurs.
-	if !strings.Contains(buf.String(), "restart gentle-ai") {
+	if !strings.Contains(buf.String(), "restart ordo") {
 		t.Fatalf("output missing restart notice:\n%s", buf.String())
 	}
 }
@@ -2449,7 +2449,7 @@ func TestRunArgs_PendingSync_PrintsDoctorAdvisory(t *testing.T) {
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, "Run 'gentle-ai doctor' to verify ecosystem health after upgrade") {
+	if !strings.Contains(out, "Run 'ordo doctor' to verify ecosystem health after upgrade") {
 		t.Errorf("stdout = %q, want doctor advisory when PendingSync=true on launch", out)
 	}
 }
@@ -2503,7 +2503,7 @@ func TestRunArgs_PendingSync_PrintsDoctorAdvisoryEvenOnSyncFailure(t *testing.T)
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, "Run 'gentle-ai doctor' to verify ecosystem health after upgrade") {
+	if !strings.Contains(out, "Run 'ordo doctor' to verify ecosystem health after upgrade") {
 		t.Errorf("stdout = %q, want doctor advisory even when deferred sync fails", out)
 	}
 }

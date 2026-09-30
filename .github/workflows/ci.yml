@@ -96,8 +96,8 @@ jobs:
 
       - name: Run benchmark evidence
         run: |
-          go build -trimpath -o "$RUNNER_TEMP/gentle-ai" ./cmd/gentle-ai
-          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/gentle-ai" --out "$RUNNER_TEMP/bench-portable.json"
+          go build -trimpath -o "$RUNNER_TEMP/ordo" ./cmd/gentle-ai
+          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/ordo" --out "$RUNNER_TEMP/bench-portable.json"
           jq -e '
             def completed_once($id):
               [.journeys[] | select(.id == $id)] as $matches
@@ -116,7 +116,7 @@ jobs:
             completed_once("j123-rejected-provider-validator-starts-fresh-high-risk-review") and
             completed_once("j4435-selected-untracked-correction-continuation-is-selectorless")
           ' "$RUNNER_TEMP/bench-portable.json"
-          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/gentle-ai" --only j105-compiled-provider-capture-retries-same-binding --out "$RUNNER_TEMP/bench-provider-capture.json"
+          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/ordo" --only j105-compiled-provider-capture-retries-same-binding --out "$RUNNER_TEMP/bench-provider-capture.json"
           jq -e '
             def completed_once($id):
               [.journeys[] | select(.id == $id)] as $matches
@@ -125,7 +125,7 @@ jobs:
           ' "$RUNNER_TEMP/bench-provider-capture.json"
           # #4612 retires SDD attempt transitions; the standalone review-mode
           # transition must still execute exactly once and complete.
-          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/gentle-ai" --axis transition --out "$RUNNER_TEMP/bench-transition.json"
+          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/ordo" --axis transition --out "$RUNNER_TEMP/bench-transition.json"
           jq -e '
             def completed_once($id):
               [.journeys[] | select(.id == $id)] as $matches
@@ -134,7 +134,7 @@ jobs:
             ([.journeys[] | select((.id | startswith("tr")) and .status == "completed")] | length) == 1 and
             completed_once("tr09-mode-flip-while-a-review-lineage-is-open")
           ' "$RUNNER_TEMP/bench-transition.json"
-          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/gentle-ai" --axis model-picker --only j97-opencode-custom-agent-model-picker-runtime --out "$RUNNER_TEMP/bench-model-picker-untagged.json"
+          "$RUNNER_TEMP/gentle-ai-bench" run --binary "$RUNNER_TEMP/ordo" --axis model-picker --only j97-opencode-custom-agent-model-picker-runtime --out "$RUNNER_TEMP/bench-model-picker-untagged.json"
           jq -e '
             def unsupported_once($id):
               [.journeys[] | select(.id == $id)] as $matches

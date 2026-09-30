@@ -82,11 +82,11 @@ function errorMessage(err: unknown): string {
 }
 
 /**
- * Classify an `execFileAsync` failure for `gentle-ai skill-registry refresh`
+ * Classify an `execFileAsync` failure for `ordo skill-registry refresh`
  * into a single actionable log line.
  *
- * - `ENOENT` from a `spawn gentle-ai` syscall (or with no syscall field):
- *   the OpenCode runtime could not complete the gentle-ai refresh, and the
+ * - `ENOENT` from a `spawn ordo` syscall (or with no syscall field):
+ *   the OpenCode runtime could not complete the ordo refresh, and the
  *   error does not identify the missing resource. The cause is reported
  *   neutrally: a live occurrence had the binary and PATH present, so we
  *   never assert PATH absence or blame the binary. Emit one line that
@@ -110,17 +110,17 @@ export function describeRefreshFailure(err: unknown, cwd: string): string {
   const cwdExample = quoteCwd(cwd)
   if (code === "ENOENT" && (!syscall || syscall.startsWith("spawn"))) {
     return singleLine(
-      `[skill-registry] the OpenCode runtime could not complete the gentle-ai skill-registry refresh (ENOENT); ` +
+      `[skill-registry] the OpenCode runtime could not complete the ordo skill-registry refresh (ENOENT); ` +
       `the missing resource was not identified. ` +
       `Skipping the skill-registry refresh for ${cwdExample}. ` +
       `Once the OpenCode runtime environment is valid, run ` +
-      `\`gentle-ai skill-registry refresh --no-gitignore --cwd <project>\` from a working shell, then re-launch OpenCode. ` +
+      `\`ordo skill-registry refresh --no-gitignore --cwd <project>\` from a working shell, then re-launch OpenCode. ` +
       `Plugin stays best-effort and does not block startup.`,
     )
   }
   if (code === "ENOENT") {
     return singleLine(
-      `[skill-registry] gentle-ai skill-registry refresh could not access the working directory ${cwdExample}: ` +
+      `[skill-registry] ordo skill-registry refresh could not access the working directory ${cwdExample}: ` +
       `ENOENT reached execFile (syscall=${syscall ?? "unknown"}). ` +
       `Verify the directory exists and is reachable from the OpenCode process. ` +
       `Plugin stays best-effort and does not block startup.`,
@@ -157,7 +157,7 @@ export const SkillRegistryPlugin: Plugin = async (input) => {
 
     try {
       await execFileAsync(
-        "gentle-ai",
+        "ordo",
         ["skill-registry", "refresh", "--quiet", "--no-gitignore", "--cwd", cwd],
         { timeout: 30_000 },
       )

@@ -18,6 +18,7 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/pi"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/assets"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/backup"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/agentguidance"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/communitytool"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/engram"
@@ -391,7 +392,7 @@ func (s *Service) CompleteUninstall() (Result, error) {
 		return result, err
 	}
 
-	result.ManualActions = append(result.ManualActions, "To completely remove gentle-ai from your system, delete the executable (e.g., rm -f $(which gentle-ai))")
+	result.ManualActions = append(result.ManualActions, "To completely remove ordo from your system, delete the executable (e.g., rm -f $(which ordo))")
 	return result, nil
 }
 
@@ -608,7 +609,7 @@ func (s *Service) executePlan(p plan, agentsToRemove []model.AgentID) (Result, e
 
 		// Pi's SupportsSystemPrompt() gate keeps componentOperations() from
 		// ever queuing a rewrite for its SystemPromptFile, so a stale
-		// gentle-ai block left there by an older install is never cleaned up
+		// ordo block left there by an older install is never cleaned up
 		// by the generic persona rewrite ops above. Retire it directly.
 		if piAdapter, ok := s.registry.Get(model.AgentPi); ok {
 			promptPath := piAdapter.SystemPromptFile(s.homeDir)
@@ -741,9 +742,9 @@ func failureManualActions(failures []operationFailure, batch []model.AgentID, ho
 		if location == "" {
 			location = homeDir
 		}
-		command := "gentle-ai uninstall --all --yes"
+		command := "ordo uninstall --all --yes"
 		if len(retry) > 0 {
-			command = "gentle-ai uninstall " + strings.Join(retry, " ") + " --yes"
+			command = "ordo uninstall " + strings.Join(retry, " ") + " --yes"
 		}
 		actions = append(actions, fmt.Sprintf(
 			"Uninstall did not complete for %s at %s: %v. Those agents are still recorded in %s. Resolve the file, then rerun `%s`.",
@@ -769,7 +770,7 @@ func firstOrEmpty(items []string) string {
 }
 
 // retainedPiResources returns existing Pi-owned runtime and configuration paths
-// that gentle-ai deliberately leaves intact because they can be shared with Pi,
+// that ordo deliberately leaves intact because they can be shared with Pi,
 // gentle-pi packages, or user-managed configuration.
 func retainedPiResources(homeDir, workspaceDir string) []string {
 	paths := []string{
@@ -1247,11 +1248,11 @@ func rewriteSkillRegistryHook(path string) operation {
 
 // Only exact installed commands are removed; arbitrary user commands remain intact.
 func managedRetainedHookCommand(cmd string) bool {
-	return cmd == `gentle-ai skill-registry refresh --quiet --no-gitignore --cwd "${CLAUDE_PROJECT_DIR:-$PWD}" || true` ||
-		cmd == `gentle-ai skill-registry refresh --quiet --no-gitignore --cwd "$PWD" || true` ||
-		cmd == "gentle-ai review stop-hook --agent "+string(model.AgentClaudeCode) ||
-		cmd == "gentle-ai telemetry runtime claude --json" ||
-		cmd == "gentle-ai telemetry runtime codex --json"
+	return cmd == brand.Command+` skill-registry refresh --quiet --no-gitignore --cwd "${CLAUDE_PROJECT_DIR:-$PWD}" || true` ||
+		cmd == brand.Command+` skill-registry refresh --quiet --no-gitignore --cwd "$PWD" || true` ||
+		cmd == brand.Command+" review stop-hook --agent "+string(model.AgentClaudeCode) ||
+		cmd == brand.Command+" telemetry runtime claude --json" ||
+		cmd == brand.Command+" telemetry runtime codex --json"
 }
 
 func removeSkillRegistryHook(raw []byte) ([]byte, bool, error) {

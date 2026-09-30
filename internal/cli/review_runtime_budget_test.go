@@ -632,7 +632,7 @@ func TestOverBudgetCorrectionNamesAbandonAndTheLineageIsActuallyAbandonable(t *t
 	lineage := record.State.LineageID
 
 	statement := reviewStopReasonNarration[reviewCorrectionContextBudgetCode]
-	for _, want := range []string{"gentle-ai review abandon", "cannot fit the runtime context budget"} {
+	for _, want := range []string{"ordo review abandon", "cannot fit the runtime context budget"} {
 		if !strings.Contains(statement, want) {
 			t.Fatalf("correction budget narration does not name %q: %q", want, statement)
 		}
@@ -716,7 +716,7 @@ func TestCorrectionWithinBudgetStillOffersTargetedValidation(t *testing.T) {
 // TestOverBudgetCorrectionStopCarriesTheReleaseContinuation closes the Pi dead
 // end. The shipped Pi ledger row for correction_context_budget_exceeded tells
 // the maintainer to run "the release command the stop's `continuation` names",
-// and the Pi facade contract may not name a raw `gentle-ai review ` route at
+// and the Pi facade contract may not name a raw `ordo review ` route at
 // all, so the continuation is the only channel that route can travel. This
 // asserts the stop actually carries it, that the command is the executable
 // -anchored abandon route bound to this repository, and that it is runnable

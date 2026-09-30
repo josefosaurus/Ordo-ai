@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	// refusal:by-design world-action: the exit is a filesystem repair (chown, takeown, icacls /setowner, or deleting the offending link) that only the operator can perform; no gentle-ai command may rewrite ownership of paths it refuses to trust
+	// refusal:by-design world-action: the exit is a filesystem repair (chown, takeown, icacls /setowner, or deleting the offending link) that only the operator can perform; no ordo command may rewrite ownership of paths it refuses to trust
 	errUnsafeRARAuthorityPath = errors.New(
 		"unsafe RAR authority path; restore trusted ownership of the reported " +
 			"path (chown on POSIX; takeown or icacls /setowner on Windows) or " +
@@ -52,7 +52,7 @@ func ensureRARRepositoryRoot(commonDir, root string, create bool) error {
 		rarAuthorityDirectory,
 		rarAuthorityVersion,
 	)
-	// rar-authority and every descendant are owner-only; gentle-ai and
+	// rar-authority and every descendant are owner-only; ordo and
 	// review-transactions are the shared ancestors above it.
 	return ensureRARDirectoryChain(commonDir, root, want, 2, create)
 }

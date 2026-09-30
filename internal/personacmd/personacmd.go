@@ -1,4 +1,4 @@
-// Package personacmd implements `gentle-ai persona`: show, set, and reset the
+// Package personacmd implements `ordo persona`: show, set, and reset the
 // per-user Ordo persona override (see internal/ordopersona).
 package personacmd
 
@@ -16,20 +16,20 @@ import (
 
 const usage = `Customize how your agents talk to you with the ordo persona: voice, chat
 language, and team rules. Changes are stored per user in ~/.gentle-ai/persona.yaml
-and reach your agents on the next gentle-ai sync.
+and reach your agents on the next ordo sync.
 
 USAGE
-  gentle-ai persona show
-  gentle-ai persona set voice <text>
-  gentle-ai persona set language <text>     e.g. Spanish; empty default matches the user
-  gentle-ai persona add-rule <text>
-  gentle-ai persona remove-rule <number>    number as listed by show
-  gentle-ai persona reset [voice|language|rules]
+  ordo persona show
+  ordo persona set voice <text>
+  ordo persona set language <text>     e.g. Spanish; empty default matches the user
+  ordo persona add-rule <text>
+  ordo persona remove-rule <number>    number as listed by show
+  ordo persona reset [voice|language|rules]
 
 Code, UI copy, docs, and commits always stay in English; the voice styles chat only.
 `
 
-const applyHint = "run gentle-ai sync to apply it to your agents (persona must be ordo)"
+const applyHint = "run ordo sync to apply it to your agents (persona must be ordo)"
 
 // Run dispatches a persona subcommand for the user whose home is homeDir.
 func Run(args []string, homeDir string, stdout io.Writer) error {
@@ -45,22 +45,22 @@ func Run(args []string, homeDir string, stdout io.Writer) error {
 		return show(homeDir, stdout)
 	case "set":
 		if len(args) != 3 {
-			return errors.New("usage: gentle-ai persona set <voice|language> <text> (see gentle-ai persona help)")
+			return errors.New("usage: ordo persona set <voice|language> <text> (see ordo persona help)")
 		}
 		return set(homeDir, args[1], args[2], stdout)
 	case "add-rule":
 		if len(args) != 2 {
-			return errors.New("usage: gentle-ai persona add-rule <text> (see gentle-ai persona help)")
+			return errors.New("usage: ordo persona add-rule <text> (see ordo persona help)")
 		}
 		return addRule(homeDir, args[1], stdout)
 	case "remove-rule":
 		if len(args) != 2 {
-			return errors.New("usage: gentle-ai persona remove-rule <number> (see gentle-ai persona help)")
+			return errors.New("usage: ordo persona remove-rule <number> (see ordo persona help)")
 		}
 		return removeRule(homeDir, args[1], stdout)
 	case "reset":
 		if len(args) > 2 {
-			return errors.New("usage: gentle-ai persona reset [voice|language|rules] (see gentle-ai persona help)")
+			return errors.New("usage: ordo persona reset [voice|language|rules] (see ordo persona help)")
 		}
 		field := ""
 		if len(args) == 2 {
@@ -68,7 +68,7 @@ func Run(args []string, homeDir string, stdout io.Writer) error {
 		}
 		return reset(homeDir, field, stdout)
 	default:
-		return fmt.Errorf("unknown persona command %q (see gentle-ai persona help)", args[0])
+		return fmt.Errorf("unknown persona command %q (see ordo persona help)", args[0])
 	}
 }
 
@@ -100,7 +100,7 @@ func show(homeDir string, stdout io.Writer) error {
 func readOverride(homeDir string) (ordopersona.Persona, error) {
 	o, err := ordopersona.ReadOverride(homeDir)
 	if err != nil {
-		return o, fmt.Errorf("%w; fix the file or run gentle-ai persona reset", err)
+		return o, fmt.Errorf("%w; fix the file or run ordo persona reset", err)
 	}
 	return o, nil
 }
@@ -124,7 +124,7 @@ func set(homeDir, field, value string, stdout io.Writer) error {
 	case "language":
 		o.ChatLanguage = value
 	default:
-		return fmt.Errorf("unknown persona field %q (use voice or language; see gentle-ai persona help)", field)
+		return fmt.Errorf("unknown persona field %q (use voice or language; see ordo persona help)", field)
 	}
 	return write(homeDir, o, field+" updated", stdout)
 }
@@ -153,11 +153,11 @@ func removeRule(homeDir, number string, stdout io.Writer) error {
 	}
 	n, err := strconv.Atoi(strings.TrimSpace(number))
 	if err != nil || n < 1 || n > len(rules) {
-		return fmt.Errorf("rule number must be between 1 and %d (see gentle-ai persona show)", len(rules))
+		return fmt.Errorf("rule number must be between 1 and %d (see ordo persona show)", len(rules))
 	}
 	remaining := append(append([]string(nil), rules[:n-1]...), rules[n:]...)
 	if len(remaining) == 0 {
-		return errors.New("cannot remove the last rule; the persona needs at least one (use gentle-ai persona reset rules to restore defaults)")
+		return errors.New("cannot remove the last rule; the persona needs at least one (use ordo persona reset rules to restore defaults)")
 	}
 	o.Rules = remaining
 	return write(homeDir, o, "rule removed", stdout)
@@ -169,7 +169,7 @@ func reset(homeDir, field string, stdout io.Writer) error {
 	}
 	o, err := readOverride(homeDir)
 	if err != nil {
-		return fmt.Errorf("%w; run gentle-ai persona reset to remove the whole file", err)
+		return fmt.Errorf("%w; run ordo persona reset to remove the whole file", err)
 	}
 	switch field {
 	case "voice":
@@ -179,7 +179,7 @@ func reset(homeDir, field string, stdout io.Writer) error {
 	case "rules":
 		o.Rules = nil
 	default:
-		return fmt.Errorf("unknown persona field %q (use voice, language, or rules; see gentle-ai persona help)", field)
+		return fmt.Errorf("unknown persona field %q (use voice, language, or rules; see ordo persona help)", field)
 	}
 	return write(homeDir, o, field+" reset to default", stdout)
 }

@@ -89,7 +89,7 @@ func TestReviewCaptureResultMaterializePrintsPiProviderTaskWithoutCapturing(t *t
 // genuinely bound transaction is eligible and materializes exactly like a
 // relayed one, while the same unrelayed shell presenting a mismatched
 // (stale) binding is refused with the existing subject-hash mismatch
-// continuation -- a literal `gentle-ai …` invocation -- proving the binding
+// continuation -- a literal `ordo …` invocation -- proving the binding
 // is still enforced even though the handshake no longer is.
 func TestReviewCaptureResultMaterializeIsEligibleWithoutRelayHandshake(t *testing.T) {
 	reviewEnabledHome(t)
@@ -113,8 +113,8 @@ func TestReviewCaptureResultMaterializeIsEligibleWithoutRelayHandshake(t *testin
 	if !strings.Contains(err.Error(), "materialize subject hash does not match") {
 		t.Fatalf("mismatched binding refusal = %v, want the subject hash mismatch cause", err)
 	}
-	if !strings.Contains(err.Error(), "gentle-ai review status") {
-		t.Fatalf("mismatched binding refusal does not carry a gentle-ai continuation: %v", err)
+	if !strings.Contains(err.Error(), "ordo review status") {
+		t.Fatalf("mismatched binding refusal does not carry an ordo continuation: %v", err)
 	}
 }
 

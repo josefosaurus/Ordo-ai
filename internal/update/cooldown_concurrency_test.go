@@ -220,7 +220,7 @@ func buildCandidateBinary(t *testing.T) string {
 	command := exec.CommandContext(ctx, "go", "build", "-o", binary, "./cmd/gentle-ai")
 	command.Dir = repositoryRoot(t)
 	if output, err := command.CombinedOutput(); err != nil {
-		t.Fatalf("build candidate gentle-ai binary: %v\n%s", err, output)
+		t.Fatalf("build candidate ordo binary: %v\n%s", err, output)
 	}
 	return binary
 }

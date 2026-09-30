@@ -40,7 +40,7 @@ func TestInstallCodexTelemetry(t *testing.T) {
 			t.Fatalf("%s: %+v", event, entries)
 		}
 		hook := entries[0].Hooks[0]
-		if hook["type"] != "command" || hook["command"] != "gentle-ai telemetry runtime codex --json" || hook["async"] != true || hook["timeout"] != float64(4) {
+		if hook["type"] != "command" || hook["command"] != "ordo telemetry runtime codex --json" || hook["async"] != true || hook["timeout"] != float64(4) {
 			t.Fatalf("%s: %+v", event, hook)
 		}
 	}
