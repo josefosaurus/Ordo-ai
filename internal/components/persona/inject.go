@@ -10,8 +10,10 @@ import (
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/assets"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/ordopersona"
 )
 
 type InjectionResult struct {
@@ -36,7 +38,7 @@ func InjectPiPersona(rootDir string, persona model.PersonaID) (InjectionResult, 
 		return InjectionResult{}, nil
 	}
 
-	mode := string(persona)
+	mode := string(canonicalPersona(persona))
 	if mode == "" {
 		mode = string(model.PersonaGentleman)
 	}
@@ -112,6 +114,8 @@ func InjectForSyncAtSettingsPath(homeDir string, adapter agents.Adapter, persona
 // syncManaged is the internal flag previously called `markdownOnly`.
 // When true the OpenCode/Kilocode agent overlay is skipped (see InjectForSync).
 func injectInternal(homeDir string, adapter agents.Adapter, persona model.PersonaID, syncManaged bool, selectedSettingsPath string) (InjectionResult, error) {
+	// Ordo is structurally neutral; only its content adds the team profile.
+	ordoProfile := persona == model.PersonaOrdo
 	persona = canonicalPersona(persona)
 	if !adapter.SupportsSystemPrompt() {
 		return InjectionResult{}, nil
@@ -154,6 +158,10 @@ func injectInternal(homeDir string, adapter agents.Adapter, persona model.Person
 	content := personaContent(adapter.Agent(), persona, residualChannel(adapter))
 	if content == "" {
 		return InjectionResult{}, nil
+	}
+	if ordoProfile {
+		profile, _ := ordopersona.Load(homeDir)
+		content = strings.TrimRight(content, "\n") + "\n\n" + ordopersona.Render(profile, brand.Current().Name)
 	}
 
 	// 1. Inject persona content based on system prompt strategy.

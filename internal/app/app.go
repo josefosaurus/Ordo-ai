@@ -18,6 +18,7 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/opencodeplugin"
 	componentuninstall "github.com/gentleman-programming/gentle-ai/v4/internal/components/uninstall"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/personacmd"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/pipeline"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/planner"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/reviewtransaction"
@@ -155,6 +156,12 @@ func RunArgs(args []string, stdout io.Writer) error {
 				return fmt.Errorf("resolve home directory: %w", err)
 			}
 			return brandcmd.Run(args[1:], home, stdout)
+		case "persona":
+			home, err := brandHomeDir()
+			if err != nil {
+				return fmt.Errorf("resolve home directory: %w", err)
+			}
+			return personacmd.Run(args[1:], home, stdout)
 		case "review":
 			// The kill switch must stay reachable even when review authority
 			// itself is disabled, so it is dispatched ahead of the facade.

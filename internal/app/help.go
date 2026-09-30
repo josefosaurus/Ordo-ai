@@ -20,6 +20,7 @@ COMMANDS
   uninstall    Remove %s managed files from this machine
   sync         Sync agent configs and skills to current version
   brand        Customize the name, tagline, logo, and colors (show|set|reset)
+  persona      Customize the ordo persona voice, chat language, and rules
   skill-registry refresh
                Refresh .atl/skill-registry.md with cache-hit fast path
   review start [--cwd <repo>] [--base-ref <ref>] [--focus <risk|resilience|readability|reliability>] [--locale <en|es>]

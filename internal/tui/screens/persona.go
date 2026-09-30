@@ -8,10 +8,11 @@ import (
 )
 
 func PersonaOptions() []model.PersonaID {
-	return []model.PersonaID{model.PersonaGentleman, model.PersonaNeutral, model.PersonaCustom}
+	return []model.PersonaID{model.PersonaOrdo, model.PersonaGentleman, model.PersonaNeutral, model.PersonaCustom}
 }
 
 var personaDescriptions = map[model.PersonaID]string{
+	model.PersonaOrdo:      "Team voice and rules you can edit with the persona command; English technical artifacts",
 	model.PersonaGentleman: "Voseo conversation; English technical artifacts",
 	// The legacy alias is remapped at normalization time and no longer offered
 	// in the picker; the entry stays so the review screen can label persisted
@@ -26,7 +27,7 @@ func RenderPersona(selected model.PersonaID, cursor int) string {
 
 	b.WriteString(styles.TitleStyle.Render("Choose your Persona"))
 	b.WriteString("\n\n")
-	b.WriteString(styles.SubtextStyle.Render("Your own Gentleman! teaches before it solves."))
+	b.WriteString(styles.SubtextStyle.Render("How your agents talk to you. Code, docs, and commits stay in English."))
 	b.WriteString("\n\n")
 
 	for idx, persona := range PersonaOptions() {

@@ -156,6 +156,10 @@ const (
 	PersonaGentlemanNeutralArtifacts PersonaID = "gentleman-neutral-artifacts"
 	PersonaNeutral                   PersonaID = "neutral"
 	PersonaCustom                    PersonaID = "custom"
+	// PersonaOrdo is the Ordo default: the neutral persona plus a per-user
+	// editable team profile (internal/ordopersona). Structurally it behaves as
+	// PersonaNeutral (output styles, overlays, Pi mode).
+	PersonaOrdo PersonaID = "ordo"
 )
 
 // SystemPromptStrategy defines how an agent's system prompt file is managed.

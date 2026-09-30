@@ -56,7 +56,7 @@ func TestFullPresetUninstallOpenCodeFamilyAgents(t *testing.T) {
 			if err := os.WriteFile(path, []byte(`{"default_agent":"build"}`), 0600); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := RunInstall([]string{"--agent", tc.agent, "--preset", "full-gentleman"}, system.DetectionResult{}); err != nil {
+			if _, err := RunInstall([]string{"--agent", tc.agent, "--preset", "full-gentleman", "--persona", "gentleman"}, system.DetectionResult{}); err != nil {
 				t.Fatal(err)
 			}
 			before, err := os.ReadFile(path)

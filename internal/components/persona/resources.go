@@ -35,7 +35,7 @@ var managedOutputStyles = []OutputStyle{
 }
 
 func canonicalPersona(persona model.PersonaID) model.PersonaID {
-	if persona == model.PersonaGentlemanNeutralArtifacts {
+	if persona == model.PersonaGentlemanNeutralArtifacts || persona == model.PersonaOrdo {
 		return model.PersonaNeutral
 	}
 	return persona
