@@ -53,7 +53,7 @@ Everything except the model's reasoning:
 | OpenCode binary | Yes | Pinned to `versions.OpenCode`; `requireExecutableVersion` fails the test on a mismatch |
 | OpenCode plugin | Yes | `@opencode-ai/plugin` installed with `npm install` at the pinned version |
 | Orchestrator prompt | Yes | Read from `internal/assets/opencode/sdd-orchestrator.md` — the same asset shipped to users |
-| `gentle-ai` binary | Yes | Compiled from the working tree, exposed as `GENTLE_AI_TEST_BINARY` |
+| `ordo` binary | Yes | Compiled from the working tree, exposed as `GENTLE_AI_TEST_BINARY` |
 | Git repository | Yes | A real repository plus a bare remote; delivery ends in an `update-ref` CAS with exact tree and blob proof |
 | Filesystem effects | Yes | Real files, real commits, isolated `$HOME` with `--pure` and per-test `XDG_*` directories |
 | Model reasoning | **No** | A local HTTP server returning a scripted sequence |
@@ -187,7 +187,7 @@ Go test
        │
        │  POST /v1/chat/completions { messages, tools }
        ▼
-    [model fixture]  call #1 → "bash: gentle-ai work capabilities"
+    [model fixture]  call #1 → "bash: ordo work capabilities"
        │
        ▼
     OpenCode executes that bash for real → the real binary, the real repo

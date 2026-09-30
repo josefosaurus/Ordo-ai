@@ -4,13 +4,13 @@
 
 ---
 
-This document explains how gentle-ai integrates with **Kiro IDE** and what is installed in your local Kiro configuration.
+This document explains how ordo integrates with **Kiro IDE** and what is installed in your local Kiro configuration.
 
 ## Overview
 
-gentle-ai supports Kiro as a **native-subagent** platform (`kiro-ide`).
+ordo supports Kiro as a **native-subagent** platform (`kiro-ide`).
 
-When configured, gentle-ai installs:
+When configured, ordo installs:
 
 | Artifact | Path |
 |----------|------|
@@ -26,12 +26,12 @@ When configured, gentle-ai installs:
 
 ## Detection
 
-gentle-ai uses **two signals** to detect Kiro:
+ordo uses **two signals** to detect Kiro:
 
 1. **`~/.kiro` directory presence** — used by `system.ScanConfigs` for the install/TUI auto-detection flow. If `~/.kiro` exists on disk, Kiro is shown as detected in the installer, regardless of whether the binary is on `PATH`.
 2. **`kiro` binary on `PATH`** — used by `adapter.Detect()` for the sync/upgrade flow and to confirm the IDE is actually runnable.
 
-In practice: **the installer detects Kiro from `~/.kiro`**, not from `PATH`. If you have Kiro installed but `~/.kiro` hasn't been created yet (e.g., before first launch), run Kiro once to initialize its config dir, then re-run `gentle-ai install`.
+In practice: **the installer detects Kiro from `~/.kiro`**, not from `PATH`. If you have Kiro installed but `~/.kiro` hasn't been created yet (e.g., before first launch), run Kiro once to initialize its config dir, then re-run `ordo install`.
 
 ---
 
@@ -53,7 +53,7 @@ This follows the same SDD architecture used in gentle-ai: orchestrator coordinat
 
 ## Native Kiro Specs Integration
 
-Kiro has a built-in spec workflow that gentle-ai leverages. For medium and large changes, the orchestrator will use native Kiro artifacts at:
+Kiro has a built-in spec workflow that ordo leverages. For medium and large changes, the orchestrator will use native Kiro artifacts at:
 
 ```
 .kiro/specs/<feature>/
@@ -76,7 +76,7 @@ Kiro has a built-in spec workflow that gentle-ai leverages. For medium and large
 
 ## Steering File Format
 
-The steering file written by gentle-ai uses the following frontmatter:
+The steering file written by ordo uses the following frontmatter:
 
 ```yaml
 ---
@@ -136,7 +136,7 @@ The `model` value is injected during sync from Kiro model assignments (`auto|opu
 
 ## ⚠️ Split-Root Layout
 
-Kiro uses a **split-root layout** — gentle-ai managed files and IDE settings live in different directories:
+Kiro uses a **split-root layout** — ordo managed files and IDE settings live in different directories:
 
 - **Steering, skills, and native agents** → `~/.kiro/` (or `%USERPROFILE%\.kiro\` on Windows)
   - `~/.kiro/steering/gentle-ai.md` — orchestrator persona
@@ -150,7 +150,7 @@ Kiro uses a **split-root layout** — gentle-ai managed files and IDE settings l
 
 If MCP tools are not loading, check `~/.kiro/settings/mcp.json`.  
 If Kiro app settings are not applying, check the platform-native User dir (`settings.json`).  
-If gentle-ai skills or steering are missing, check `~/.kiro/skills/` and `~/.kiro/steering/`.
+If ordo skills or steering are missing, check `~/.kiro/skills/` and `~/.kiro/steering/`.
 
 ---
 

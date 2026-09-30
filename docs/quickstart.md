@@ -6,7 +6,7 @@
 
 - Homebrew installed and available in PATH.
 - `git` available.
-- If Homebrew requires trust, run `brew trust --formula gentleman-programming/tap/gentle-ai` once for Gentle AI™ only.
+- If Homebrew requires trust, run `brew trust --formula gentleman-programming/tap/ordo` once for Gentle AI™ only.
   - To install several tools from this tap, use `brew trust gentleman-programming/tap` instead. It trusts all current and future formulas, casks, and external commands published in the tap.
 
 ### Ubuntu/Debian (and derivatives like Linux Mint, Pop!\_OS)
@@ -14,7 +14,7 @@
 - `apt-get` available (standard on these distros).
 - `sudo` access for package installs.
 - `git` available.
-- If Node.js is missing, `gentle-ai install` prints this install hint: NodeSource LTS setup + `apt-get install -y nodejs` (npm comes bundled).
+- If Node.js is missing, `ordo install` prints this install hint: NodeSource LTS setup + `apt-get install -y nodejs` (npm comes bundled).
 - If using Homebrew on Linux, Bubblewrap may require unprivileged user namespaces; see `docs/usage.md#homebrew-upgrade-troubleshooting`.
 
 ### Arch Linux (and derivatives like Manjaro, EndeavourOS)
@@ -22,20 +22,20 @@
 - `pacman` available (standard on these distros).
 - `sudo` access for package installs.
 - `git` available.
-- If Node.js is missing, `gentle-ai install` prints this install hint: `pacman -S --noconfirm nodejs npm`.
+- If Node.js is missing, `ordo install` prints this install hint: `pacman -S --noconfirm nodejs npm`.
 
 ### Fedora / RHEL family (Fedora, CentOS Stream, Rocky Linux, AlmaLinux)
 
 - `dnf` available (standard on these distros).
 - `sudo` access for package installs.
 - `git` available.
-- If Node.js is missing, `gentle-ai install` prints this install hint: NodeSource LTS setup + `dnf install -y nodejs` (npm comes bundled).
+- If Node.js is missing, `ordo install` prints this install hint: NodeSource LTS setup + `dnf install -y nodejs` (npm comes bundled).
 
 ### All platforms
 
 - Git 2.38+.
 - Go 1.25.10+ (for building from source).
-- Node.js 18+ and npm: `gentle-ai install` checks these as required prerequisites on every platform and prints a warning with a distro-specific install hint (see above) if either is missing — regardless of which agents/components you select. It does not install them for you, and it does not install agent runtimes either: if a selected agent isn't detected, `gentle-ai install` refuses and prints the exact `npm install -g` (or equivalent) command for you to run yourself. Node.js/npm are strictly required if you select the CodeGraph community tool, which gentle-ai does install via `npm install -g`.
+- Node.js 18+ and npm: `ordo install` checks these as required prerequisites on every platform and prints a warning with a distro-specific install hint (see above) if either is missing — regardless of which agents/components you select. It does not install them for you, and it does not install agent runtimes either: if a selected agent isn't detected, `ordo install` refuses and prints the exact `npm install -g` (or equivalent) command for you to run yourself. Node.js/npm are strictly required if you select the CodeGraph community tool, which ordo does install via `npm install -g`.
 - Pi installed and available as `pi` on `PATH` if you select the Pi agent.
 
 ### Windows
@@ -43,7 +43,7 @@
 - Go 1.25.10+, because Windows installs and upgrades through `go install`.
   Official Windows binaries and the Scoop bucket are temporarily unavailable
   while publicly trusted Authenticode signing is provisioned, so nothing
-  unsigned is ever fetched. With Go on `PATH`, `gentle-ai upgrade` updates
+  unsigned is ever fetched. With Go on `PATH`, `ordo upgrade` updates
   itself automatically by running `go install …/cmd/gentle-ai@vX.Y.Z` pinned to
   the release tag and verified against the Go checksum database; without Go it
   fails closed and just prints that command. See [platforms.md](platforms.md)
@@ -68,7 +68,7 @@ The latest published stable release before v4.0.0 is [`v3.7.0`](https://github.c
 
 ```bash
 go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@latest
-gentle-ai version
+ordo version
 ```
 
 ### Install unreleased development changes
@@ -78,24 +78,24 @@ Only use `main` when testing changes that are not part of a release yet:
 ```bash
 # macOS / Linux
 go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@main
-gentle-ai version
+ordo version
 
 # Windows (PowerShell)
 $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@main
-gentle-ai version
+ordo version
 ```
 
 To update a beta installation later, preserve the beta channel:
 
 ```bash
 # macOS / Linux
-GENTLE_AI_CHANNEL=beta gentle-ai upgrade
+GENTLE_AI_CHANNEL=beta ordo upgrade
 
 # Windows (PowerShell)
-$env:GENTLE_AI_CHANNEL="beta"; gentle-ai upgrade
+$env:GENTLE_AI_CHANNEL="beta"; ordo upgrade
 ```
 
-`gentle-ai upgrade` advances the `gentle-ai` binary from `main` and refreshes managed tools on macOS, Linux, and Windows with Go on `PATH`.
+`ordo upgrade` advances the `ordo` binary from `main` and refreshes managed tools on macOS, Linux, and Windows with Go on `PATH`.
 
 If you re-run an installer, pass beta explicitly because both installers default to stable:
 
@@ -129,16 +129,16 @@ The installer detects your platform automatically — no flags needed to select 
 
 After completion, verify that agent configs and selected components were installed to their expected paths.
 
-The agents you select during install become the default scope for future `gentle-ai sync` runs. Gentle AI records that selection in `~/.gentle-ai/state.json` and does not automatically sync every agent config directory that exists on your machine. To check what will be updated after an upgrade, run:
+The agents you select during install become the default scope for future `ordo sync` runs. Gentle AI records that selection in `~/.gentle-ai/state.json` and does not automatically sync every agent config directory that exists on your machine. To check what will be updated after an upgrade, run:
 
 ```bash
-gentle-ai sync --dry-run
+ordo sync --dry-run
 ```
 
 To update a different set explicitly, pass every target agent:
 
 ```bash
-gentle-ai sync --agent claude-code --agent opencode
+ordo sync --agent claude-code --agent opencode
 ```
 
 ## Verification outcome
@@ -147,7 +147,7 @@ When checks pass, installer reports:
 
 `You're ready. Run 'claude' or 'opencode' and start building.`
 
-If something looks wrong after install, run `gentle-ai doctor` for a read-only health check. It verifies tool binaries, `state.json` validity, Engram™ MCP reachability, and disk space — each check reports pass/warn/fail with a remedy hint.
+If something looks wrong after install, run `ordo doctor` for a read-only health check. It verifies tool binaries, `state.json` validity, Engram™ MCP reachability, and disk space — each check reports pass/warn/fail with a remedy hint.
 
 For a Pi-only install, the plan shows the Pi package stack instead of Gentle AI components. It installs `gentle-pi` and `gentle-engram`, runs `pi-engram init` through the pinned `gentle-engram` package, then installs `pi-web-access` and `pi-btw`. Pi's built-in MCP support (Pi >= 0.99.0) runs the Engram and CodeGraph MCP servers from `mcp.json`. Gentle AI removes a previously installed `pi-mcp-adapter`, because an extension that registers `/mcp` replaces Pi's built-in MCP support.
 

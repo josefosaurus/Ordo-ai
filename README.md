@@ -148,7 +148,7 @@ ODD uses the configured TDD mode and exact test runner. When Strict TDD is enabl
 
 <img width="100%" src="docs/assets/diagrams/rdd-review.svg" alt="How RDD checks a finished change. The exact change is frozen to a lineage, revision and target, then a read-only risk assessment picks the depth: passive gets a structural readback with zero reviewer lenses, medium gets one focused lens, high gets the canonical 4R — Risk, Resilience, Readability and Reliability. At most one bounded correction is allowed, and one exact acknowledgement closes the transaction. Delivery stays human-owned." />
 
-Receipt-Driven Development (RDD) is on by default and opt-out: run `gentle-ai review mode disable` to turn it off. Explicit global or clone-local OFF choices remain OFF. Its point is that a review cannot drift: the candidate is frozen before anything reads it, so the evidence belongs to the exact version you are about to rely on — not to whatever the worktree looked like a moment later. The depth comes from that frozen candidate rather than from the model's judgment, and the result is informational. Commit, push and release stay your call.
+Receipt-Driven Development (RDD) is on by default and opt-out: run `ordo review mode disable` to turn it off. Explicit global or clone-local OFF choices remain OFF. Its point is that a review cannot drift: the candidate is frozen before anything reads it, so the evidence belongs to the exact version you are about to rely on — not to whatever the worktree looked like a moment later. The depth comes from that frozen candidate rather than from the model's judgment, and the result is informational. Commit, push and release stay your call.
 
 **[Docs →](docs/review-integration.md)**
 
@@ -156,9 +156,9 @@ Receipt-Driven Development (RDD) is on by default and opt-out: run `gentle-ai re
 
 ### Deterministic by design — Know the next valid step
 
-<img width="100%" src="docs/assets/diagrams/deterministic.svg" alt="A different agent, a different model and a brand-new session all converge on the gentle-ai binary. It reads the change state from files on disk and returns the only valid next transition, so no model votes on what comes next. The answer is always one of four public states: Working, Checking, Ready, or Needs your decision." />
+<img width="100%" src="docs/assets/diagrams/deterministic.svg" alt="A different agent, a different model and a brand-new session all converge on the ordo binary. It reads the change state from files on disk and returns the only valid next transition, so no model votes on what comes next. The answer is always one of four public states: Working, Checking, Ready, or Needs your decision." />
 
-A model that guesses the next step guesses differently tomorrow, and differently again for your teammate. That is the gap between a workflow and a suggestion. The **`gentle-ai` binary** owns native RDD review transitions; ODD guidance keeps ordinary work proportional to the request. Review evidence is bound to the candidate rather than a model's recollection.
+A model that guesses the next step guesses differently tomorrow, and differently again for your teammate. That is the gap between a workflow and a suggestion. The **`ordo` binary** owns native RDD review transitions; ODD guidance keeps ordinary work proportional to the request. Review evidence is bound to the candidate rather than a model's recollection.
 
 **[Docs →](docs/trigger-rules.md)**
 
@@ -193,7 +193,7 @@ Gentle-AI brings its shared workflow to Pi, OpenCode, Claude Code, Codex, and th
 | **CodeGraph** | Read-only symbol graph of your codebase |
 | **Security deny-list** | Blocks `~/.ssh`, `.env` and credential files |
 | **Config backups** | Snapshotted before every single write |
-| **Doctor** | `gentle-ai doctor` — read-only health report |
+| **Doctor** | `ordo doctor` — read-only health report |
 | **Personas** | Optional personas; Gentleman is a caring but rigorous mentor who guides you toward your goal |
 | **Themes** | Gentleman and Gentleman-Cute |
 | **Model assignment** | Configure supported agent and review-role models where available |
@@ -208,7 +208,7 @@ Gentle-AI brings its shared workflow to Pi, OpenCode, Claude Code, Codex, and th
 
 ```bash
 # macOS (Homebrew)
-brew install gentleman-programming/tap/gentle-ai
+brew install gentleman-programming/tap/ordo
 
 # macOS / Linux (curl)
 curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash
@@ -218,8 +218,8 @@ go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@latest
 ```
 
 ```bash
-gentle-ai          # pick your agents, components and persona
-gentle-ai doctor   # verify — read-only, changes nothing
+ordo          # pick your agents, components and persona
+ordo doctor   # verify — read-only, changes nothing
 ```
 
 Then use your agent normally. Your configs are snapshotted before every write, and **Gentle-AI never installs an AI agent for you** — it configures what you already have.
