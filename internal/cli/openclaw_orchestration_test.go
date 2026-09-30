@@ -408,7 +408,7 @@ func assertOpenClawRouting(t *testing.T, root string) {
 			t.Fatalf("AGENTS.md at %s missing %q", root, want)
 		}
 	}
-	for _, forbidden := range []string{"Receipt-driven development is user-owned", "gentle-ai review"} {
+	for _, forbidden := range []string{"Receipt-driven development is user-owned", "ordo review"} {
 		if strings.Contains(agentsText, forbidden) {
 			t.Fatalf("AGENTS.md at %s carries RDD content %q", root, forbidden)
 		}

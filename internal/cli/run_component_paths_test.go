@@ -880,7 +880,7 @@ func TestComponentPathsSDDCodexIncludesHooksJSONOnlyForCodex(t *testing.T) {
 }
 
 // TestComponentPathsPermissionsCodexContributesNoPaths pins that the
-// Permission component claims nothing under ~/.codex. gentle-ai does not write
+// Permission component claims nothing under ~/.codex. ordo does not write
 // Codex's permissions config — not a profile, and not the legacy cleanup that
 // used to strip one — so there is no injection target to verify and nothing to
 // snapshot for rollback. A path reappearing here would mean something started
@@ -1170,7 +1170,7 @@ func TestInstallCodexTelemetryWithoutSDD(t *testing.T) {
 	runInstallInjectionSteps(t, newTestInstallRuntime(t, home, selection))
 	path := filepath.Join(home, ".codex", "hooks.json")
 	first := readTextFile(t, path)
-	for _, want := range []string{`"SubagentStop"`, `"Stop"`, `gentle-ai telemetry runtime codex --json`, `gentle-ai skill-registry refresh`} {
+	for _, want := range []string{`"SubagentStop"`, `"Stop"`, `ordo telemetry runtime codex --json`, `ordo skill-registry refresh`} {
 		if !strings.Contains(first, want) {
 			t.Fatalf("missing %q in %s", want, path)
 		}
@@ -1385,7 +1385,7 @@ func TestRoutingLegacyTriggerCleanupTargetsSelectedOpenCodeSettings(t *testing.T
 
 // TestAgentRoutingGuidanceStepRetiresPiManagedBlocks covers issue #3508: Pi
 // owns APPEND_SYSTEM.md, so routing never injects a new block but does remove
-// the paired stale block an older gentle-ai release wrote.
+// the paired stale block an older ordo release wrote.
 func TestAgentRoutingGuidanceStepRetiresPiManagedBlocks(t *testing.T) {
 	home := t.TempDir()
 	promptPath := systemPromptFileFor(t, home, model.AgentPi)

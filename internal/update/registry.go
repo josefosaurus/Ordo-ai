@@ -29,7 +29,7 @@ var Tools = []ToolInfo{
 		InstallMethod: InstallBinary,
 		// GoImportPath is what makes the Windows self-upgrade possible. It is
 		// deliberately NOT a general opt-in to go-install: effectiveMethod routes
-		// gentle-ai on Linux/macOS to InstallBinary regardless of this field, so
+		// ordo on Linux/macOS to InstallBinary regardless of this field, so
 		// those platforms keep the minisign-verified release download.
 		//
 		// The path stores the module/import base WITHOUT the /vN suffix; the

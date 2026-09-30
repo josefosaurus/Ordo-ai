@@ -63,7 +63,7 @@ func readRuntimeJSONValue(input io.Reader) ([]byte, error) {
 	decoder := json.NewDecoder(io.LimitReader(input, telemetry.RuntimeMaxBytes+1))
 	var value json.RawMessage
 	if err := decoder.Decode(&value); err != nil || decoder.InputOffset() > telemetry.RuntimeMaxBytes || len(value) > telemetry.RuntimeMaxBytes {
-		// refusal:by-design world-action: the host hook wrote malformed or oversized stdin; only the host process can emit one complete JSON object within the bound, no gentle-ai command repairs its stream
+		// refusal:by-design world-action: the host hook wrote malformed or oversized stdin; only the host process can emit one complete JSON object within the bound, no ordo command repairs its stream
 		return nil, errors.New("invalid bounded runtime hook input")
 	}
 	return value, nil
@@ -75,7 +75,7 @@ func runTelemetryRuntime(args []string, stdout io.Writer) error {
 
 func runTelemetryRuntimeInput(args []string, stdout io.Writer, input io.Reader) error {
 	if len(args) != 2 || (args[0] != "send" && args[0] != "opencode" && args[0] != "claude" && args[0] != "codex") || args[1] != "--json" {
-		return errors.New("usage: gentle-ai telemetry runtime <send|opencode|claude|codex> --json (bounded aggregate or hook on stdin)")
+		return errors.New("usage: ordo telemetry runtime <send|opencode|claude|codex> --json (bounded aggregate or hook on stdin)")
 	}
 	decision := "disabled"
 	if telemetry.Decide(os.Getenv, telemetry.State{Enabled: true}).Enabled {

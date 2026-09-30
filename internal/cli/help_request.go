@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 )
 
 // helpRequestError carries the usage block the flag package derived from a
@@ -46,7 +48,7 @@ func parseCommandFlags(fs *flag.FlagSet, args []string) error {
 	if text == "" {
 		return err
 	}
-	return fmt.Errorf("%w — run `gentle-ai %s --help` for the supported flags:\n%s", err, fs.Name(), text)
+	return fmt.Errorf("%w — run `%s %s --help` for the supported flags:\n%s", err, brand.Command, fs.Name(), text)
 }
 
 // writeHelpRequest answers a help request by printing the derived usage and

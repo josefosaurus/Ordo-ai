@@ -65,7 +65,7 @@ type strategyOutcome struct {
 //   - brew profile → brewUpgrade (regardless of tool's declared method)
 //   - go-install method + apt/pacman/other → goInstallUpgrade
 //   - binary method + linux/darwin → binaryUpgrade
-//   - binary method + windows → manualFallback (gentle-ai explains the signed-distribution hold)
+//   - binary method + windows → manualFallback (ordo explains the signed-distribution hold)
 //   - script method + linux/darwin + gga → ggaScriptUpgrade (git clone approach)
 //   - script method + linux/darwin + other → scriptUpgrade (curl | bash install.sh)
 //   - script method + windows → manualFallback
@@ -536,7 +536,7 @@ func homebrewFailureAdvice(toolName string, output string, detected ...update.Ho
 // goInstallUpgrade runs `go install <importPath>@v<version>`.
 //
 // Generic Go-managed tools retain the post-install warning because the new
-// binary was genuinely written. Windows gentle-ai self-upgrades are different:
+// binary was genuinely written. Windows ordo self-upgrades are different:
 // they must prove that Go owns the active executable before writing, or skip to
 // a manual recovery instead of creating a second PATH-visible binary.
 func goInstallUpgrade(ctx context.Context, r update.UpdateResult, profile system.PlatformProfile, preflightDestination string) error {
@@ -626,9 +626,9 @@ func gentleAIWindowsGoInstallProvenanceHint(r update.UpdateResult, destination, 
 	details := "could not determine the Go installation destination"
 	switch {
 	case destination != "" && active == "":
-		details = fmt.Sprintf("could not resolve the active gentle-ai executable before Go would write to %s", destination)
+		details = fmt.Sprintf("could not resolve the active ordo executable before Go would write to %s", destination)
 	case destination != "" && active != "":
-		details = fmt.Sprintf("resolves gentle-ai to %s, but Go would write to %s", active, destination)
+		details = fmt.Sprintf("resolves ordo to %s, but Go would write to %s", active, destination)
 	}
 
 	hint := fmt.Sprintf("Windows self-upgrade %s. No files were changed. ", details)
@@ -647,7 +647,7 @@ func gentleAIWindowsGoInstallProvenanceHint(r update.UpdateResult, destination, 
 		hint += update.GentleAISourceInstallCommand(r.LatestVersion)
 	}
 	if destination != "" {
-		hint += fmt.Sprintf("\nAfter a successful migration, ensure only %s resolves for gentle-ai on PATH.", destination)
+		hint += fmt.Sprintf("\nAfter a successful migration, ensure only %s resolves for ordo on PATH.", destination)
 	}
 	return hint
 }

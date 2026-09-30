@@ -103,7 +103,7 @@ func TestRunArgsNoArgumentRequiresInteractiveStdinAndStdout(t *testing.T) {
 			if err == nil {
 				t.Fatalf("RunArgs(nil) error = nil, want non-nil terminal guidance")
 			}
-			for _, want := range []string{"--version", "gentle-ai update", "--help"} {
+			for _, want := range []string{"--version", "ordo update", "--help"} {
 				if !strings.Contains(err.Error(), want) {
 					t.Fatalf("RunArgs(nil) error = %q, want actionable guidance containing %q", err, want)
 				}
@@ -234,7 +234,7 @@ func TestBuiltBinaryClosedStdinRefusesBeforeBubbleTea(t *testing.T) {
 		t.Fatal("runtime.Caller failed")
 	}
 	repoRoot := filepath.Join(filepath.Dir(sourceFile), "..", "..")
-	binaryPath := filepath.Join(t.TempDir(), "gentle-ai")
+	binaryPath := filepath.Join(t.TempDir(), "ordo")
 	build := exec.Command("go", "build", "-o", binaryPath, "./cmd/gentle-ai")
 	build.Dir = repoRoot
 	if output, err := build.CombinedOutput(); err != nil {
@@ -262,7 +262,7 @@ func TestBuiltBinaryClosedStdinRefusesBeforeBubbleTea(t *testing.T) {
 	}
 
 	combined := stdout.String() + stderr.String()
-	for _, want := range []string{"--version", "gentle-ai update", "--help"} {
+	for _, want := range []string{"--version", "ordo update", "--help"} {
 		if !strings.Contains(combined, want) {
 			t.Fatalf("built binary output = %q, want actionable guidance containing %q", combined, want)
 		}

@@ -64,13 +64,13 @@ func TestEffectiveMethodWindowsPrecedenceIsUnchanged(t *testing.T) {
 	}
 }
 
-// gentleAIImportPath is the module path gentle-ai publishes its command under.
+// gentleAIImportPath is the module path ordo publishes its command under.
 // It is asserted against the registry below so the tests and the shipped
 // declaration cannot drift apart. The /vN suffix is not stored here; it is
 // derived at composition time via update.ModulePathForVersion.
 const gentleAIImportPath = "github.com/gentleman-programming/gentle-ai/cmd/gentle-ai"
 
-// registryGentleAI returns the shipped gentle-ai registry entry. Routing tests
+// registryGentleAI returns the shipped ordo registry entry. Routing tests
 // use the real declaration rather than a hand-built ToolInfo so a regression in
 // registry.go cannot hide behind a synthetic fixture.
 func registryGentleAI(t *testing.T) update.ToolInfo {
@@ -80,7 +80,7 @@ func registryGentleAI(t *testing.T) update.ToolInfo {
 			return tool
 		}
 	}
-	t.Fatal("gentle-ai is missing from the tool registry")
+	t.Fatal("ordo is missing from the tool registry")
 	return update.ToolInfo{}
 }
 
@@ -334,7 +334,7 @@ func TestGentleAIUpgradeWindowsRefusesUnresolvedGoProvenance(t *testing.T) {
 		wantHint      string
 	}{
 		{name: "Go destination", goEnvFails: true, wantHint: "could not determine the Go installation destination"},
-		{name: "active executable", lookPathFails: true, wantHint: "could not resolve the active gentle-ai executable"},
+		{name: "active executable", lookPathFails: true, wantHint: "could not resolve the active ordo executable"},
 	}
 
 	for _, tt := range tests {

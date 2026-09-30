@@ -16,9 +16,11 @@ import (
 func TestReviewProviderArtifactV1ContractsArePinned(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v1")
 	want := map[string]string{
-		"fixtures/capabilities-v1.4.fixture.json": "84e0db457b76b97b35c2be772dfc647f9eab66810ea98f64fed85645c3c266ba",
+		// Ordo: command renamed to ordo.
+		"fixtures/capabilities-v1.4.fixture.json": "7c7cd6670ede933f132a14c973288799370e8ddf4abecddb784db096956a5e29",
 		// Ordo: the consent headline names the active brand (default "Ordo").
-		"fixtures/consent.fixture.json": "98ea566cd74e7161bbff9cb933d5698628f1b5be4d218dd2477145be5555d8a2",
+		// Ordo: command renamed to ordo.
+		"fixtures/consent.fixture.json": "b7b6fde79232acee74580e182ee7d13214870944b8571a43f6eb1039c0c8dfd8",
 		"fixtures/start.fixture.json":   "3b963b221cd1560eb8872cbabbb5407096f593ced2f13eb9cb06eb61e4cca4d1",
 		// issue #2659: start-v2/status-v2 embed a freshly minted target_identity,
 		// and the purified identity domain legitimately changed that hash for
@@ -32,15 +34,18 @@ func TestReviewProviderArtifactV1ContractsArePinned(t *testing.T) {
 		"fixtures/status-unrelated.fixture.json": "deab36c877ced3c9b480ca33724c10d88f75c761d6426fa14be850345122891d",
 		"schemas/admitted-result.schema.json":    "7796e8dbba331434594108c902dfab7ec46f691fa447a9259a78f2448111b0de",
 		"schemas/artifact-subject.schema.json":   "f7dcd934e27e8f3735a37f3d0ec8048dd8ccc1811b9df61124a1dcbf8a03f40e",
-		"schemas/capabilities-v1.4.schema.json":  "926b61c8ac0f870f09214f6bd8af1b035c5b72f14f0b83c0d4a7bdbb277f5447",
-		"schemas/result-artifact.schema.json":    "91296bd2c261fd2fe03bffd63efe58badd4927e0d0d8480cd4213f651ecacdf6",
-		"schemas/start.schema.json":              "4296aebbd4128ce51945a2f6d3228aa77ac7215c802978d559bff5279ec56229",
+		// Ordo: command renamed to ordo.
+		"schemas/capabilities-v1.4.schema.json": "7d2f3237bebd36f8e7cfc6e4b58b75825d065db05b98b349b5617812ddd38d1c",
+		"schemas/result-artifact.schema.json":   "91296bd2c261fd2fe03bffd63efe58badd4927e0d0d8480cd4213f651ecacdf6",
+		"schemas/start.schema.json":             "4296aebbd4128ce51945a2f6d3228aa77ac7215c802978d559bff5279ec56229",
 		// Frozen v1 START artifacts do not project the v3 replay or retired
 		// stale-burn fields.
-		"schemas/start-v2.schema.json":             "ec8550cd93bbe84af1ce87dfd7abfa9e24692f42b20f8f0bf9cac1d4b88ea46c",
-		"schemas/status.schema.json":               "86d0a5ff09a833ff723804c3e31185a80826cbd81a73cf61026feea8c5df2314",
-		"schemas/status-v2.schema.json":            "7c51627d133592839ba4afa860b358b68109afd5f70ee998cd421f563201b23e",
-		"schemas/transition-execution.schema.json": "ddee03bd0c1b6e70f21c399bae7fe528aa4ad46cebb5a48ec72b6e6b3694aa2d",
+		"schemas/start-v2.schema.json": "ec8550cd93bbe84af1ce87dfd7abfa9e24692f42b20f8f0bf9cac1d4b88ea46c",
+		// Ordo: command renamed to ordo.
+		"schemas/status.schema.json":    "b2c1f462acbe3abe6f552b8ad604902ebf42c762f5848759ae157ae858724977",
+		"schemas/status-v2.schema.json": "7c51627d133592839ba4afa860b358b68109afd5f70ee998cd421f563201b23e",
+		// Ordo: command renamed to ordo.
+		"schemas/transition-execution.schema.json": "20eaa70a337c5a614c4a96f6d524b857a6534808cbe2b9ae06bc106516f607f4",
 	}
 	for name, expected := range want {
 		payload, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(name)))
@@ -57,18 +62,22 @@ func TestReviewProviderArtifactV1ContractsArePinned(t *testing.T) {
 func TestReviewProviderArtifactV20ContractsArePinned(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v2")
 	want := map[string]string{
-		"fixtures/capabilities.fixture.json": "8d5e1a8491db1a5a2f6329e8c1d5cd210dd175e0525ff4d51fa914351d2fcf08",
+		// Ordo: command renamed to ordo.
+		"fixtures/capabilities.fixture.json": "4bca670e55a7911dec415205037a051dab5bf7477bc13e20cd95bd0297550d86",
 		// Ordo: the consent headline names the active brand (default "Ordo").
-		"fixtures/consent.fixture.json": "92ef1b7cb3cd0d78da7c6d7496c603b03772a0b049f23b5ba346ad606082f68e",
+		// Ordo: command renamed to ordo.
+		"fixtures/consent.fixture.json": "978c847365090a946f4a56392e966c8b19203b1df9a9815f0fda80ef0bfd42bf",
 		// issue #3922 / #4199 / gentle-pi#543: the native-git reviewer_result
 		// collect input no longer inlines changed_path_manifest -- it is
 		// already committed to by artifact_subject.changed_path_manifest_sha256
 		// -- so this fixture legitimately dropped that array. Deliberate, not
 		// drift.
-		"fixtures/status.fixture.json":     "3fc2539d5bcaa8dc3ed650ba7f5e8915856a3d9f8caf1cfcb1b0354ecacbe0f8",
-		"schemas/capabilities.schema.json": "df1d1d36bfb8b7816d3eb1c44c1350b4a36e27ac321922963add9dd25ed5a1a2",
-		"schemas/consent.schema.json":      "b2b4465338497f11927de91cb2e5da12b6cb4a1039afe05aebe1abbf53b21858",
-		"schemas/status.schema.json":       "3b257b417270744061dc943a97537e253e36e34de4591b0400e3c38ea3efde80",
+		"fixtures/status.fixture.json": "3fc2539d5bcaa8dc3ed650ba7f5e8915856a3d9f8caf1cfcb1b0354ecacbe0f8",
+		// Ordo: command renamed to ordo.
+		"schemas/capabilities.schema.json": "6bcf9145e17ab90dac5f8f25bd596ea3f8d30d278623ca785fa8a9a8d467968b",
+		// Ordo: command renamed to ordo.
+		"schemas/consent.schema.json": "a9b2179c968f2361199aabcc80bb5b3c087d03aa074c675714294a65b875055c",
+		"schemas/status.schema.json":  "3b257b417270744061dc943a97537e253e36e34de4591b0400e3c38ea3efde80",
 	}
 	for name, expected := range want {
 		payload, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(name)))
@@ -85,13 +94,16 @@ func TestReviewProviderArtifactV20ContractsArePinned(t *testing.T) {
 func TestReviewProviderArtifactV21ContractsArePinned(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v2")
 	want := map[string]string{
-		"fixtures/capabilities-v2.1.fixture.json": "96d157898c2bed6d028203999c081fcbb7992fb91a61f27b7eaab80c95245bd6",
+		// Ordo: command renamed to ordo.
+		"fixtures/capabilities-v2.1.fixture.json": "2e21f6348ebe069b80a09f9396b7bea7f99b719ae562d80cf6a074687b650e72",
 		// issue #2659: consent-v3 embeds a freshly minted target_identity;
 		// the purified identity domain legitimately changed that hash.
 		// Deliberate, not drift.
 		// Ordo: the consent headline names the active brand (default "Ordo").
-		"fixtures/consent-v3.fixture.json":      "cc3bb3d43ec0d0858ba9b4afcb51c7a9b10248d1d670d1b6e352777e8556c58f",
-		"schemas/capabilities-v2.1.schema.json": "95d2b8b46e9be6e6fbc874fc763029cb7994951336c8974dc1694834d64bf06e",
+		// Ordo: command renamed to ordo.
+		"fixtures/consent-v3.fixture.json": "21c96bb8c7cca9032f6cfdae951555670cac38425fdc8d56993a1d72c25ee5cb",
+		// Ordo: command renamed to ordo.
+		"schemas/capabilities-v2.1.schema.json": "2efbf922517e7130d78c0b27eeab0f6015ad5b1b8c8d83fdafb36f26c1e469a2",
 		// Cross-lane battery conformance fix: the schema pinned the choice
 		// invocations to `--agent claude-code`, but the live emitter omits the
 		// agent token when the caller declared no runtime (the pinned fixture
@@ -101,7 +113,8 @@ func TestReviewProviderArtifactV21ContractsArePinned(t *testing.T) {
 		// relay drives consent with its own declared runtime identity, which
 		// the emitter legitimately publishes once the relay handshake is
 		// declared. Deliberate, not drift.
-		"schemas/consent-v3.schema.json": "f56b1809c1bff21713795ef37a095c6ecfdbbb3cf928bcf604b8d5f33be3dea5",
+		// Ordo: command renamed to ordo.
+		"schemas/consent-v3.schema.json": "bf5ef93a0e5371f2b389669893627abd60d014d1f8341de5c03de507c83096d1",
 		"schemas/status.schema.json":     "3b257b417270744061dc943a97537e253e36e34de4591b0400e3c38ea3efde80",
 	}
 	for name, expected := range want {
@@ -161,10 +174,13 @@ func TestReviewProviderArtifactV25StatusContractsArePinned(t *testing.T) {
 func TestReviewProviderArtifactV23StartContractsArePinned(t *testing.T) {
 	root := filepath.Join("..", "..", "contracts", "review-integration", "v2")
 	want := map[string]string{
-		"fixtures/capabilities-v2.3.fixture.json": "ed5fb324791eec28287c621f19dffd69323120f61ce537e7b329fc018a29fe42",
-		"fixtures/start-v4.fixture.json":          "639a6e78b40cb5e000ec15265fd444c243e28594035c7d376c378142162bfb02",
-		"schemas/capabilities-v2.3.schema.json":   "606efa4b691605b0e7b668c616d48712a2a925c819244ebe2bc63d9885658bb3",
-		"schemas/start-v4.schema.json":            "770c6a7e40a62a945d1134cba933cfd811f4c5e6ab407a36a26ba56508bc00e4",
+		// Ordo: command renamed to ordo.
+		"fixtures/capabilities-v2.3.fixture.json": "1a1d6834c79b7ac4c0fbdc6ebf97e1973e3ee8651a3847834c2c235f15114d68",
+		// Ordo: command renamed to ordo.
+		"fixtures/start-v4.fixture.json": "6d1ec9dea69ff8bf584cd9c533adb35724dd9da9d1d04bcc78f39a279ae65a28",
+		// Ordo: command renamed to ordo.
+		"schemas/capabilities-v2.3.schema.json": "5d2a3d695ee48b10679611f23bcd135f6bc378daf1677d70bde9122b0d982655",
+		"schemas/start-v4.schema.json":          "770c6a7e40a62a945d1134cba933cfd811f4c5e6ab407a36a26ba56508bc00e4",
 	}
 	for name, expected := range want {
 		payload, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(name)))
@@ -215,7 +231,8 @@ func TestReviewProviderArtifactConformanceSchemasArePinned(t *testing.T) {
 		// references. Deliberate, not drift.
 		// issue #3932: start_status_execution carries the opaque
 		// repository-context row, so a foreign process cwd fails closed.
-		"schemas/transition-execution.schema.json":   "3743a16d915f5d95be047af1f0454f342aa4c3eb7bcb0d8991f81ae3b89873c1",
+		// Ordo: command renamed to ordo.
+		"schemas/transition-execution.schema.json":   "84073cc88c725837466b4011a93c8fe3d30c2184970ab86414f24e6fd4f4c7af",
 		"schemas/opencode-provider-role.schema.json": "c6b9f216f89c044f8e844b55e7200114850cfbc16642bca0677f30a399d8aa9b",
 	}
 	for name, expected := range want {
@@ -244,7 +261,7 @@ func TestReviewProviderArtifactStatusV7ContractsArePinned(t *testing.T) {
 		// issues #3299, #4170: a stale managed-asset digest now fails STATUS's
 		// own preflight, before a START is ever offered, as a typed
 		// managed_assets_outdated "stop" that carries the exact
-		// candidate-preserving `gentle-ai sync` continuation (see
+		// candidate-preserving `ordo sync` continuation (see
 		// failure.schema.json#/$defs/managed_assets_continuation). Deliberate,
 		// not drift.
 		// issue #3442: next_transition gained a third oneOf branch for the
@@ -256,7 +273,8 @@ func TestReviewProviderArtifactStatusV7ContractsArePinned(t *testing.T) {
 		//
 		// issue #4226: status/v7 documents the CompactEscalationEvidence contract
 		// on terminal escalation. Deliberate, not drift.
-		"schemas/status-v7.schema.json":         "277abd6aed05ff7358fc32374bf524c9c3d10d3760d42c68c4e8a235e2f86968",
+		// Ordo: command renamed to ordo.
+		"schemas/status-v7.schema.json":         "f1e8625dd588b672120c3430b49de3676023ed2a6bbe481eb81e26c445d09f73",
 		"schemas/capabilities-v2.5.schema.json": "9fcdb1717a54bcd4f73d4dee1283d9ec2f27cccbb5d54804ee8b40a6ed2db553",
 	}
 	for name, expected := range want {

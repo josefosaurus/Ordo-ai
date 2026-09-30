@@ -9,15 +9,15 @@ import (
 
 func printHelp(w io.Writer, version string) {
 	b := brand.Current()
-	fmt.Fprintf(w, `%s
+	fmt.Fprintf(w, `%[1]s
 
 USAGE
-  gentle-ai                     Launch interactive TUI
-  gentle-ai <command> [flags]
+  %[3]s                          Launch interactive TUI
+  %[3]s <command> [flags]
 
 COMMANDS
   install      Configure AI coding agents on this machine
-  uninstall    Remove %s managed files from this machine
+  uninstall    Remove %[2]s managed files from this machine
   sync         Sync agent configs and skills to current version
   brand        Customize the name, tagline, logo, and colors (show|set|reset)
   skill-registry refresh
@@ -45,7 +45,7 @@ COMMANDS
                'review start' asks per candidate before a review that would do work;
                accepting covers that candidate only and nothing is granted for later candidates,
                'not now' applies to that candidate only and persists nothing, turning reviews
-               off for good needs a deliberate 'gentle-ai review mode disable', and a session
+               off for good needs a deliberate '%[3]s review mode disable', and a session
                without a terminal reviews the change and says so instead of asking
 
 COMPATIBILITY COMMANDS
@@ -74,7 +74,7 @@ COMPATIBILITY COMMANDS
 FLAGS
   --help, -h    Show global help; every review subcommand also supports help
 
-Run 'gentle-ai help' for this message.
+Run '%[3]s help' for this message.
 Based on Gentle AI: https://github.com/Gentleman-Programming/gentle-ai
-`, b.Headline(version), b.Name)
+`, b.Headline(version), b.Name, brand.Command)
 }

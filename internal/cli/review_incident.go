@@ -124,7 +124,7 @@ const (
 	// or KEY=VALUE token, so reviewScrubDefectReportField leaves it byte
 	// identical: this string can never become a path leak.
 	reviewGitTrustRefusalAction = "Git declined to open the bound repository in this process because it is owned by a different account; " +
-		"gentle-ai never provisions a safe.directory exception and never bypasses that protection. " +
+		"ordo never provisions a safe.directory exception and never bypasses that protection. " +
 		"Restart the host process under a Git context that already trusts that repository, then retry the same exact binding"
 	// gitSafeDirectoryHint is the second half of Git's ownership refusal:
 	// every version that emits the refusal also emits this remediation hint
@@ -178,8 +178,8 @@ const (
 	// resolve it, and the PATH shape, because a bare-name spawn from an
 	// editor plugin is how the stale binary gets invoked: the caller
 	// installed the newer build but an older one answers first.
-	reviewAuthorityNewerReleaseAction = "upgrade this gentle-ai, or invoke the newer build directly; " +
-		"an editor plugin resolves gentle-ai from PATH, so run `which -a gentle-ai` and make the newer build the one it finds first"
+	reviewAuthorityNewerReleaseAction = "upgrade this ordo, or invoke the newer build directly; " +
+		"an editor plugin resolves ordo from PATH, so run `which -an ordo` and make the newer build the one it finds first"
 )
 
 // reviewGitOwnershipRefusal reports whether err was caused by Git refusing a

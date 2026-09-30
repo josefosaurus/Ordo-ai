@@ -15,7 +15,7 @@ import (
 // It matches app.tuiRestore and backup.RestoreService.Restore signatures.
 type RestoreFunc func(manifest backup.Manifest) error
 
-// RunRestore is the top-level entry point for `gentle-ai restore [args]`.
+// RunRestore is the top-level entry point for `ordo restore [args]`.
 // It reads backups from the real home directory and uses the default restore function.
 func RunRestore(args []string, stdout io.Writer) error {
 	restorer := defaultRestorer()
@@ -49,7 +49,7 @@ func newRestoreFlagSet() *flag.FlagSet {
 		// before it, so the flag package's duplicated error line is not
 		// reported twice alongside the custom block.
 		fmt.Fprintf(fs.Output(), "Usage of %s:\n", fs.Name())
-		fmt.Fprintln(fs.Output(), "  gentle-ai restore [--list | latest | <id>] [--yes]")
+		fmt.Fprintln(fs.Output(), "  ordo restore [--list | latest | <id>] [--yes]")
 		fs.PrintDefaults()
 	}
 	return fs
@@ -111,7 +111,7 @@ func runRestoreWithHomeDir(args []string, restorer RestoreFunc, stdout io.Writer
 
 	// If no subcommand argument, show usage.
 	if len(positional) == 0 {
-		return fmt.Errorf("usage: gentle-ai restore [--list | latest | <id>] [--yes]")
+		return fmt.Errorf("usage: ordo restore [--list | latest | <id>] [--yes]")
 	}
 
 	target := positional[0]
@@ -146,7 +146,7 @@ func runRestoreWithHomeDir(args []string, restorer RestoreFunc, stdout io.Writer
 // renderRestoreList writes the backup listing to stdout.
 // Backups are already sorted newest-first by listBackupsFromDir.
 // Each entry shows: index, ID, DisplayLabel (source + timestamp + file count),
-// and the gentle-ai version that created the backup when known.
+// and the ordo version that created the backup when known.
 func renderRestoreList(backups []backup.Manifest, stdout io.Writer) error {
 	if len(backups) == 0 {
 		fmt.Fprintln(stdout, "no backups found")
@@ -183,7 +183,7 @@ func resolveRestoreTarget(target string, backups []backup.Manifest) (backup.Mani
 		}
 	}
 
-	return backup.Manifest{}, fmt.Errorf("backup %q not found — use `gentle-ai restore --list` to see available backups", target)
+	return backup.Manifest{}, fmt.Errorf("backup %q not found — use `ordo restore --list` to see available backups", target)
 }
 
 // promptRestoreConfirm asks the user to confirm a restore operation.

@@ -53,7 +53,7 @@ func updateHint(tool ToolInfo, profile system.PlatformProfile) string {
 	case "gga":
 		return ggaHint(profile)
 	case "opencode-subagent-statusline", "opencode-sdd-engram-manage":
-		return "gentle-ai upgrade updates ~/.config/opencode npm deps, clears this plugin's @latest cache, then requires OpenCode restart/reload"
+		return "ordo upgrade updates ~/.config/opencode npm deps, clears this plugin's @latest cache, then requires OpenCode restart/reload"
 	default:
 		return ""
 	}
@@ -71,7 +71,7 @@ func openCodeRegisteredNotMaterializedHint(tool ToolInfo) string {
 	if pkg == "" {
 		pkg = tool.Name
 	}
-	return fmt.Sprintf("registered in ~/.config/opencode/tui.json; pending npm dependency materialization for %s. Run gentle-ai upgrade to install/update ~/.config/opencode dependencies, then restart or reload OpenCode; if it stays pending, check OpenCode logs for package or peer dependency errors.", pkg)
+	return fmt.Sprintf("registered in ~/.config/opencode/tui.json; pending npm dependency materialization for %s. Run ordo upgrade to install/update ~/.config/opencode dependencies, then restart or reload OpenCode; if it stays pending, check OpenCode logs for package or peer dependency errors.", pkg)
 }
 
 // gentleAIHint is the stable-channel instruction only. When the checker
@@ -87,7 +87,7 @@ func gentleAIHint(profile system.PlatformProfile) string {
 	case "linux":
 		return "curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash"
 	case "darwin":
-		return "gentle-ai upgrade (downloads pre-built binary)"
+		return "ordo upgrade (downloads pre-built binary)"
 	case "windows":
 		return WindowsDistributionHoldMessage + " Install/update from source with Go 1.25.10+: " + GentleAISourceInstallCommand("")
 	default:
@@ -99,7 +99,7 @@ func engramHint(profile system.PlatformProfile) string {
 	if profile.PackageManager == "brew" && homebrewPackageInstalled("engram") {
 		return "brew upgrade engram"
 	}
-	return "gentle-ai upgrade (downloads pre-built binary)"
+	return "ordo upgrade (downloads pre-built binary)"
 }
 
 func ggaHint(profile system.PlatformProfile) string {

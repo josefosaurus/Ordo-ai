@@ -1,4 +1,4 @@
-// Package brandcmd implements `gentle-ai brand`: show, set, and reset the
+// Package brandcmd implements `ordo brand`: show, set, and reset the
 // per-user brand override (see internal/brand).
 package brandcmd
 
@@ -21,13 +21,13 @@ const usage = `Customize the name, tagline, logo, and colors shown by the CLI an
 Changes are stored per user in ~/.gentle-ai/brand.yaml.
 
 USAGE
-  gentle-ai brand show
-  gentle-ai brand set name <text>
-  gentle-ai brand set tagline <text>
-  gentle-ai brand set logo <file>          plain-text logo, one line per row
-  gentle-ai brand set color.<role> <#RRGGBB>
-  gentle-ai brand set gradient <#RRGGBB,#RRGGBB,...>
-  gentle-ai brand reset [name|tagline|logo|color.<role>|gradient]
+  ordo brand show
+  ordo brand set name <text>
+  ordo brand set tagline <text>
+  ordo brand set logo <file>          plain-text logo, one line per row
+  ordo brand set color.<role> <#RRGGBB>
+  ordo brand set gradient <#RRGGBB,#RRGGBB,...>
+  ordo brand reset [name|tagline|logo|color.<role>|gradient]
 
 COLOR ROLES
   primary accent text muted border success error warning highlight
@@ -49,12 +49,12 @@ func Run(args []string, homeDir string, stdout io.Writer) error {
 		return show(homeDir, stdout)
 	case "set":
 		if len(args) != 3 {
-			return errors.New("usage: gentle-ai brand set <field> <value> (see gentle-ai brand help)")
+			return errors.New("usage: ordo brand set <field> <value> (see ordo brand help)")
 		}
 		return set(homeDir, args[1], args[2], stdout)
 	case "reset":
 		if len(args) > 2 {
-			return errors.New("usage: gentle-ai brand reset [field] (see gentle-ai brand help)")
+			return errors.New("usage: ordo brand reset [field] (see ordo brand help)")
 		}
 		field := ""
 		if len(args) == 2 {
@@ -62,7 +62,7 @@ func Run(args []string, homeDir string, stdout io.Writer) error {
 		}
 		return reset(homeDir, field, stdout)
 	default:
-		return fmt.Errorf("unknown brand command %q (see gentle-ai brand help)", args[0])
+		return fmt.Errorf("unknown brand command %q (see ordo brand help)", args[0])
 	}
 }
 
@@ -99,7 +99,7 @@ func show(homeDir string, stdout io.Writer) error {
 func set(homeDir, field, value string, stdout io.Writer) error {
 	o, err := brand.ReadOverride(homeDir)
 	if err != nil {
-		return fmt.Errorf("%w; fix the file or run gentle-ai brand reset", err)
+		return fmt.Errorf("%w; fix the file or run ordo brand reset", err)
 	}
 	switch {
 	case field == "name":
@@ -121,7 +121,7 @@ func set(homeDir, field, value string, stdout io.Writer) error {
 		}
 		*dst = value
 	default:
-		return fmt.Errorf("unknown brand field %q (see gentle-ai brand help)", field)
+		return fmt.Errorf("unknown brand field %q (see ordo brand help)", field)
 	}
 	if err := brand.WriteOverride(homeDir, o); err != nil {
 		return fmt.Errorf("brand not changed: %w", err)
@@ -140,7 +140,7 @@ func reset(homeDir, field string, stdout io.Writer) error {
 	}
 	o, err := brand.ReadOverride(homeDir)
 	if err != nil {
-		return fmt.Errorf("%w; run gentle-ai brand reset to remove the whole file", err)
+		return fmt.Errorf("%w; run ordo brand reset to remove the whole file", err)
 	}
 	switch {
 	case field == "name":
@@ -158,7 +158,7 @@ func reset(homeDir, field string, stdout io.Writer) error {
 		}
 		*dst = ""
 	default:
-		return fmt.Errorf("unknown brand field %q (see gentle-ai brand help)", field)
+		return fmt.Errorf("unknown brand field %q (see ordo brand help)", field)
 	}
 	if err := brand.WriteOverride(homeDir, o); err != nil {
 		return err

@@ -86,7 +86,7 @@ func Run() error {
 	return RunArgs(os.Args[1:], os.Stdout)
 }
 
-const nonInteractiveTUIError = "gentle-ai requires both stdin and stdout to be terminals (TTYs); use --version, gentle-ai update, or --help for non-interactive use"
+const nonInteractiveTUIError = "ordo requires both stdin and stdout to be terminals (TTYs); use --version, ordo update, or --help for non-interactive use"
 
 // clearPendingSyncAfterDeferredSync clears PendingSync under the canonical
 // install-state lock. It re-reads the latest state inside the lock so changes
@@ -114,7 +114,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 	}
 
 	// Propagate the build-time version to the CLI and upgrade layers so backup
-	// manifests record which version of gentle-ai created them.
+	// manifests record which version of ordo created them.
 	cli.AppVersion = Version
 	upgrade.AppVersion = Version
 
@@ -128,7 +128,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 	if len(args) > 0 {
 		switch args[0] {
 		case "version", "--version", "-v":
-			_, _ = fmt.Fprintf(stdout, "gentle-ai %s\n", Version)
+			_, _ = fmt.Fprintf(stdout, "%s %s\n", brand.Command, Version)
 			return nil
 		case "help", "--help", "-h":
 			printHelp(stdout, Version)
@@ -235,7 +235,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 		return profile
 	}
 
-	// Self-update: check for a newer gentle-ai release and apply it before
+	// Self-update: check for a newer ordo release and apply it before
 	// CLI/TUI dispatch. Errors are non-fatal — logged and swallowed.
 	// Skip auto-upgrade on TUI entry (len(args) == 0) to avoid silently
 	// replacing the binary while the user expects a clean TUI launch (#696).
@@ -261,7 +261,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 			return fmt.Errorf("read install state: %w", err)
 		}
 
-		// Deferred sync: if a previous gentle-ai self-upgrade set PendingSync=true,
+		// Deferred sync: if a previous ordo self-upgrade set PendingSync=true,
 		// run sync now with the new binary before entering the TUI. On success,
 		// clear the flag. On failure, log and leave the flag set for idempotent
 		// retry on the next launch (per spec scenario "deferred sync fails → retry").
@@ -365,7 +365,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 	case "doctor":
 		return cli.RunDoctor(context.Background(), stdout)
 	default:
-		return fmt.Errorf("unknown command %q — run 'gentle-ai help' for available commands", args[0])
+		return fmt.Errorf("unknown command %q — run 'ordo help' for available commands", args[0])
 	}
 }
 
@@ -406,7 +406,7 @@ func gentleAIUpgradeVersionFromTUI(finalModel tea.Model) (string, bool) {
 
 func runSkillRegistry(args []string, stdout io.Writer) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: gentle-ai skill-registry <refresh|list> [flags]")
+		return fmt.Errorf("usage: ordo skill-registry <refresh|list> [flags]")
 	}
 	switch args[0] {
 	case "refresh":
@@ -560,13 +560,13 @@ func runUpdate(ctx context.Context, currentVersion string, profile system.Platfo
 	return nil
 }
 
-// runUpgrade handles the `gentle-ai upgrade [--dry-run] [tool...]` command.
+// runUpgrade handles the `ordo upgrade [--dry-run] [tool...]` command.
 //
 // This command:
 //   - Checks for available updates for managed tools (gentle-ai, engram, gga)
 //   - Snapshots agent config paths before execution (config preservation by design)
 //   - Executes binary-only upgrades; does NOT invoke install or sync pipelines
-//   - Skips gentle-ai itself when running as a dev build (version="dev")
+//   - Skips ordo itself when running as a dev build (version="dev")
 //   - Falls back to source-install guidance where official binaries are unavailable
 //
 // Issue #535: runUpgrade consumes a structured upgradeArgs value parsed once

@@ -1186,7 +1186,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err != nil {
 			m.Progress.AppendLog("FAILED: save global RDD mode — %s", msg.Err)
 			m.Execution.ManualActions = append(m.Execution.ManualActions,
-				"RDD mode was not saved. Retry with `gentle-ai review mode enable --scope global` or `gentle-ai review mode disable --scope global`.")
+				"RDD mode was not saved. Retry with `ordo review mode enable --scope global` or `ordo review mode disable --scope global`.")
 		}
 		return m, nil
 	case ReviewStoreResetDoneMsg:
@@ -2236,7 +2236,7 @@ func (m Model) confirmSelection() (tea.Model, tea.Cmd) {
 		if m.OperationRunning {
 			return m, nil
 		}
-		// If gentle-ai itself was upgraded, leave the TUI so the app layer can restart
+		// If ordo itself was upgraded, leave the TUI so the app layer can restart
 		// or ask for restart using the platform-specific restart helper.
 		if _, ok := m.GentleAIUpgradeVersion(); ok {
 			return m, tea.Quit
@@ -2280,7 +2280,7 @@ func (m Model) confirmSelection() (tea.Model, tea.Cmd) {
 		if m.OperationRunning {
 			return m, nil
 		}
-		// If gentle-ai itself was upgraded, leave the TUI so the app layer can restart
+		// If ordo itself was upgraded, leave the TUI so the app layer can restart
 		// or ask for restart using the platform-specific restart helper.
 		if _, ok := m.GentleAIUpgradeVersion(); ok {
 			return m, tea.Quit
@@ -3472,7 +3472,7 @@ func (m Model) startUninstall() tea.Cmd {
 			}
 			if isHomebrewManagedBinary(execPath) {
 				result.ManualActions = append(result.ManualActions,
-					"Homebrew-managed install detected. Run 'brew uninstall gentle-ai' to remove the executable cleanly.")
+					"Homebrew-managed install detected. Run 'brew uninstall ordo' to remove the executable cleanly.")
 			} else if removeErr := osRemoveFn(execPath); removeErr != nil {
 				return UninstallDoneMsg{Result: result, Err: fmt.Errorf("uninstall succeeded but failed to remove binary at %q: %w", execPath, removeErr)}
 			}
@@ -3529,7 +3529,7 @@ func (m Model) detectProjectEngramData() bool {
 // startUpgradeSync runs upgrade then sync sequentially via tea.Sequence.
 // Design decision: sync normally runs regardless of tool-level upgrade outcome.
 // Tool-level upgrade failures are per-tool (in UpgradeReport.Results), not fatal.
-// Exception: if gentle-ai itself was upgraded, sync is skipped so the old
+// Exception: if ordo itself was upgraded, sync is skipped so the old
 // running binary cannot rewrite configs after installing a newer binary.
 //
 // The first command runs the upgrade and sends UpgradePhaseCompletedMsg
@@ -3554,7 +3554,7 @@ func (m Model) startUpgradeSync() tea.Cmd {
 
 	syncCmd := func() tea.Msg {
 		if gentleAIUpdated {
-			// Deferred sync (task 4.8): gentle-ai was upgraded in this session.
+			// Deferred sync (task 4.8): ordo was upgraded in this session.
 			// Set PendingSync=true so the new binary runs sync on next launch
 			// instead of silently skipping it. Non-fatal if state write fails.
 			//
@@ -3611,7 +3611,7 @@ func reportUpgradedGentleAI(report upgrade.UpgradeReport) bool {
 	return false
 }
 
-// GentleAIUpgradeVersion returns the upgraded gentle-ai version when the current
+// GentleAIUpgradeVersion returns the upgraded ordo version when the current
 // TUI result requires restarting the app before continuing with config sync.
 func (m Model) GentleAIUpgradeVersion() (string, bool) {
 	if m.UpgradeReport == nil {
@@ -4630,7 +4630,7 @@ func (m *Model) buildDependencyPlan() {
 	m.DependencyPlan = resolved
 }
 
-// agentsToManage returns the canonical list of agents gentle-ai should manage.
+// agentsToManage returns the canonical list of agents ordo should manage.
 // A persisted selection is authoritative, including a deliberately configured
 // empty selection. Only state without an install selection falls back to detected
 // agents, then to the first-install catalog default.

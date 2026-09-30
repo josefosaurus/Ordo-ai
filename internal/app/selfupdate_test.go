@@ -604,7 +604,7 @@ func TestSelfUpdate_ConfirmUpdateTable(t *testing.T) {
 // ─── Slice 4 RED: PendingSync written on successful self-upgrade ─────────────
 
 // TestSelfUpdate_SetsPendingSyncOnSuccess verifies that after a successful
-// gentle-ai self-upgrade, PendingSync=true is written to state before the
+// ordo self-upgrade, PendingSync=true is written to state before the
 // process exits (re-exec or print message). This is the deferred-sync flag
 // that the next launch reads to run sync automatically.
 func TestSelfUpdate_SetsPendingSyncOnSuccess(t *testing.T) {
@@ -655,7 +655,7 @@ func TestSelfUpdate_SetsPendingSyncOnSuccess(t *testing.T) {
 }
 
 // TestSelfUpdate_DoesNotSetPendingSyncOnFailure verifies that when the
-// gentle-ai upgrade fails, PendingSync is NOT set in state (no retry needed
+// ordo upgrade fails, PendingSync is NOT set in state (no retry needed
 // since sync was never deferred).
 func TestSelfUpdate_DoesNotSetPendingSyncOnFailure(t *testing.T) {
 	unsetEnv(t, envNoSelfUpdate)

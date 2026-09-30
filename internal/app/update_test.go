@@ -106,8 +106,8 @@ func TestRunUpgrade_ReturnsErrorBeforeExecutingWhenChecksFail(t *testing.T) {
 	}
 }
 
-// TestRunUpgrade_RestartsAfterGentleAIUpgrade verifies that `gentle-ai upgrade`
-// prints the restart guidance message after a successful gentle-ai upgrade.
+// TestRunUpgrade_RestartsAfterGentleAIUpgrade verifies that `ordo upgrade`
+// prints the restart guidance message after a successful ordo upgrade.
 // After task 4.6, no re-exec occurs on any OS — the message is always printed.
 func TestRunUpgrade_RestartsAfterGentleAIUpgrade(t *testing.T) {
 	unsetEnv(t, envSelfUpdateDone)
@@ -142,7 +142,7 @@ func TestRunUpgrade_RestartsAfterGentleAIUpgrade(t *testing.T) {
 		t.Fatalf("runUpgrade() error = %v", err)
 	}
 	// After task 4.6: restart message printed, no re-exec.
-	if !strings.Contains(buf.String(), "restart gentle-ai") {
+	if !strings.Contains(buf.String(), "restart ordo") {
 		t.Fatalf("runUpgrade() output missing restart notice:\n%s", buf.String())
 	}
 }
@@ -283,7 +283,7 @@ func TestRunUpgrade_ForwardsParsedArgsOnceWithoutReparsing(t *testing.T) {
 
 // TestPrintPostUpgradeDoctorAdvisory_OutputFormat verifies the advisory
 // message format: starts with a newline, has the [info] tag, and names the
-// `gentle-ai doctor` command. The exact wording is part of the public contract
+// `ordo doctor` command. The exact wording is part of the public contract
 // because the issue (#1901) specifies the literal expected output.
 func TestPrintPostUpgradeDoctorAdvisory_OutputFormat(t *testing.T) {
 	var buf bytes.Buffer
@@ -293,8 +293,8 @@ func TestPrintPostUpgradeDoctorAdvisory_OutputFormat(t *testing.T) {
 	if !strings.HasPrefix(out, "\n[info]") {
 		t.Errorf("output must start with newline + [info] tag, got %q", out)
 	}
-	if !strings.Contains(out, "gentle-ai doctor") {
-		t.Errorf("output must mention 'gentle-ai doctor', got %q", out)
+	if !strings.Contains(out, "ordo doctor") {
+		t.Errorf("output must mention 'ordo doctor', got %q", out)
 	}
 	if !strings.Contains(out, "ecosystem health") {
 		t.Errorf("output must mention ecosystem health context, got %q", out)
@@ -302,7 +302,7 @@ func TestPrintPostUpgradeDoctorAdvisory_OutputFormat(t *testing.T) {
 }
 
 // TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade verifies that a
-// successful `gentle-ai upgrade` of the gentle-ai binary prints the doctor
+// successful `ordo upgrade` of the ordo binary prints the doctor
 // advisory (per #1901). The advisory must appear AFTER the restart message
 // and must NOT appear in dry-run mode.
 func TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade(t *testing.T) {
@@ -339,15 +339,15 @@ func TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade(t *testing.T) {
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, "restart gentle-ai") {
+	if !strings.Contains(out, "restart ordo") {
 		t.Errorf("runUpgrade() output missing restart notice:\n%s", out)
 	}
-	if !strings.Contains(out, "Run 'gentle-ai doctor' to verify ecosystem health after upgrade") {
+	if !strings.Contains(out, "Run 'ordo doctor' to verify ecosystem health after upgrade") {
 		t.Errorf("runUpgrade() output missing post-upgrade doctor advisory:\n%s", out)
 	}
 	// Advisory must come AFTER the restart notice (lexicographic order in output).
-	restartIdx := strings.Index(out, "restart gentle-ai")
-	advisoryIdx := strings.Index(out, "gentle-ai doctor")
+	restartIdx := strings.Index(out, "restart ordo")
+	advisoryIdx := strings.Index(out, "ordo doctor")
 	if restartIdx < 0 || advisoryIdx < 0 || advisoryIdx <= restartIdx {
 		t.Errorf("advisory must appear AFTER restart notice (restart=%d, advisory=%d):\n%s", restartIdx, advisoryIdx, out)
 	}
@@ -375,14 +375,14 @@ func TestRunUpgrade_DryRunDoesNotPrintDoctorAdvisory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("runUpgrade() error = %v", err)
 	}
-	if strings.Contains(buf.String(), "gentle-ai doctor") {
-		t.Fatalf("dry-run output must NOT mention 'gentle-ai doctor' advisory:\n%s", buf.String())
+	if strings.Contains(buf.String(), "ordo doctor") {
+		t.Fatalf("dry-run output must NOT mention 'ordo doctor' advisory:\n%s", buf.String())
 	}
 }
 
 // TestRunUpgrade_NonGentleAIUpgradeDoesNotPrintDoctorAdvisory verifies that
 // upgrading a tool other than gentle-ai (e.g. engram, gga) does NOT trigger
-// the doctor advisory. The advisory is gated on gentle-ai specifically.
+// the doctor advisory. The advisory is gated on ordo specifically.
 func TestRunUpgrade_NonGentleAIUpgradeDoesNotPrintDoctorAdvisory(t *testing.T) {
 	origCheckFiltered := updateCheckFiltered
 	origUpgradeExecuteWithOptions := upgradeExecuteWithOptions

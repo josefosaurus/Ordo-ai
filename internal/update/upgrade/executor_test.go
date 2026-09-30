@@ -485,7 +485,7 @@ func TestExecute_PerToolSuccessAndFailure(t *testing.T) {
 // --- TestExecute_DevBuildIsSkipped ---
 
 // TestExecute_DevBuildIsSkipped verifies the spec requirement:
-// gentle-ai with DevBuild status must appear in Results as UpgradeSkipped
+// ordo with DevBuild status must appear in Results as UpgradeSkipped
 // with a non-empty ManualHint explaining it is a source/dev build.
 // DevBuild tools must NOT be auto-executed, and engram/gga remain eligible.
 func TestExecute_DevBuildIsSkipped(t *testing.T) {
@@ -581,7 +581,7 @@ func TestExecute_FailureDoesNotImplyConfigLoss(t *testing.T) {
 // --- TestExecute_DevBuildSurfacedAsSkipped ---
 
 // TestExecute_DevBuildSurfacedAsSkipped verifies the spec gap:
-// A DevBuild tool (e.g. gentle-ai with version="dev") MUST appear in UpgradeReport.Results
+// A DevBuild tool (e.g. ordo with version="dev") MUST appear in UpgradeReport.Results
 // with Status=UpgradeSkipped and a non-empty ManualHint explaining it is a dev/source build.
 // Previously, DevBuild tools were silently omitted from Results entirely.
 func TestExecute_DevBuildSurfacedAsSkipped(t *testing.T) {

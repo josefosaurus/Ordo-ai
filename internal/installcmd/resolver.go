@@ -61,7 +61,7 @@ func (profileResolver) ResolveAgentInstall(profile system.PlatformProfile, agent
 //
 // --ignore-scripts blocks postinstall hooks, the primary supply-chain attack
 // vector for npm packages. The version advises "latest" rather than a pin:
-// a pin only guarded against a tampered "latest" tag when gentle-ai itself
+// a pin only guarded against a tampered "latest" tag when ordo itself
 // ran the command unattended. Now a human reads and runs it, and a stale
 // hardcoded version goes wrong the moment a newer release ships (the same
 // drift this shape fixed for Codex's GPT-5.6 update advice).

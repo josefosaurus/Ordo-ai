@@ -107,7 +107,7 @@ func Refuter() map[string]any {
 	return map[string]any{"mode": "subagent", "hidden": true, "description": "Read-only refuter for provider-issued review findings", "prompt": "Evaluate only the Go-issued review refuter task. Inspect only the frozen candidate through the provided commands. Do not edit files or delegate. Return only the requested result.", "permission": map[string]any{"write": "deny", "edit": "deny", "task": "deny"}}
 }
 func Validator() map[string]any {
-	return map[string]any{"mode": "subagent", "hidden": true, "description": "Targeted read-only validator for provider-issued review checks", "prompt": "Execute only the Go-issued targeted validation. Do not edit files or delegate. Inspect only the frozen candidate using the provided gentle-ai review inspect-candidate command, not the live worktree. Return exactly the requested JSON.", "permission": map[string]any{"write": "deny", "edit": "deny", "task": "deny", "bash": map[string]any{"gentle-ai review inspect-candidate --purpose targeted-validation *": "allow", "*": "deny"}}}
+	return map[string]any{"mode": "subagent", "hidden": true, "description": "Targeted read-only validator for provider-issued review checks", "prompt": "Execute only the Go-issued targeted validation. Do not edit files or delegate. Inspect only the frozen candidate using the provided ordo review inspect-candidate command, not the live worktree. Return exactly the requested JSON.", "permission": map[string]any{"write": "deny", "edit": "deny", "task": "deny", "bash": map[string]any{"ordo review inspect-candidate --purpose targeted-validation *": "allow", "*": "deny"}}}
 }
 
 // GentlemanShape recognizes the persona overlay for this runtime, without
