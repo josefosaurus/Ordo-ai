@@ -1,6 +1,6 @@
 version: 2
 
-project_name: gentle-ai
+project_name: ordo
 
 before:
   hooks:
@@ -11,7 +11,7 @@ before:
 
 builds:
   - main: ./cmd/gentle-ai
-    binary: gentle-ai
+    binary: ordo
     env:
       - CGO_ENABLED=0
     goos:
@@ -107,7 +107,7 @@ signs:
       - "-x"
       - "${signature}"
       - "-c"
-      - "signature from gentle-ai release"
+      - "signature from ordo release"
       - "-t"
       - "repo=Gentleman-Programming/gentle-ai;tag={{ .Tag }}"
     output: true
@@ -126,8 +126,8 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     directory: Formula
-    name: gentle-ai
+    name: ordo
     homepage: "https://github.com/Gentleman-Programming/gentle-ai"
     description: "Gentle-AI — Ecosystem, Frameworks, Workflows for AI coding agents."
     license: "MIT"
-    commit_msg_template: "chore: update gentle-ai formula to {{ .Tag }}"
+    commit_msg_template: "chore: update ordo formula to {{ .Tag }}"

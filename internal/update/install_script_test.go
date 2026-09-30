@@ -225,8 +225,8 @@ func TestInstallScriptsGoInstallPackageMatchesModuleMajor(t *testing.T) {
 		// install.sh resolves the ref (release tag for stable, main commit
 		// SHA for beta) and builds the package from the module declared at
 		// that ref, so a future major bump needs no script change.
-		{"install.sh", `local go_package="${module}/cmd/${BINARY_NAME}@${ref}"`},
-		{"install.ps1", `$goPackage = "github.com/$($GITHUB_OWNER.ToLower())/$GITHUB_REPO/` + major + `/cmd/$BINARY_NAME@$version"`},
+		{"install.sh", `local go_package="${module}/cmd/${GO_MAIN_PACKAGE}@${ref}"`},
+		{"install.ps1", `$goPackage = "github.com/$($GITHUB_OWNER.ToLower())/$GITHUB_REPO/` + major + `/cmd/$GO_MAIN_PACKAGE@$version"`},
 	}
 	stale := regexp.MustCompile(`/v[0-9]+/cmd/`)
 	for _, tc := range cases {

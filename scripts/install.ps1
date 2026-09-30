@@ -27,7 +27,10 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 
 $GITHUB_OWNER = "Gentleman-Programming"
 $GITHUB_REPO = "gentle-ai"
-$BINARY_NAME = "gentle-ai"
+$BINARY_NAME = "ordo"
+# The Go main package directory (cmd/<name>); go install names the binary
+# after it, so Install-ViaGo renames it to $BINARY_NAME.
+$GO_MAIN_PACKAGE = "gentle-ai"
 $WINDOWS_DISTRIBUTION_HOLD = "Windows binary distribution and Scoop are temporarily unavailable until publicly trusted Authenticode signing is enforced."
 $STABLE_SOURCE_COMMAND = "go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@latest"
 
@@ -95,7 +98,7 @@ function Install-ViaGo {
         # /v4 is part of the module path, not decoration: Go refuses to resolve a
         # module whose tags are v4.x unless the import path carries the major
         # version suffix.
-        $goPackage = "github.com/$($GITHUB_OWNER.ToLower())/$GITHUB_REPO/v4/cmd/$BINARY_NAME@$version"
+        $goPackage = "github.com/$($GITHUB_OWNER.ToLower())/$GITHUB_REPO/v4/cmd/$GO_MAIN_PACKAGE@$version"
     } else {
         # Stable pins the latest release tag and derives the module path from
         # its major. Never use @latest: before a v4.x tag exists Go resolves the
@@ -113,7 +116,7 @@ function Install-ViaGo {
         $major = [int]$Matches[1]
         $module = "github.com/{0}/{1}" -f $GITHUB_OWNER.ToLower(), $GITHUB_REPO
         if ($major -ge 2) { $module = "{0}/v{1}" -f $module, $major }
-        $goPackage = "{0}/cmd/{1}@{2}" -f $module, $BINARY_NAME, $tag
+        $goPackage = "{0}/cmd/{1}@{2}" -f $module, $GO_MAIN_PACKAGE, $tag
     }
     Write-Info "Running: go install $goPackage"
 
@@ -132,6 +135,10 @@ function Install-ViaGo {
     if (-not $gobin) {
         $gopath = & go env GOPATH 2>$null
         $gobin = Join-Path $gopath "bin"
+    }
+    $goBinary = Join-Path $gobin "$GO_MAIN_PACKAGE.exe"
+    if (($GO_MAIN_PACKAGE -ne $BINARY_NAME) -and (Test-Path $goBinary)) {
+        Move-Item -Force -Path $goBinary -Destination (Join-Path $gobin "$BINARY_NAME.exe")
     }
     if ($env:PATH -notlike "*$gobin*") {
         Write-Warn "$gobin is not in your PATH"

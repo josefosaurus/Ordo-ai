@@ -1,5 +1,6 @@
 # Binaries
 /gentle-ai
+/ordo
 *.exe
 *.dll
 *.so
