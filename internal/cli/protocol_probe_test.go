@@ -178,6 +178,9 @@ func TestMain(m *testing.M) {
 	}
 	telemetryTestSpawnRecorder = telemetry.NewRecordingSpawner()
 	telemetry.DefaultSpawn = telemetryTestSpawnRecorder.Spawn
+	// Ordo ships without a collector; install a fake one so tests that
+	// re-enable telemetry still exercise the enabled paths.
+	telemetry.DefaultEndpoint = "https://collector.test/v1/events"
 
 	code := m.Run()
 	_ = os.RemoveAll(testHome)

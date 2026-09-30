@@ -14,6 +14,13 @@ import (
 
 var updateChannelEnv = os.Getenv
 
+// SelfUpdateEnabled controls whether the gentle-ai (Ordo) binary checks for
+// its own updates. It is off because the registry entry points at upstream
+// Gentle AI releases, which would replace the Ordo build. It returns in G7
+// once Ordo publishes signed releases (see docs/goals.md). Dependency tools
+// such as Engram and GGA are unaffected.
+var SelfUpdateEnabled = false
+
 // CheckAll runs update checks for all registered tools concurrently.
 // currentVersion is the build-time version of gentle-ai (from app.Version).
 // profile determines platform-specific update instructions.
@@ -39,6 +46,15 @@ func CheckFiltered(ctx context.Context, currentVersion string, profile system.Pl
 				targets = append(targets, t)
 			}
 		}
+	}
+	if !SelfUpdateEnabled {
+		kept := make([]ToolInfo, 0, len(targets))
+		for _, t := range targets {
+			if t.Name != "gentle-ai" {
+				kept = append(kept, t)
+			}
+		}
+		targets = kept
 	}
 
 	results := make([]UpdateResult, len(targets))

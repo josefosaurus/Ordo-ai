@@ -69,6 +69,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	telemetry.DefaultSpawn = telemetry.NewRecordingSpawner().Spawn
+	telemetry.DefaultEndpoint = "https://collector.test/v1/events"
 
 	code := m.Run()
 	_ = os.RemoveAll(testHome)

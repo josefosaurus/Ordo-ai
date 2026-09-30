@@ -43,6 +43,29 @@ func TestDecidePrecedence(t *testing.T) {
 	}
 }
 
+func TestDecideDisablesWithoutEndpoint(t *testing.T) {
+	orig := DefaultEndpoint
+	DefaultEndpoint = ""
+	t.Cleanup(func() { DefaultEndpoint = orig })
+
+	decision := Decide(envMap(nil), State{Enabled: true})
+	if decision.Enabled || decision.Source != SourceStateDisable {
+		t.Fatalf("Decide() = %+v, want disabled by %q", decision, SourceStateDisable)
+	}
+
+	// Explicit opt-outs keep precedence so status reports the user's choice.
+	decision = Decide(envMap(map[string]string{"DO_NOT_TRACK": "1"}), State{Enabled: true})
+	if decision.Source != SourceDoNotTrack {
+		t.Fatalf("source = %q, want %q", decision.Source, SourceDoNotTrack)
+	}
+
+	// Configuring an endpoint through the environment re-enables telemetry.
+	decision = Decide(envMap(map[string]string{EndpointEnvVar: "https://collector.example/v1/events"}), State{Enabled: true})
+	if !decision.Enabled || decision.Source != SourceDefault {
+		t.Fatalf("Decide() with endpoint override = %+v, want enabled by %q", decision, SourceDefault)
+	}
+}
+
 func TestEndpointDefaultAndOverride(t *testing.T) {
 	if got := Endpoint(envMap(nil)); got != DefaultEndpoint {
 		t.Fatalf("Endpoint() = %q, want default %q", got, DefaultEndpoint)

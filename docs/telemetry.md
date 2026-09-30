@@ -548,9 +548,10 @@ Telemetry respects, in this order:
 1. `DO_NOT_TRACK` set to anything but empty, `0`, or `false`
 2. `GENTLE_AI_TELEMETRY=0`
 3. `CI` or `GITHUB_ACTIONS` set to anything but empty, `0`, or `false` (most CI providers export one of them)
+4. No collector endpoint configured (reported as source `state`). Ordo ships without a default collector, so telemetry is off unless `GENTLE_AI_TELEMETRY_ENDPOINT` is set.
 
 Legacy install/heartbeat builds without a release identity (`gentle-ai --version` reporting `dev` or `0.0.0-dev`, which is what a plain `go build` or a test harness produces) never send those events or write their telemetry state; the legacy collector refuses such versions too. Pseudo-versions from `go install ...@main` carry a commit stamp and count as real installs. Runtime observations carry no version and use the existing enrolled policy checks above.
-4. `gentle-ai telemetry disable`
+5. `gentle-ai telemetry disable`
 
 Any one of these disables sending; nothing else needs to change. Re-enable a
 local opt-out with `gentle-ai telemetry enable`.

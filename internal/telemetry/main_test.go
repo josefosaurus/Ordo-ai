@@ -17,7 +17,12 @@ const (
 	recorderStdinEnv = "GENTLE_AI_TELEMETRY_TEST_RECORDER_STDIN"
 )
 
+// testCollectorEndpoint stands in for a configured collector so the
+// enabled-by-default paths stay covered while Ordo ships without one.
+const testCollectorEndpoint = "https://collector.test/v1/events"
+
 func TestMain(m *testing.M) {
+	DefaultEndpoint = testCollectorEndpoint
 	argvFile := os.Getenv(recorderArgvEnv)
 	stdinFile := os.Getenv(recorderStdinEnv)
 	if argvFile == "" || stdinFile == "" {

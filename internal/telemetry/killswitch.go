@@ -27,8 +27,8 @@ type Getenv func(key string) string
 // Decide evaluates the kill switches in their documented precedence:
 // DO_NOT_TRACK set to anything but empty, "0", or "false", then
 // GENTLE_AI_TELEMETRY=0, then CI or GITHUB_ACTIONS set to anything but
-// empty, "0", or "false", then the persisted state's enabled
-// flag. The first one that opts out wins; with none present, telemetry is
+// empty, "0", or "false", then a missing collector endpoint, then the
+// persisted state's enabled flag. The first one that opts out wins; with none present, telemetry is
 // enabled by default.
 func Decide(getenv Getenv, persisted State) Decision {
 	if doNotTrack(getenv("DO_NOT_TRACK")) {
@@ -39,6 +39,11 @@ func Decide(getenv Getenv, persisted State) Decision {
 	}
 	if truthy(getenv("CI")) || truthy(getenv("GITHUB_ACTIONS")) {
 		return Decision{Enabled: false, Source: SourceCI}
+	}
+	// No collector configured (Ordo ships without one). Reported as a state
+	// opt-out because the pinned telemetry contracts allow no other value.
+	if Endpoint(getenv) == "" {
+		return Decision{Enabled: false, Source: SourceStateDisable}
 	}
 	if !persisted.Enabled {
 		return Decision{Enabled: false, Source: SourceStateDisable}

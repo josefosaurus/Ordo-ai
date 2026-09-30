@@ -19,6 +19,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	// The upstream self-update machinery stays covered even though Ordo
+	// ships with it disabled.
+	SelfUpdateEnabled = true
 	if err := os.Unsetenv("GENTLE_AI_CHANNEL"); err != nil {
 		panic(err)
 	}
@@ -2226,4 +2229,21 @@ func mockCmd(name string, args ...string) *exec.Cmd {
 		}
 	}
 	return exec.Command(name, args...)
+}
+
+func TestCheckFilteredSkipsSelfWhenSelfUpdateDisabled(t *testing.T) {
+	orig := SelfUpdateEnabled
+	SelfUpdateEnabled = false
+	t.Cleanup(func() { SelfUpdateEnabled = orig })
+
+	origTools := Tools
+	Tools = []ToolInfo{{Name: "gentle-ai", Owner: "Gentleman-Programming", Repo: "gentle-ai"}}
+	t.Cleanup(func() { Tools = origTools })
+
+	if got := CheckFiltered(context.Background(), "1.0.0", system.PlatformProfile{}, nil); len(got) != 0 {
+		t.Fatalf("CheckFiltered(all) = %d results, want 0 with self-update disabled", len(got))
+	}
+	if got := CheckFiltered(context.Background(), "1.0.0", system.PlatformProfile{}, []string{"gentle-ai"}); len(got) != 0 {
+		t.Fatalf("CheckFiltered(gentle-ai) = %d results, want 0 with self-update disabled", len(got))
+	}
 }

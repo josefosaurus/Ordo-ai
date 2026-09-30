@@ -26,8 +26,10 @@ const (
 )
 
 // DefaultEndpoint is the collector URL used when GENTLE_AI_TELEMETRY_ENDPOINT
-// is not set.
-const DefaultEndpoint = "https://telemetry.gentlemanprogramming.com/v1/events"
+// is not set. Ordo ships without a collector, so it is empty and telemetry
+// stays disabled until an endpoint is configured. It is
+// a var so test binaries can install a fake collector in TestMain.
+var DefaultEndpoint = ""
 
 // EndpointEnvVar overrides DefaultEndpoint.
 const EndpointEnvVar = "GENTLE_AI_TELEMETRY_ENDPOINT"
