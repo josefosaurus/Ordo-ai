@@ -49,7 +49,7 @@ const telemetryRuntime: Plugin = async () => {
           },
         })
         if (Buffer.byteLength(body) > MAX_BYTES || veto()) return
-        const child = execFile("gentle-ai", ["telemetry", "runtime", "opencode", "--json"],
+        const child = execFile("ordo", ["telemetry", "runtime", "opencode", "--json"],
           { timeout: 4000, killSignal: "SIGKILL", maxBuffer: 1024, windowsHide: true },
           () => { children.delete(child) })
         children.add(child)

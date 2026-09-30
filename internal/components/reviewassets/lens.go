@@ -10,7 +10,7 @@ import (
 const bindingMarker = reviewtransaction.ReviewerBindingMarker
 const contextMarker = reviewtransaction.ReviewerContextMarker
 const resultSchema = `{"subject_hash":"<artifact_subject.subject_hash>","inspection":{"status":"completed","paths":["<complete unique unordered set>"]},"findings":[{"location":"path:line or path:start-end","severity":"CRITICAL","claim":"observable incorrect behavior","evidence_class":"deterministic","causal_disposition":"introduced","proof_refs":["concrete proof"]}],"evidence":["what was inspected"]}`
-const inspectionPrefix = `gentle-ai review inspect-candidate --repository-context <repository_context> --expected-revision <revision> --lineage <lineage> --target <target> --lens <lens> --order <order> --operation `
+const inspectionPrefix = `ordo review inspect-candidate --repository-context <repository_context> --expected-revision <revision> --lineage <lineage> --target <target> --lens <lens> --order <order> --operation `
 
 // InspectionCommands returns an independent list of immutable candidate inspection operations.
 func InspectionCommands() []string {
