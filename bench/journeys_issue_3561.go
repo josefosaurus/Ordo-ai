@@ -66,13 +66,13 @@ func issue3561SymlinkSkip(sandbox *Sandbox) string {
 
 func issue3561VerifyDoctor(sandbox *Sandbox, observation Observation) error {
 	if observation.ExitCode != 0 {
-		return fmt.Errorf("gentle-ai doctor exited %d: %s", observation.ExitCode, firstLine(observation.Stderr))
+		return fmt.Errorf("ordo doctor exited %d: %s", observation.ExitCode, firstLine(observation.Stderr))
 	}
-	if strings.Contains(observation.Stdout, "gentle-ai sync") {
+	if strings.Contains(observation.Stdout, "ordo sync") {
 		return fmt.Errorf("doctor recommended the unrunnable sync recovery: %s", observation.Stdout)
 	}
 	ancestorPath := sandbox.Scratch["issue-3561-ancestor"]
-	for _, want := range []string{sandbox.Scratch["issue-3561-config"], "dangling ancestor symlink " + ancestorPath, "inspect", "gentle-ai doctor"} {
+	for _, want := range []string{sandbox.Scratch["issue-3561-config"], "dangling ancestor symlink " + ancestorPath, "inspect", "ordo doctor"} {
 		if !strings.Contains(observation.Stdout, want) {
 			return fmt.Errorf("doctor output missing %q: %s", want, observation.Stdout)
 		}

@@ -20,7 +20,7 @@ func init() {
 		BlackBox: false,
 		Review:   reviewUntouched,
 		Properties: []string{
-			"j97 drives the compiled TUI model-picker state through the public gentle-ai binary and checks the persisted opencode.json boundary.",
+			"j97 drives the compiled TUI model-picker state through the public ordo binary and checks the persisted opencode.json boundary.",
 			"The journey requires a product binary built with -tags bench_fixture; ordinary binaries report unsupported instead of fabricating a pass.",
 			"The fixture uses a fresh HOME with a user-owned custom native agent that already carries a variant, and injects an effective tool-capable runtime catalog without OpenCode private cache files.",
 			"A model pick that carries no effort must leave the user-owned variant untouched: the custom-agent overlay omits the key instead of clearing it (#3262).",
