@@ -4,36 +4,25 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 )
 
-// logoLines contains the ASCII art for the Ordo wordmark.
-var logoLines = []string{
-	" ██████╗ ██████╗ ██████╗  ██████╗",
-	"██╔═══██╗██╔══██╗██╔══██╗██╔═══██╗",
-	"██║   ██║██████╔╝██║  ██║██║   ██║",
-	"██║   ██║██╔══██╗██║  ██║██║   ██║",
-	"╚██████╔╝██║  ██║██████╔╝╚██████╔╝",
-	" ╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝",
-}
-
-// gradientColors defines the top-to-bottom gradient for the logo.
-// Distributed across rows: rose → lavender → blue → teal → green.
-var gradientColors = []lipgloss.Color{
-	ColorMauve,    // band 1
-	ColorLavender, // band 2
-	ColorBlue,     // band 3
-	ColorTeal,     // band 4
-	ColorGreen,    // band 5
-}
+// gradientColors is the top-to-bottom logo gradient, set by Apply from the
+// brand palette.
+var gradientColors []lipgloss.Color
 
 // RenderLogo returns the ASCII logo with a top-to-bottom gradient.
 func RenderLogo() string {
+	logoLines := brand.Current().Logo
 	total := len(logoLines)
 	if total == 0 {
 		return ""
 	}
 
 	bands := len(gradientColors)
+	if bands == 0 {
+		return strings.Join(logoLines, "\n")
+	}
 	var b strings.Builder
 
 	for i, line := range logoLines {

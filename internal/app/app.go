@@ -12,6 +12,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/backup"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brandcmd"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/cli"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/opencodeplugin"
 	componentuninstall "github.com/gentleman-programming/gentle-ai/v4/internal/components/uninstall"
@@ -24,6 +26,7 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/statecoord"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/tui"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/tui/styles"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/update"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/update/upgrade"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/verify"
@@ -57,6 +60,27 @@ var (
 		return err
 	}
 )
+
+// brandHomeDir resolves the home directory holding the brand override.
+// Package-level for tests.
+var brandHomeDir = os.UserHomeDir
+
+// initBrand loads the user's brand override and applies its palette. Brand
+// problems never block a command; they are reported on stderr only when the
+// interactive TUI is about to start.
+func initBrand(interactive bool) {
+	home, err := brandHomeDir()
+	if err != nil {
+		return
+	}
+	brand.Init(home)
+	styles.Apply(brand.Current().Palette)
+	if interactive {
+		for _, w := range brand.Warnings() {
+			_, _ = fmt.Fprintln(os.Stderr, "warning: "+w)
+		}
+	}
+}
 
 func Run() error {
 	return RunArgs(os.Args[1:], os.Stdout)
@@ -94,6 +118,8 @@ func RunArgs(args []string, stdout io.Writer) error {
 	cli.AppVersion = Version
 	upgrade.AppVersion = Version
 
+	initBrand(len(args) == 0)
+
 	// --yes as a global CLI flag for self-update is handled via GENTLE_AI_YES=1.
 	// Per-subcommand --yes flags (e.g. restore --yes) are parsed by each subcommand.
 
@@ -123,6 +149,12 @@ func RunArgs(args []string, stdout io.Writer) error {
 			return cli.RunCodeGraph(args[1:], stdout)
 		case "telemetry":
 			return cli.RunTelemetry(args[1:], stdout)
+		case "brand":
+			home, err := brandHomeDir()
+			if err != nil {
+				return fmt.Errorf("resolve home directory: %w", err)
+			}
+			return brandcmd.Run(args[1:], home, stdout)
 		case "review":
 			// The kill switch must stay reachable even when review authority
 			// itself is disabled, so it is dispatched ahead of the facade.

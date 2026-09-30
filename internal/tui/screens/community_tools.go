@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/communitytool"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/tui/styles"
@@ -13,7 +14,7 @@ func RenderCommunityTools(selected []model.CommunityToolID, cursor int, statuses
 	var b strings.Builder
 	b.WriteString(styles.TitleStyle.Render("Community Tools/Plugins"))
 	b.WriteString("\n\n")
-	b.WriteString(styles.SubtextStyle.Render("Optional cross-agent tools Gentle AI can install and wire for you."))
+	b.WriteString(styles.SubtextStyle.Render("Optional cross-agent tools " + brand.Current().Name + " can install and wire for you."))
 	b.WriteString("\n\n")
 
 	if loading {

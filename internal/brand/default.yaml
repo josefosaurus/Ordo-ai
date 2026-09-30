@@ -1,0 +1,24 @@
+# Ordo default brand. Users override any field (except attribution) in
+# ~/.gentle-ai/brand.yaml; see `gentle-ai brand --help`.
+name: Ordo
+tagline: ""
+attribution: based on Gentle AI
+logo:
+  - " ██████╗ ██████╗ ██████╗  ██████╗"
+  - "██╔═══██╗██╔══██╗██╔══██╗██╔═══██╗"
+  - "██║   ██║██████╔╝██║  ██║██║   ██║"
+  - "██║   ██║██╔══██╗██║  ██║██║   ██║"
+  - "╚██████╔╝██║  ██║██████╔╝╚██████╔╝"
+  - " ╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝"
+# Rosé Pine (MIT).
+palette:
+  primary: "#c4a7e7"
+  accent: "#ebbcba"
+  text: "#e0def4"
+  muted: "#908caa"
+  border: "#6e6a86"
+  success: "#9ccfd8"
+  error: "#eb6f92"
+  warning: "#f1ca93"
+  highlight: "#f6c177"
+  logo_gradient: ["#ebbcba", "#c4a7e7", "#31748f", "#9ccfd8", "#9ccfd8"]

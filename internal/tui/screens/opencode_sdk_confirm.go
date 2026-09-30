@@ -3,6 +3,7 @@ package screens
 import (
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/tui/styles"
 )
 
@@ -17,7 +18,7 @@ func RenderOpenCodeSDKConfirm(dependency, manager, configDir string, cursor int)
 	b.WriteString("Only a fresh config without a manifest, lockfile or project manager config is eligible.\n")
 	b.WriteString("This runs " + manager + " with network access and creates package.json, its lockfile and node_modules.\n")
 	b.WriteString("Automatic install uses registry.npmjs.org without your package-manager credentials and ignores install scripts.\n")
-	b.WriteString("Package-manager changes are NOT covered by Gentle AI rollback.\n\n")
+	b.WriteString("Package-manager changes are NOT covered by " + brand.Current().Name + " rollback.\n\n")
 	b.WriteString(renderOptions([]string{"Install SDK for this invocation", "No / Back"}, cursor))
 	b.WriteString("\n")
 	b.WriteString(styles.HelpStyle.Render("j/k: navigate • enter: select • esc: back"))

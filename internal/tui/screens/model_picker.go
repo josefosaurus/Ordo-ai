@@ -11,6 +11,7 @@ import (
 	"unicode"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/opencodedefault"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/opencode"
@@ -223,7 +224,7 @@ func modelPickerRowsWithCustomIdentity(includeReview bool, customAgents []string
 	rows := make([]ModelPickerRow, 0, 1+1+len(opencode.GentleAIODDPhases())+1+len(opencode.JDPhases())+1+len(opencode.ReviewPhases())+3+len(customAgents)+2)
 	rows = append(rows, ModelPickerRow{Kind: ModelPickerRowKindAgent, Label: SDDOrchestratorPhase, AgentID: SDDOrchestratorPhase})
 	if len(opencode.GentleAIODDPhases()) > 0 {
-		rows = append(rows, ModelPickerRow{Kind: ModelPickerRowKindSeparator, Label: "--- Gentle AI agents ---"})
+		rows = append(rows, ModelPickerRow{Kind: ModelPickerRowKindSeparator, Label: "--- " + brand.Current().Name + " agents ---"})
 		for _, phase := range opencode.GentleAIODDPhases() {
 			rows = append(rows, ModelPickerRow{Kind: ModelPickerRowKindAgent, Label: phase, AgentID: phase})
 		}
