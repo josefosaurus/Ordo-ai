@@ -33,6 +33,14 @@ var defaultYAML []byte
 // are protocol names and deliberately do not follow it.
 const Command = "ordo"
 
+// ReleaseOwner and ReleaseRepo identify the GitHub repository that publishes
+// signed Ordo releases. Self-update downloads from it and requires the
+// release signature's trusted comment to name exactly this repository.
+const (
+	ReleaseOwner = "josefosaurus"
+	ReleaseRepo  = "Ordo-ai"
+)
+
 // OverrideFile is the per-user override file name inside ~/.gentle-ai.
 const OverrideFile = "brand.yaml"
 

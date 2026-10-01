@@ -228,7 +228,7 @@ func reportUpgradedGentleAI(report *upgrade.UpgradeReport) bool {
 		return false
 	}
 	for _, result := range report.Results {
-		if result.ToolName == "gentle-ai" && result.Status == upgrade.UpgradeSucceeded {
+		if result.ToolName == update.SelfToolName && result.Status == upgrade.UpgradeSucceeded {
 			return true
 		}
 	}

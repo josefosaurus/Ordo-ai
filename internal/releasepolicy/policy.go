@@ -309,7 +309,7 @@ func validateArtifacts(root string, payload []byte, markerTime time.Time, contra
 	if err := requireJSONEOF(decoder); err != nil {
 		return err
 	}
-	expectedCounts := map[string]int{"Metadata": 1, "Binary": 4, "Archive": 6, "Checksum": 1, "Homebrew Formula": 1}
+	expectedCounts := map[string]int{"Metadata": 1, "Binary": 4, "Archive": 6, "Checksum": 1}
 	byType := make(map[string][]artifact)
 	counts := make(map[string]int)
 	paths := make(map[string]struct{})
@@ -412,16 +412,7 @@ func validateArtifacts(root string, payload []byte, markerTime time.Time, contra
 	if item := byType["Metadata"][0]; item.Name != "metadata.json" || item.Path != "dist/metadata.json" {
 		return errors.New("resolved metadata output changed")
 	}
-	formula := byType["Homebrew Formula"][0]
-	if formula.Name != "ordo.rb" || formula.Path != "dist/homebrew/Formula/ordo.rb" {
-		return errors.New("resolved Homebrew formula output changed")
-	}
-	brewConfig := extraMap(formula.Extra, "BrewConfig")
-	repository := extraMap(brewConfig, "repository")
-	if extraString(brewConfig, "name") != "ordo" || extraString(brewConfig, "directory") != "Formula" ||
-		extraString(repository, "owner") != "Gentleman-Programming" || extraString(repository, "name") != "homebrew-tap" || extraString(repository, "token") != "{{ .Env.HOMEBREW_TAP_TOKEN }}" {
-		return errors.New("resolved Homebrew publisher changed")
-	}
+	// Ordo publishes no Homebrew formula; the artifact counts above reject one.
 
 	orderedPaths := make([]string, 0, len(paths))
 	for artifactPath := range paths {
@@ -651,7 +642,7 @@ signs:
       - "-c"
       - "signature from ordo release"
       - "-t"
-      - "repo=Gentleman-Programming/gentle-ai;tag={{ .Tag }}"
+      - "repo=josefosaurus/Ordo-ai;tag={{ .Tag }}"
     output: true
 changelog:
   sort: asc
@@ -660,17 +651,6 @@ changelog:
       - "^docs:"
       - "^test:"
       - "^ci:"
-brews:
-  - repository:
-      owner: Gentleman-Programming
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-    directory: Formula
-    name: ordo
-    homepage: "https://github.com/Gentleman-Programming/gentle-ai"
-    description: "Gentle-AI — Ecosystem, Frameworks, Workflows for AI coding agents."
-    license: "MIT"
-    commit_msg_template: "chore: update ordo formula to {{ .Tag }}"
 `
 
 const expectedReleaseWorkflowYAML = `name: Release

@@ -109,7 +109,7 @@ signs:
       - "-c"
       - "signature from ordo release"
       - "-t"
-      - "repo=Gentleman-Programming/gentle-ai;tag={{ .Tag }}"
+      - "repo=josefosaurus/Ordo-ai;tag={{ .Tag }}"
     output: true
 
 changelog:
@@ -120,14 +120,4 @@ changelog:
       - "^test:"
       - "^ci:"
 
-brews:
-  - repository:
-      owner: Gentleman-Programming
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-    directory: Formula
-    name: ordo
-    homepage: "https://github.com/Gentleman-Programming/gentle-ai"
-    description: "Gentle-AI — Ecosystem, Frameworks, Workflows for AI coding agents."
-    license: "MIT"
-    commit_msg_template: "chore: update ordo formula to {{ .Tag }}"
+# Ordo publishes no Homebrew formula yet; install via scripts/install.sh.

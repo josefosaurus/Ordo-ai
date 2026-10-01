@@ -1516,7 +1516,7 @@ func TestRunArgs_UpdateSkipsSelfUpdate(t *testing.T) {
 	updateCheckAll = func(context.Context, string, system.PlatformProfile) []update.UpdateResult {
 		return []update.UpdateResult{
 			{
-				Tool:             update.ToolInfo{Name: "gentle-ai"},
+				Tool:             update.ToolInfo{Name: update.SelfToolName},
 				InstalledVersion: "1.0.0",
 				LatestVersion:    "1.0.0",
 				Status:           update.UpToDate,
@@ -1562,7 +1562,7 @@ func TestRunArgs_UpgradeSkipsSelfUpdate(t *testing.T) {
 	updateCheckFiltered = func(context.Context, string, system.PlatformProfile, []string) []update.UpdateResult {
 		return []update.UpdateResult{
 			{
-				Tool:             update.ToolInfo{Name: "gentle-ai", InstallMethod: update.InstallBinary},
+				Tool:             update.ToolInfo{Name: update.SelfToolName, InstallMethod: update.InstallBinary},
 				InstalledVersion: "1.0.0",
 				LatestVersion:    "1.0.0",
 				Status:           update.UpToDate,
@@ -2127,7 +2127,7 @@ func TestRunArgs_TUIRestartsAfterGentleAIUpgradeResult(t *testing.T) {
 	}
 
 	report := upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
-		{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
+		{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
 	}}
 	runTUI = func(m tea.Model, _ ...tea.ProgramOption) (tea.Model, error) {
 		model := m.(tui.Model)

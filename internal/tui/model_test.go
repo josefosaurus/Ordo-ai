@@ -1890,7 +1890,7 @@ func TestUpgradePhaseCompletedClearsUpdateResults(t *testing.T) {
 func TestReportUpgradedGentleAI(t *testing.T) {
 	report := upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
 		{ToolName: "engram", Status: upgrade.UpgradeSucceeded},
-		{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded},
+		{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded},
 	}}
 	if !reportUpgradedGentleAI(report) {
 		t.Fatal("reportUpgradedGentleAI() = false, want true")
@@ -5324,7 +5324,7 @@ func TestCodexModelPickerCustomModeEscResetsCursor(t *testing.T) {
 func TestGentleAIUpgradeVersionDetectsSucceededGentleAI(t *testing.T) {
 	report := upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
 		{ToolName: "engram", Status: upgrade.UpgradeSucceeded, NewVersion: "1.0.0"},
-		{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
+		{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
 	}}
 	m := Model{UpgradeReport: &report}
 	got, ok := m.GentleAIUpgradeVersion()
@@ -5338,7 +5338,7 @@ func TestGentleAIUpgradeVersionDetectsSucceededGentleAI(t *testing.T) {
 
 func TestUpgradeResultEnterQuitsWhenGentleAIWasUpgraded(t *testing.T) {
 	report := upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
-		{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
+		{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
 	}}
 	m := Model{Screen: ScreenUpgrade, UpgradeReport: &report}
 	_, cmd := m.confirmSelection()
@@ -5352,7 +5352,7 @@ func TestUpgradeResultEnterQuitsWhenGentleAIWasUpgraded(t *testing.T) {
 
 func TestUpgradeSyncResultEscQuitsWhenGentleAIWasUpgraded(t *testing.T) {
 	report := upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
-		{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
+		{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded, NewVersion: "v1.40.0"},
 	}}
 	m := Model{Screen: ScreenUpgradeSync, UpgradeReport: &report, HasSyncRun: true}
 	_, cmd := m.handleKeyPress(tea.KeyMsg{Type: tea.KeyEsc})
@@ -5429,7 +5429,7 @@ func TestStartUpgradeSync_SetsPendingSyncWhenGentleAIUpgraded(t *testing.T) {
 	m.UpgradeFn = func(_ context.Context, _ []update.UpdateResult) upgrade.UpgradeReport {
 		return upgrade.UpgradeReport{
 			Results: []upgrade.ToolUpgradeResult{
-				{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded, NewVersion: "1.8.0"},
+				{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded, NewVersion: "1.8.0"},
 			},
 		}
 	}
@@ -5555,7 +5555,7 @@ func TestStartUpgradeSync_NoClobberOnCorruptStateFile(t *testing.T) {
 	m.UpgradeFn = func(_ context.Context, _ []update.UpdateResult) upgrade.UpgradeReport {
 		return upgrade.UpgradeReport{
 			Results: []upgrade.ToolUpgradeResult{
-				{ToolName: "gentle-ai", Status: upgrade.UpgradeSucceeded, NewVersion: "1.8.0"},
+				{ToolName: update.SelfToolName, Status: upgrade.UpgradeSucceeded, NewVersion: "1.8.0"},
 			},
 		}
 	}
@@ -6069,7 +6069,7 @@ func TestAdvisoryMsg_SanitizesOnStore(t *testing.T) {
 // makeUpdateResult returns a minimal UpdateResult with the given status and release URL.
 func makeUpdateResult(status update.UpdateStatus, releaseURL string) update.UpdateResult {
 	return update.UpdateResult{
-		Tool:             update.ToolInfo{Name: "gentle-ai"},
+		Tool:             update.ToolInfo{Name: update.SelfToolName},
 		Status:           status,
 		InstalledVersion: "1.0.0",
 		LatestVersion:    "2.0.0",

@@ -25,8 +25,8 @@ $ErrorActionPreference = "Stop"
 $null = & chcp 65001 2>$null
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 
-$GITHUB_OWNER = "Gentleman-Programming"
-$GITHUB_REPO = "gentle-ai"
+$GITHUB_OWNER = "josefosaurus"
+$GITHUB_REPO = "Ordo-ai"
 $BINARY_NAME = "ordo"
 # The Go main package directory (cmd/<name>); go install names the binary
 # after it, so Install-ViaGo renames it to $BINARY_NAME.
@@ -38,6 +38,12 @@ function Write-Info    { param([string]$Message) Write-Host "[info]    $Message"
 function Write-Success { param([string]$Message) Write-Host "[ok]      $Message" -ForegroundColor Green }
 function Write-Warn    { param([string]$Message) Write-Host "[warn]    $Message" -ForegroundColor Yellow }
 function Write-Err     { param([string]$Message) Write-Host "[error]   $Message" -ForegroundColor Red }
+
+# Ordo publishes no Windows release, and go install would fetch the upstream
+# module (the Go module path still names Gentle AI). Refuse instead of
+# installing the wrong binary.
+Write-Err "Ordo does not support Windows installs yet. Build from source: go build -o ordo.exe ./cmd/gentle-ai"
+exit 1
 function Write-Step    { param([string]$Message) Write-Host "`n==> $Message" -ForegroundColor Cyan }
 
 function Stop-WithError {

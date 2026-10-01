@@ -100,7 +100,7 @@ func TestRenderUpgradeSync_CombinedResult(t *testing.T) {
 func TestRenderUpgradeSync_LongManualHintUsesWidth(t *testing.T) {
 	longHint := "Windows binary distribution is temporarily unavailable. Install/update from source with Go 1.25.10+:\n  go install github.com/gentleman-programming/gentle-ai/v3/cmd/gentle-ai@v1.1.0"
 	report := &upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
-		{ToolName: "gentle-ai", Status: upgrade.UpgradeSkipped, ManualHint: longHint},
+		{ToolName: update.SelfToolName, Status: upgrade.UpgradeSkipped, ManualHint: longHint},
 	}}
 
 	out := stripANSI(RenderUpgradeSyncWithWidth(nil, report, nil, nil, nil, false, true, 0, 0, 80))
@@ -127,7 +127,7 @@ func TestRenderUpgradeSync_LongManualHintUsesWidth(t *testing.T) {
 
 func TestRenderUpgradeSync_SkipsSyncWhenGentleAIUpgraded(t *testing.T) {
 	report := &upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
-		{ToolName: "gentle-ai", OldVersion: "v1.36.1", NewVersion: "v1.36.2", Status: upgrade.UpgradeSucceeded},
+		{ToolName: update.SelfToolName, OldVersion: "v1.36.1", NewVersion: "v1.36.2", Status: upgrade.UpgradeSucceeded},
 	}}
 
 	out := RenderUpgradeSync(nil, report, nil, nil, nil, false, true, 0, 0)
@@ -145,7 +145,7 @@ func TestRenderUpgradeSync_SkipsSyncWhenGentleAIUpgraded(t *testing.T) {
 
 func TestRenderUpgrade_ShowsRestartNoticeWhenGentleAIUpgraded(t *testing.T) {
 	report := &upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{
-		{ToolName: "gentle-ai", OldVersion: "v1.36.1", NewVersion: "v1.36.2", Status: upgrade.UpgradeSucceeded},
+		{ToolName: update.SelfToolName, OldVersion: "v1.36.1", NewVersion: "v1.36.2", Status: upgrade.UpgradeSucceeded},
 	}}
 
 	out := RenderUpgrade(nil, report, nil, false, true, 0, 0)

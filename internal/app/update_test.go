@@ -121,7 +121,7 @@ func TestRunUpgrade_RestartsAfterGentleAIUpgrade(t *testing.T) {
 
 	updateCheckFiltered = func(context.Context, string, system.PlatformProfile, []string) []update.UpdateResult {
 		return []update.UpdateResult{{
-			Tool:             update.ToolInfo{Name: "gentle-ai", InstallMethod: update.InstallBinary},
+			Tool:             update.ToolInfo{Name: update.SelfToolName, InstallMethod: update.InstallBinary},
 			InstalledVersion: "1.36.1",
 			LatestVersion:    "1.36.2",
 			Status:           update.UpdateAvailable,
@@ -129,7 +129,7 @@ func TestRunUpgrade_RestartsAfterGentleAIUpgrade(t *testing.T) {
 	}
 	upgradeExecuteWithOptions = func(context.Context, []update.UpdateResult, system.PlatformProfile, string, bool, upgrade.ExecuteOptions) upgrade.UpgradeReport {
 		return upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{{
-			ToolName:   "gentle-ai",
+			ToolName:   update.SelfToolName,
 			OldVersion: "1.36.1",
 			NewVersion: "1.36.2",
 			Status:     upgrade.UpgradeSucceeded,
@@ -190,10 +190,10 @@ func TestRunUpgrade_DryRunDoesNotRestartAfterGentleAIUpgrade(t *testing.T) {
 	})
 
 	updateCheckFiltered = func(context.Context, string, system.PlatformProfile, []string) []update.UpdateResult {
-		return []update.UpdateResult{{Tool: update.ToolInfo{Name: "gentle-ai"}, Status: update.UpdateAvailable}}
+		return []update.UpdateResult{{Tool: update.ToolInfo{Name: update.SelfToolName}, Status: update.UpdateAvailable}}
 	}
 	upgradeExecuteWithOptions = func(context.Context, []update.UpdateResult, system.PlatformProfile, string, bool, upgrade.ExecuteOptions) upgrade.UpgradeReport {
-		return upgrade.UpgradeReport{DryRun: true, Results: []upgrade.ToolUpgradeResult{{ToolName: "gentle-ai", NewVersion: "1.36.2", Status: upgrade.UpgradeSucceeded}}}
+		return upgrade.UpgradeReport{DryRun: true, Results: []upgrade.ToolUpgradeResult{{ToolName: update.SelfToolName, NewVersion: "1.36.2", Status: upgrade.UpgradeSucceeded}}}
 	}
 
 	var buf bytes.Buffer
@@ -217,11 +217,11 @@ func TestTUIUpgrade_DoesNotRestartBeforeModelCanRenderReport(t *testing.T) {
 	})
 
 	upgradeExecute = func(context.Context, []update.UpdateResult, system.PlatformProfile, string, bool, ...io.Writer) upgrade.UpgradeReport {
-		return upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{{ToolName: "gentle-ai", NewVersion: "1.36.2", Status: upgrade.UpgradeSucceeded}}}
+		return upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{{ToolName: update.SelfToolName, NewVersion: "1.36.2", Status: upgrade.UpgradeSucceeded}}}
 	}
 
 	report := tuiUpgrade(system.PlatformProfile{OS: "darwin", PackageManager: "brew"}, os.TempDir())(context.Background(), nil)
-	if len(report.Results) != 1 || report.Results[0].ToolName != "gentle-ai" {
+	if len(report.Results) != 1 || report.Results[0].ToolName != update.SelfToolName {
 		t.Fatalf("tuiUpgrade() report = %#v", report)
 	}
 }
@@ -244,7 +244,7 @@ func TestRunUpgrade_ForwardsParsedArgsOnceWithoutReparsing(t *testing.T) {
 	updateCheckFiltered = func(_ context.Context, _ string, _ system.PlatformProfile, filters []string) []update.UpdateResult {
 		checkCalls++
 		checkFilters = filters
-		return []update.UpdateResult{{Tool: update.ToolInfo{Name: "gentle-ai"}, Status: update.UpToDate}}
+		return []update.UpdateResult{{Tool: update.ToolInfo{Name: update.SelfToolName}, Status: update.UpToDate}}
 	}
 
 	var execDryRun, execSkipBackup bool
@@ -317,7 +317,7 @@ func TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade(t *testing.T) {
 
 	updateCheckFiltered = func(context.Context, string, system.PlatformProfile, []string) []update.UpdateResult {
 		return []update.UpdateResult{{
-			Tool:             update.ToolInfo{Name: "gentle-ai", InstallMethod: update.InstallBinary},
+			Tool:             update.ToolInfo{Name: update.SelfToolName, InstallMethod: update.InstallBinary},
 			InstalledVersion: "1.36.1",
 			LatestVersion:    "1.36.2",
 			Status:           update.UpdateAvailable,
@@ -325,7 +325,7 @@ func TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade(t *testing.T) {
 	}
 	upgradeExecuteWithOptions = func(context.Context, []update.UpdateResult, system.PlatformProfile, string, bool, upgrade.ExecuteOptions) upgrade.UpgradeReport {
 		return upgrade.UpgradeReport{Results: []upgrade.ToolUpgradeResult{{
-			ToolName:   "gentle-ai",
+			ToolName:   update.SelfToolName,
 			OldVersion: "1.36.1",
 			NewVersion: "1.36.2",
 			Status:     upgrade.UpgradeSucceeded,
@@ -364,10 +364,10 @@ func TestRunUpgrade_DryRunDoesNotPrintDoctorAdvisory(t *testing.T) {
 	})
 
 	updateCheckFiltered = func(context.Context, string, system.PlatformProfile, []string) []update.UpdateResult {
-		return []update.UpdateResult{{Tool: update.ToolInfo{Name: "gentle-ai"}, Status: update.UpdateAvailable}}
+		return []update.UpdateResult{{Tool: update.ToolInfo{Name: update.SelfToolName}, Status: update.UpdateAvailable}}
 	}
 	upgradeExecuteWithOptions = func(context.Context, []update.UpdateResult, system.PlatformProfile, string, bool, upgrade.ExecuteOptions) upgrade.UpgradeReport {
-		return upgrade.UpgradeReport{DryRun: true, Results: []upgrade.ToolUpgradeResult{{ToolName: "gentle-ai", NewVersion: "1.36.2", Status: upgrade.UpgradeSucceeded}}}
+		return upgrade.UpgradeReport{DryRun: true, Results: []upgrade.ToolUpgradeResult{{ToolName: update.SelfToolName, NewVersion: "1.36.2", Status: upgrade.UpgradeSucceeded}}}
 	}
 
 	var buf bytes.Buffer

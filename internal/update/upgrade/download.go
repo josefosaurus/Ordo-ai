@@ -110,8 +110,7 @@ func Download(ctx context.Context, r update.UpdateResult, profile system.Platfor
 		return fmt.Errorf("locate %q binary: %w", r.Tool.Name, err)
 	}
 
-	archiveName := resolveArchiveName(r.Tool.Repo, r.LatestVersion, profile.OS, runtime.GOARCH)
-	assetURL := resolveAssetURLFn(r.Tool.Owner, r.Tool.Repo, r.LatestVersion, profile.OS, runtime.GOARCH)
+	archiveName, assetURL := releaseArchive(r, profile.OS, runtime.GOARCH)
 	checksumURL := resolveChecksumURLFn(r.Tool.Owner, r.Tool.Repo, r.LatestVersion)
 	signatureURL := resolveSignatureURLFn(r.Tool.Owner, r.Tool.Repo, r.LatestVersion)
 
@@ -175,6 +174,18 @@ func Download(ctx context.Context, r update.UpdateResult, profile system.Platfor
 // Convention: {repo}_{version}_{os}_{arch}.tar.gz
 func resolveArchiveName(repo, version, goos, goarch string) string {
 	return fmt.Sprintf("%s_%s_%s_%s.tar.gz", repo, version, goos, goarch)
+}
+
+// releaseArchive returns the archive file name and download URL for r. The
+// release lives under Owner/Repo; ArchiveName, when set, replaces Repo as the
+// archive prefix (Ordo: repo Ordo-ai, archives ordo_*).
+func releaseArchive(r update.UpdateResult, goos, goarch string) (archiveName, assetURL string) {
+	assetURL = resolveAssetURLFn(r.Tool.Owner, r.Tool.Repo, r.LatestVersion, goos, goarch)
+	if r.Tool.ArchiveName == "" || r.Tool.ArchiveName == r.Tool.Repo {
+		return resolveArchiveName(r.Tool.Repo, r.LatestVersion, goos, goarch), assetURL
+	}
+	archiveName = resolveArchiveName(r.Tool.ArchiveName, r.LatestVersion, goos, goarch)
+	return archiveName, assetURL[:strings.LastIndex(assetURL, "/")+1] + archiveName
 }
 
 // resolveAssetURL constructs the GitHub Releases asset download URL.

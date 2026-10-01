@@ -14,8 +14,8 @@ set -euo pipefail
 #   ./install.sh
 # ============================================================================
 
-GITHUB_OWNER="Gentleman-Programming"
-GITHUB_REPO="gentle-ai"
+GITHUB_OWNER="josefosaurus"
+GITHUB_REPO="Ordo-ai"
 BINARY_NAME="ordo"
 # GO_MAIN_PACKAGE is the Go main package directory (cmd/<name>); go install
 # names the binary after it, so install_go renames it to BINARY_NAME.
@@ -91,27 +91,20 @@ print_homebrew_failure_help() {
 
 show_help() {
     cat <<EOF
-${BOLD}Gentle-AI installer${NC}
+${BOLD}Ordo installer${NC} (based on Gentle AI)
 
 Usage: install.sh [OPTIONS]
 
 Options:
-  --method METHOD   Force install method: brew, go, binary (default: auto-detect)
-  --channel CHANNEL Gentle AI channel: stable (default), beta, or nightly (env: GENTLE_AI_CHANNEL)
-  --dir DIR         Custom install directory for binary method
+  --method METHOD   Install method; only "binary" is available (signed GitHub release)
+  --channel CHANNEL Release channel; only "stable" is available (env: GENTLE_AI_CHANNEL)
+  --dir DIR         Custom install directory
   --insecure        Skip checksum verification (not recommended)
   -h, --help        Show this help
 
-Install methods (auto-detected in priority order):
-  1. brew    — Homebrew tap (recommended)
-  2. go      — go install from source
-  3. binary  — Pre-built binary from GitHub Releases
-
 Examples:
   curl -sL https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/scripts/install.sh | bash
-  ./install.sh --method binary
-  ./install.sh --channel beta
-  ./install.sh --method binary --dir \$HOME/.local/bin
+  ./install.sh --dir \$HOME/.local/bin
   ./install.sh --method binary --insecure   # skip checksum (not recommended)
 
 EOF
@@ -189,6 +182,20 @@ check_prerequisites() {
 # ============================================================================
 
 detect_install_method() {
+    # Ordo ships signed release binaries only: there is no Homebrew tap, and
+    # go install would fetch the upstream module (the Go module path still
+    # names Gentle AI). The brew and go code paths below are kept for upstream
+    # parity but are never selected.
+    if [ "${CHANNEL}" = "beta" ]; then
+        fatal "--channel beta is not available for ${BINARY_NAME} yet; install the stable release"
+    fi
+    if [ -n "${FORCE_METHOD:-}" ] && [ "${FORCE_METHOD}" != "binary" ]; then
+        fatal "--method ${FORCE_METHOD} is not available for ${BINARY_NAME} yet; use --method binary"
+    fi
+    INSTALL_METHOD="binary"
+    info "Will download the signed ${BINARY_NAME} release binary from GitHub Releases"
+    return
+
     if [ "${CHANNEL}" = "beta" ]; then
         if [ -n "${FORCE_METHOD:-}" ] && [ "${FORCE_METHOD}" != "go" ]; then
             fatal "--channel beta installs Gentle AI from main and only supports --method go"

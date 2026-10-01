@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 )
 
@@ -46,6 +47,8 @@ func ValidatedBetaSourceInstallCommand(r UpdateResult) (string, error) {
 // updateHint returns a platform-specific instruction string for updating the given tool.
 func updateHint(tool ToolInfo, profile system.PlatformProfile) string {
 	switch tool.Name {
+	case SelfToolName:
+		return ordoHint(profile)
 	case "gentle-ai":
 		return gentleAIHint(profile)
 	case "engram":
@@ -72,6 +75,20 @@ func openCodeRegisteredNotMaterializedHint(tool ToolInfo) string {
 		pkg = tool.Name
 	}
 	return fmt.Sprintf("registered in ~/.config/opencode/tui.json; pending npm dependency materialization for %s. Run ordo upgrade to install/update ~/.config/opencode dependencies, then restart or reload OpenCode; if it stays pending, check OpenCode logs for package or peer dependency errors.", pkg)
+}
+
+// ordoHint is the update instruction for the Ordo binary. Only Linux and
+// macOS have signed releases; there is no Homebrew formula and no go-install
+// path (the module path still names upstream).
+func ordoHint(profile system.PlatformProfile) string {
+	switch profile.OS {
+	case "linux", "darwin":
+		return SelfToolName + " upgrade (downloads the signed release binary), or: curl -fsSL https://raw.githubusercontent.com/" + brand.ReleaseOwner + "/" + brand.ReleaseRepo + "/main/scripts/install.sh | bash"
+	case "windows":
+		return "Windows has no signed " + SelfToolName + " release yet; build from source: go build -o " + SelfToolName + ".exe ./cmd/gentle-ai"
+	default:
+		return ""
+	}
 }
 
 // gentleAIHint is the stable-channel instruction only. When the checker

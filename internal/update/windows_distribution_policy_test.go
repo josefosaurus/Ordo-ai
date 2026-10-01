@@ -24,7 +24,7 @@ func TestOfficialReleaseOmitsUnsignedWindowsDistribution(t *testing.T) {
 			t.Errorf("GoReleaser config still enables forbidden Windows distribution: %s", forbidden)
 		}
 	}
-	for _, required := range []string{"- linux", "- darwin", "brews:", "artifacts: checksum"} {
+	for _, required := range []string{"- linux", "- darwin", "artifacts: checksum"} { // Ordo: no Homebrew formula
 		if !strings.Contains(config, required) {
 			t.Errorf("GoReleaser config lost non-Windows release behavior %q", required)
 		}
@@ -520,8 +520,7 @@ const releasePolicyArtifactsFixture = `[
   {"name":"ordo_0.0.0-SNAPSHOT_darwin_arm64.tar.gz","path":"dist/ordo_0.0.0-SNAPSHOT_darwin_arm64.tar.gz","goos":"darwin","goarch":"arm64","target":"darwin_arm64_v8.0","type":"Archive","extra":{"Binaries":["ordo"],"Format":"tar.gz","ID":"default"}},
   {"name":"gentle-ai-review-provider-contract-1.2.0.tar.gz","path":"dist/gentle-ai-review-provider-contract-1.2.0.tar.gz","type":"Archive","extra":{"Binaries":[],"Format":"tar.gz","ID":"review-provider-contract"}},
   {"name":"gentle-ai-release-provenance-v1.tar.gz","path":"dist/gentle-ai-release-provenance-v1.tar.gz","type":"Archive","extra":{"Binaries":[],"Format":"tar.gz","ID":"release-provenance"}},
-  {"name":"checksums.txt","path":"dist/checksums.txt","type":"Checksum","extra":{}},
-  {"name":"ordo.rb","path":"dist/homebrew/Formula/ordo.rb","type":"Homebrew Formula","extra":{"BrewConfig":{"name":"ordo","repository":{"owner":"Gentleman-Programming","name":"homebrew-tap","token":"{{ .Env.HOMEBREW_TAP_TOKEN }}"},"directory":"Formula"}}}
+  {"name":"checksums.txt","path":"dist/checksums.txt","type":"Checksum","extra":{}}
 ]`
 
 const releasePolicyRunID = "release-policy-test-run"

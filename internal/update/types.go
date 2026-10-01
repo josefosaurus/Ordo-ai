@@ -46,6 +46,7 @@ type ToolInfo struct {
 	InstallMethod     InstallMethod // how this tool is installed (used by upgrade executor)
 	GoImportPath      string        // for go-install tools (e.g. "github.com/.../cmd/engram")
 	NpmPackage        string        // for OpenCode community plugins installed in ~/.config/opencode/node_modules
+	ArchiveName       string        // release archive prefix ({ArchiveName}_{version}_{os}_{arch}.tar.gz); empty = Repo
 
 	// FallbackPaths returns a list of absolute paths to check when exec.LookPath
 	// fails. This covers the Windows scenario where AddToUserPath updates the

@@ -116,14 +116,14 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 	results := update.CheckAllWithCooldown(ctx, version, profile, homeDir, update.UpdateCheckTTL,
 		selfUpdateNowFn,
 		func(c context.Context, ver string, prof system.PlatformProfile) []update.UpdateResult {
-			return updateCheckFiltered(c, ver, prof, []string{"gentle-ai"})
+			return updateCheckFiltered(c, ver, prof, []string{update.SelfToolName})
 		},
 	)
 
 	// Find the ordo result.
 	var target *update.UpdateResult
 	for i := range results {
-		if results[i].Tool.Name == "gentle-ai" {
+		if results[i].Tool.Name == update.SelfToolName {
 			target = &results[i]
 			break
 		}
@@ -161,7 +161,7 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 	// Check if upgrade succeeded.
 	var succeeded bool
 	for _, r := range report.Results {
-		if r.ToolName == "gentle-ai" && r.Status == upgrade.UpgradeSucceeded {
+		if r.ToolName == update.SelfToolName && r.Status == upgrade.UpgradeSucceeded {
 			succeeded = true
 			break
 		}
@@ -192,7 +192,7 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 
 func gentleAIUpgradeSucceeded(report upgrade.UpgradeReport) (string, bool) {
 	for _, r := range report.Results {
-		if r.ToolName == "gentle-ai" && r.Status == upgrade.UpgradeSucceeded {
+		if r.ToolName == update.SelfToolName && r.Status == upgrade.UpgradeSucceeded {
 			return strings.TrimPrefix(r.NewVersion, "v"), true
 		}
 	}

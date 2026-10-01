@@ -3604,7 +3604,7 @@ func markPendingSyncUnderLock(h string) {
 
 func reportUpgradedGentleAI(report upgrade.UpgradeReport) bool {
 	for _, result := range report.Results {
-		if result.ToolName == "gentle-ai" && result.Status == upgrade.UpgradeSucceeded {
+		if result.ToolName == update.SelfToolName && result.Status == upgrade.UpgradeSucceeded {
 			return true
 		}
 	}
@@ -3618,7 +3618,7 @@ func (m Model) GentleAIUpgradeVersion() (string, bool) {
 		return "", false
 	}
 	for _, result := range m.UpgradeReport.Results {
-		if result.ToolName == "gentle-ai" && result.Status == upgrade.UpgradeSucceeded {
+		if result.ToolName == update.SelfToolName && result.Status == upgrade.UpgradeSucceeded {
 			return strings.TrimPrefix(result.NewVersion, "v"), true
 		}
 	}

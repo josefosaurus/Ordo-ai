@@ -19,7 +19,22 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/update"
 )
 
+// shippedSelfTool is the real Ordo registry entry, captured before TestMain
+// swaps in upstream's entry.
+var shippedSelfTool update.ToolInfo
+
 func TestMain(m *testing.M) {
+	// Run upstream's self-upgrade tests against upstream's original gentle-ai
+	// entry; the shipped Ordo entry is covered in ordo_self_test.go.
+	shippedSelfTool = update.Tools[0]
+	update.Tools[0] = update.ToolInfo{
+		Name:          "gentle-ai",
+		Owner:         "Gentleman-Programming",
+		Repo:          "gentle-ai",
+		VersionPrefix: "v",
+		InstallMethod: update.InstallBinary,
+		GoImportPath:  "github.com/gentleman-programming/gentle-ai/cmd/gentle-ai",
+	}
 	// Neutralize ambient agent runtime-dir overrides (PI_CODING_AGENT_DIR,
 	// OPENCODE_CONFIG_DIR) up front: this package's executor tests resolve
 	// Pi and OpenCode config paths through the real adapters/internal/opencode

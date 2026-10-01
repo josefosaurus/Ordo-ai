@@ -2,7 +2,12 @@ package update
 
 import (
 	"path/filepath"
+
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 )
+
+// SelfToolName is the update-registry name of the running binary.
+const SelfToolName = brand.Command
 
 // Tools is the static registry of managed tools that can be checked for updates.
 //
@@ -18,25 +23,18 @@ import (
 // the fallback strategy.
 var Tools = []ToolInfo{
 	{
-		Name:          "gentle-ai",
-		Owner:         "Gentleman-Programming",
-		Repo:          "gentle-ai",
+		// The Ordo binary itself. Releases are published by the Ordo
+		// repository as signed ordo_* archives for Linux and macOS. There is
+		// deliberately no GoImportPath: the Go module path still names
+		// upstream, so `go install` would fetch Gentle AI instead of Ordo.
+		// Windows has no signed binary and gets a manual-update hint.
+		Name:          SelfToolName,
+		Owner:         brand.ReleaseOwner,
+		Repo:          brand.ReleaseRepo,
+		ArchiveName:   brand.Command,
 		DetectCmd:     nil, // version comes from build-time ldflags (app.Version)
 		VersionPrefix: "v",
-		// gentle-ai: Homebrew when the package is brew-owned, authenticated binary
-		// release download on Linux/macOS, and `go install` on Windows, where no
-		// official signed binary is published.
 		InstallMethod: InstallBinary,
-		// GoImportPath is what makes the Windows self-upgrade possible. It is
-		// deliberately NOT a general opt-in to go-install: effectiveMethod routes
-		// ordo on Linux/macOS to InstallBinary regardless of this field, so
-		// those platforms keep the minisign-verified release download.
-		//
-		// The path stores the module/import base WITHOUT the /vN suffix; the
-		// /vN suffix is derived at composition time from the target version via
-		// ModulePathForVersion so a v2 binary composing "go install ...@v3.0.1"
-		// resolves to github.com/.../v3/... and not the unresolvable /v2 path.
-		GoImportPath: "github.com/gentleman-programming/gentle-ai/cmd/gentle-ai",
 	},
 	{
 		Name:              "engram",

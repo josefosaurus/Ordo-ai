@@ -353,7 +353,7 @@ func TestGoReleaserSignsBoundManifestAndInjectsTrustAnchors(t *testing.T) {
 		`signature: ${artifact}.minisig`,
 		`- "${artifact}"`,
 		`- "${signature}"`,
-		`repo=Gentleman-Programming/gentle-ai;tag={{ .Tag }}`,
+		`repo=josefosaurus/Ordo-ai;tag={{ .Tag }}`, // Ordo: signatures bind the Ordo repository.
 		`github.com/gentleman-programming/gentle-ai/v4/internal/update/upgrade.releaseMinisignPublicKeys={{ .Env.MINISIGN_PUBLIC_KEYS_CANONICAL }}`,
 		"-trimpath",
 		"go run ./internal/releaseprovenancecmd --out .goreleaser-provenance/manifest.json --config .goreleaser.yaml --goreleaser-version v2.15.2",
@@ -477,7 +477,6 @@ func TestReleaseSecurityScriptsAreSyntacticallyValidAndFailClosed(t *testing.T) 
 				`go run ./internal/releasepolicycmd`,
 				`expectedGoReleaserYAML`,
 				`expectedReleaseWorkflowYAML`,
-				`resolved Homebrew publisher changed`,
 				`snapshot output predates the current run marker`,
 				`snapshot output path contains a symlink`,
 			},

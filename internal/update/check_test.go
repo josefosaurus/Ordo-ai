@@ -18,9 +18,24 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 )
 
+// shippedSelfTool is the real Ordo registry entry, captured before TestMain
+// swaps in upstream's entry.
+var shippedSelfTool ToolInfo
+
 func TestMain(m *testing.M) {
-	// The upstream self-update machinery stays covered even though Ordo
-	// ships with it disabled.
+	// Ordo ships its own self entry (Tools[0]). Upstream's tests exercise the
+	// gentle-ai entry's beta channel and go-install paths, which still exist
+	// in code but never match the Ordo entry, so run them against upstream's
+	// original declaration and cover the Ordo entry in ordo_self_test.go.
+	shippedSelfTool = Tools[0]
+	Tools[0] = ToolInfo{
+		Name:          "gentle-ai",
+		Owner:         "Gentleman-Programming",
+		Repo:          "gentle-ai",
+		VersionPrefix: "v",
+		InstallMethod: InstallBinary,
+		GoImportPath:  "github.com/gentleman-programming/gentle-ai/cmd/gentle-ai",
+	}
 	SelfUpdateEnabled = true
 	if err := os.Unsetenv("GENTLE_AI_CHANNEL"); err != nil {
 		panic(err)
@@ -2237,13 +2252,13 @@ func TestCheckFilteredSkipsSelfWhenSelfUpdateDisabled(t *testing.T) {
 	t.Cleanup(func() { SelfUpdateEnabled = orig })
 
 	origTools := Tools
-	Tools = []ToolInfo{{Name: "gentle-ai", Owner: "Gentleman-Programming", Repo: "gentle-ai"}}
+	Tools = []ToolInfo{shippedSelfTool}
 	t.Cleanup(func() { Tools = origTools })
 
 	if got := CheckFiltered(context.Background(), "1.0.0", system.PlatformProfile{}, nil); len(got) != 0 {
 		t.Fatalf("CheckFiltered(all) = %d results, want 0 with self-update disabled", len(got))
 	}
-	if got := CheckFiltered(context.Background(), "1.0.0", system.PlatformProfile{}, []string{"gentle-ai"}); len(got) != 0 {
+	if got := CheckFiltered(context.Background(), "1.0.0", system.PlatformProfile{}, []string{SelfToolName}); len(got) != 0 {
 		t.Fatalf("CheckFiltered(gentle-ai) = %d results, want 0 with self-update disabled", len(got))
 	}
 }
