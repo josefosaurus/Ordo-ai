@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # ============================================================================
-# Gentle-AI — Install Script
-# Ecosystem, Frameworks, Workflows for AI coding agents.
+# Ordo — Install Script (based on Gentle AI)
+# Installs the signed ordo release binary.
 #
 # Usage:
 #   curl -sL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash
@@ -641,13 +641,13 @@ verify_installation() {
 print_banner() {
     echo ""
     echo -e "${CYAN}${BOLD}"
-    echo "   ____            _   _              _    ___ "
-    echo "  / ___| ___ _ __ | |_| | ___        / \  |_ _|"
-    echo " | |  _ / _ \ '_ \| __| |/ _ \_____ / _ \  | | "
-    echo " | |_| |  __/ | | | |_| |  __/_____/ ___ \ | | "
-    echo "  \____|\___|_| |_|\__|_|\___|    /_/   \_\___|"
+    echo "   ___  ____  ____   ___  "
+    echo "  / _ \\|  _ \\|  _ \\ / _ \\ "
+    echo " | | | | |_) | | | | | | |"
+    echo " | |_| |  _ <| |_| | |_| |"
+    echo "  \\___/|_| \\_\\____/ \\___/ "
     echo -e "${NC}"
-    echo -e "  ${DIM}Gentle-AI — Ecosystem, Frameworks, Workflows${NC}"
+    echo -e "  ${DIM}Ordo — based on Gentle AI${NC}"
     echo ""
 }
 

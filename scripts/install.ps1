@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Gentle-AI source installer for Windows.
+    Ordo installer for Windows (based on Gentle AI).
 
 .DESCRIPTION
     Installs Gentle AI from source with Go. Official Windows binary distribution
@@ -54,13 +54,13 @@ function Stop-WithError {
 
 function Show-Banner {
     Write-Host ""
-    Write-Host "   ____            _   _              _    ___ " -ForegroundColor Cyan
-    Write-Host "  / ___| ___ _ __ | |_| | ___        / \  |_ _|" -ForegroundColor Cyan
-    Write-Host " | |  _ / _ \ '_ \| __| |/ _ \_____ / _ \  | | " -ForegroundColor Cyan
-    Write-Host " | |_| |  __/ | | | |_| |  __/_____/ ___ \ | | " -ForegroundColor Cyan
-    Write-Host "  \____|\___|_| |_|\__|_|\___|    /_/   \_\___|" -ForegroundColor Cyan
+    Write-Host "   ___  ____  ____   ___  " -ForegroundColor Cyan
+    Write-Host "  / _ \|  _ \|  _ \ / _ \ " -ForegroundColor Cyan
+    Write-Host " | | | | |_) | | | | | | |" -ForegroundColor Cyan
+    Write-Host " | |_| |  _ <| |_| | |_| |" -ForegroundColor Cyan
+    Write-Host "  \___/|_| \_\____/ \___/ " -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Gentle-AI - Ecosystem, Frameworks, Workflows" -ForegroundColor DarkGray
+    Write-Host "  Ordo - based on Gentle AI" -ForegroundColor DarkGray
     Write-Host ""
 }
 

@@ -2523,7 +2523,8 @@ func (s componentApplyStep) Run() error {
 					return fmt.Errorf("resolve install command for component %q: %w", s.component, err)
 				}
 				commands = withResolvedBrewCommand(commands)
-				installErr = runCommandSequence(commands)
+				trustGentlemanTapFormula("engram")
+				installErr = withTapTrustHint(runCommandSequence(commands), "engram")
 				if installErr == nil {
 					if installedPath, found := resolveEngramInstalledPath(s.profile); found {
 						engramCommand = installedPath
@@ -2756,7 +2757,10 @@ func (s componentApplyStep) Run() error {
 			if err != nil {
 				return fmt.Errorf("resolve install command for component %q: %w", s.component, err)
 			}
-			installErr := runCommandSequence(commands)
+			if s.profile.PackageManager == "brew" {
+				trustGentlemanTapFormula("gga")
+			}
+			installErr := withTapTrustHint(runCommandSequence(commands), "gga")
 			if installErr != nil {
 				if ggaAvailable(s.profile) {
 					// The GGA install script uses `set -e` and `read -p` for
@@ -3052,6 +3056,30 @@ func withResolvedBrewCommand(commands [][]string) [][]string {
 		rewritten[i] = command
 	}
 	return rewritten
+}
+
+// gentlemanTapFormulaRef names a formula in the Gentleman Programming tap.
+func gentlemanTapFormulaRef(formula string) string {
+	return "gentleman-programming/tap/" + formula
+}
+
+// trustGentlemanTapFormula trusts only the Gentleman Programming formula about
+// to be installed. Recent Homebrew refuses formulae from non-official taps
+// until they are trusted; the upgrade path already does this
+// (internal/update/upgrade). Older Homebrew has no `brew trust`, so this is
+// best effort and the install that follows remains the source of truth.
+func trustGentlemanTapFormula(formula string) {
+	trust := withResolvedBrewCommand([][]string{{"brew", "trust", "--formula", gentlemanTapFormulaRef(formula)}})[0]
+	_ = runCommand(trust[0], trust[1:]...)
+}
+
+// withTapTrustHint adds the exact trust command when Homebrew still refuses
+// the formula, for example when automatic trust is unsupported or denied.
+func withTapTrustHint(err error, formula string) error {
+	if err == nil || !strings.Contains(strings.ToLower(err.Error()), "untrusted tap") {
+		return err
+	}
+	return fmt.Errorf("%w; Homebrew requires explicit trust for this tap: run `brew trust --formula %s`, then run `ordo sync`", err, gentlemanTapFormulaRef(formula))
 }
 
 // runCommandSequence runs each command in the sequence one at a time, stopping on first error.
