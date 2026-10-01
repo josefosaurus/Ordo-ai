@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 )
 
 const (
@@ -19,7 +21,7 @@ const (
 	// trigger release.yml, so building one by hand is the documented path, and a
 	// local checkout knows no tag, run or workflow it could honestly name.
 	localSchema         = "gentle-ai.release-provenance/local-build"
-	repository          = "Gentleman-Programming/gentle-ai"
+	repository          = brand.ReleaseOwner + "/" + brand.ReleaseRepo
 	goReleaserVersion   = "v2.15.2"
 	providerArchiveKind = "provider-contract"
 )
