@@ -1,120 +1,58 @@
 # Quickstart
 
+Ordo is based on Gentle AI. It configures the AI coding agents you already have; it never installs an agent for you.
+
 ## Prerequisites
 
-### macOS
+- macOS or Linux (Ubuntu/Debian, Arch, or Fedora/RHEL family). Windows is not supported yet.
+- `curl` and `git` on `PATH`.
+- At least one supported agent installed (for example Claude Code or OpenCode).
 
-- Homebrew installed and available in PATH.
-- `git` available.
-- If Homebrew requires trust, run `brew trust --formula gentleman-programming/tap/ordo` once for Gentle AI™ only.
-  - To install several tools from this tap, use `brew trust gentleman-programming/tap` instead. It trusts all current and future formulas, casks, and external commands published in the tap.
-
-### Ubuntu/Debian (and derivatives like Linux Mint, Pop!\_OS)
-
-- `apt-get` available (standard on these distros).
-- `sudo` access for package installs.
-- `git` available.
-- If Node.js is missing, `ordo install` prints this install hint: NodeSource LTS setup + `apt-get install -y nodejs` (npm comes bundled).
-- If using Homebrew on Linux, Bubblewrap may require unprivileged user namespaces; see `docs/usage.md#homebrew-upgrade-troubleshooting`.
-
-### Arch Linux (and derivatives like Manjaro, EndeavourOS)
-
-- `pacman` available (standard on these distros).
-- `sudo` access for package installs.
-- `git` available.
-- If Node.js is missing, `ordo install` prints this install hint: `pacman -S --noconfirm nodejs npm`.
-
-### Fedora / RHEL family (Fedora, CentOS Stream, Rocky Linux, AlmaLinux)
-
-- `dnf` available (standard on these distros).
-- `sudo` access for package installs.
-- `git` available.
-- If Node.js is missing, `ordo install` prints this install hint: NodeSource LTS setup + `dnf install -y nodejs` (npm comes bundled).
-
-### All platforms
-
-- Git 2.38+.
-- Go 1.25.10+ (for building from source).
-- Node.js 18+ and npm: `ordo install` checks these as required prerequisites on every platform and prints a warning with a distro-specific install hint (see above) if either is missing — regardless of which agents/components you select. It does not install them for you, and it does not install agent runtimes either: if a selected agent isn't detected, `ordo install` refuses and prints the exact `npm install -g` (or equivalent) command for you to run yourself. Node.js/npm are strictly required if you select the CodeGraph community tool, which ordo does install via `npm install -g`.
-- Pi installed and available as `pi` on `PATH` if you select the Pi agent.
-
-### Windows
-
-- Go 1.25.10+, because Windows installs and upgrades through `go install`.
-  Official Windows binaries and the Scoop bucket are temporarily unavailable
-  while publicly trusted Authenticode signing is provisioned, so nothing
-  unsigned is ever fetched. With Go on `PATH`, `ordo upgrade` updates
-  itself automatically by running `go install …/cmd/gentle-ai@vX.Y.Z` pinned to
-  the release tag and verified against the Go checksum database; without Go it
-  fails closed and just prints that command. See [platforms.md](platforms.md)
-  and the
-  [restoration gate](release-signing.md#windows-distribution-restoration-gate).
-
-```powershell
-# Stable channel (`@latest` after v4.0.0 is published)
-go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@latest
-```
-
-This command uses the `/v4` module path. Go requires that suffix for major
-version 2 and above. Before v4.0.0 is published, `@latest` on this path cannot resolve.
-
-## Version Policy
-
-Receipt-Driven Development (RDD) began in `v1.47.0` on 2026-07-10, and `v2.2.0` made it the supported stable path. Those are historical milestones. The negotiated public review contract was published in `v2.1.6`.
-
-The latest published stable release before v4.0.0 is [`v3.7.0`](https://github.com/Gentleman-Programming/gentle-ai/releases/tag/v3.7.0). After v4.0.0 is published, `@latest` on the `/v4` module path tracks that stable channel. Until then, use `@main` only to test unreleased development changes; do not assume an unpublished v4 tag resolves.
-
-### Install the stable channel (after v4.0.0 publication)
+## Install
 
 ```bash
-go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@latest
-ordo version
+curl -fsSL https://raw.githubusercontent.com/josefosaurus/Ordo-ai/main/scripts/install.sh | bash
 ```
 
-### Install unreleased development changes
-
-Only use `main` when testing changes that are not part of a release yet:
+The installer downloads the signed release for your platform from [GitHub Releases](https://github.com/josefosaurus/Ordo-ai/releases), verifies its checksum, and installs `ordo`. To choose the folder:
 
 ```bash
-# macOS / Linux
-go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@main
-ordo version
-
-# Windows (PowerShell)
-$env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@main
-ordo version
+curl -fsSL https://raw.githubusercontent.com/josefosaurus/Ordo-ai/main/scripts/install.sh | bash -s -- --dir ~/.local/bin
 ```
 
-To update a beta installation later, preserve the beta channel:
+If `ordo` is not found afterwards, the install folder is not on your `PATH`:
 
 ```bash
-# macOS / Linux
-GENTLE_AI_CHANNEL=beta ordo upgrade
-
-# Windows (PowerShell)
-$env:GENTLE_AI_CHANNEL="beta"; ordo upgrade
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc   # bash: ~/.bash_profile
 ```
 
-`ordo upgrade` advances the `ordo` binary from `main` and refreshes managed tools on macOS, Linux, and Windows with Go on `PATH`.
-
-If you re-run an installer, pass beta explicitly because both installers default to stable:
+Check it:
 
 ```bash
-# macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash -s -- --channel beta
-
-# Windows (PowerShell)
-$env:GENTLE_AI_CHANNEL="beta"; irm https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.ps1 | iex
+ordo --version
 ```
 
-> **Go module proxy cache**: `proxy.golang.org` can lag behind new commits on `main` for up to several hours. If manual `go install ...@main` does not update to the newest commit, bypass the cache with `GOPROXY=direct go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@main` (PowerShell: `$env:GOPROXY="direct"; go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@main`).
+## Upgrade
 
-The managed install scripts select the latest version for their chosen channel and do not accept arbitrary release pins. Use `go install` with an exact tag when you need a reproducible prerelease or stable version.
+```bash
+ordo upgrade
+```
+
+`ordo upgrade` downloads the latest signed release, verifies its signature against Ordo's release key, and replaces the binary.
+
+## Build from source
+
+```bash
+git clone https://github.com/josefosaurus/Ordo-ai.git && cd Ordo-ai
+go build -o ordo ./cmd/gentle-ai     # requires Go 1.25.10+
+```
+
+Do not use `go install github.com/gentleman-programming/gentle-ai/...`: the module path still names upstream, so it installs Gentle AI rather than Ordo.
 
 ## Run
 
 ```bash
-go run ./cmd/gentle-ai install --dry-run
+ordo install --dry-run
 ```
 
 Use `--dry-run` first to validate selections and execution plan without applying changes. The dry-run output includes a `Platform decision` line showing the detected OS, distro, package manager, and support status.
@@ -122,14 +60,14 @@ Use `--dry-run` first to validate selections and execution plan without applying
 ## First real install
 
 ```bash
-go run ./cmd/gentle-ai install
+ordo install
 ```
 
 The installer detects your platform automatically — no flags needed to select macOS vs Linux. Install commands are resolved through the appropriate package manager (brew, apt, pacman, or dnf) based on detection.
 
 After completion, verify that agent configs and selected components were installed to their expected paths.
 
-The agents you select during install become the default scope for future `ordo sync` runs. Gentle AI records that selection in `~/.gentle-ai/state.json` and does not automatically sync every agent config directory that exists on your machine. To check what will be updated after an upgrade, run:
+The agents you select during install become the default scope for future `ordo sync` runs. Ordo records that selection in `~/.gentle-ai/state.json` and does not automatically sync every agent config directory that exists on your machine. To check what will be updated after an upgrade, run:
 
 ```bash
 ordo sync --dry-run
@@ -149,7 +87,7 @@ When checks pass, installer reports:
 
 If something looks wrong after install, run `ordo doctor` for a read-only health check. It verifies tool binaries, `state.json` validity, Engram™ MCP reachability, and disk space — each check reports pass/warn/fail with a remedy hint.
 
-For a Pi-only install, the plan shows the Pi package stack instead of Gentle AI components. It installs `gentle-pi` and `gentle-engram`, runs `pi-engram init` through the pinned `gentle-engram` package, then installs `pi-web-access` and `pi-btw`. Pi's built-in MCP support (Pi >= 0.99.0) runs the Engram and CodeGraph MCP servers from `mcp.json`. Gentle AI removes a previously installed `pi-mcp-adapter`, because an extension that registers `/mcp` replaces Pi's built-in MCP support.
+Gentle Pi is not supported by Ordo yet. For reference, upstream's Pi-only flow shows the Pi package stack instead of the regular components. It installs `gentle-pi` and `gentle-engram`, runs `pi-engram init` through the pinned `gentle-engram` package, then installs `pi-web-access` and `pi-btw`. Pi's built-in MCP support (Pi >= 0.99.0) runs the Engram and CodeGraph MCP servers from `mcp.json`. It removes a previously installed `pi-mcp-adapter`, because an extension that registers `/mcp` replaces Pi's built-in MCP support.
 
 ## Start working with ODD
 
@@ -157,7 +95,7 @@ Open your agent in the project and describe an outcome, for example: "Add CSV ex
 
 ## Hardening recommendations for users
 
-Gentle AI pins versions and disables postinstall scripts on every npm install it generates. When you install the `permissions` component, a sensitive-paths deny list is applied to Claude Code and OpenCode blocking access to `~/.ssh/*`, `**/*.pem`, `**/*.key`, `**/.env*`, `~/.aws/credentials`, and other credential paths. See [Components](../docs/components.md) for the full list.
+Ordo pins versions and disables postinstall scripts on every npm install it generates. When you install the `permissions` component, a sensitive-paths deny list is applied to Claude Code and OpenCode blocking access to `~/.ssh/*`, `**/*.pem`, `**/*.key`, `**/.env*`, `~/.aws/credentials`, and other credential paths. See [Components](../docs/components.md) for the full list.
 
 For broader protection across npm packages you install yourself, set these once on your machine:
 
