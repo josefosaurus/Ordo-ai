@@ -71,7 +71,12 @@ func (p ProgressState) Percent() int {
 
 	completed := 0
 	for _, item := range p.Items {
-		if item.Status == string(pipeline.StepStatusSucceeded) || item.Status == string(pipeline.StepStatusFailed) || item.Status == string(pipeline.StepStatusSkipped) {
+		// Rolled-back steps are finished too: after a failed apply the pipeline
+		// compensates earlier steps and reports them as rolled-back. Counting
+		// them as unfinished kept the install screen below 100% forever, so it
+		// never offered "Press Enter to continue".
+		if item.Status == string(pipeline.StepStatusSucceeded) || item.Status == string(pipeline.StepStatusFailed) ||
+			item.Status == string(pipeline.StepStatusSkipped) || item.Status == string(pipeline.StepStatusRolledBack) {
 			completed++
 		}
 	}

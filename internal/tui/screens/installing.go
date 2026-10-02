@@ -47,6 +47,9 @@ func RenderInstalling(progress InstallProgress, spinner string) string {
 			item.Label += " (skipped)"
 		case "failed":
 			icon = styles.ErrorStyle.Render("✗")
+		case "rolled-back":
+			icon = styles.WarningStyle.Render("↺")
+			item.Label += " (rolled back)"
 		case "running":
 			icon = styles.WarningStyle.Render(spinner)
 		default:
