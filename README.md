@@ -65,6 +65,8 @@ Windows is not supported yet; build from source with `go build -o ordo.exe ./cmd
 
 Branding and persona are stored per user under `~/.gentle-ai/`, so everyone can tailor Ordo without forking it. Invalid values fall back to the defaults with a warning; they never break the CLI.
 
+Run `ordo` and pick **Customize brand & persona** to edit them with a live preview, or use the commands below.
+
 **Brand** — what the CLI and TUI show:
 
 ```bash

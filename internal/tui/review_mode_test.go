@@ -3,6 +3,7 @@ package tui
 import (
 	"context"
 	"errors"
+	"slices"
 	"strings"
 	"testing"
 
@@ -38,7 +39,7 @@ func TestReviewModeTUI(t *testing.T) {
 		return current, nil
 	}
 	open := func(model Model) Model {
-		model.Cursor = len(screens.WelcomeOptions(model.UpdateResults, model.UpdateCheckDone, false, 0, true)) - 4
+		model.Cursor = slices.Index(screens.WelcomeOptions(model.UpdateResults, model.UpdateCheckDone, false, 0, true), "Receipt-Driven Development")
 		updated, cmd := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
 		return settleReviewMode(t, updated.(Model), cmd)
 	}

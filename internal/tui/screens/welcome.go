@@ -59,6 +59,7 @@ func WelcomeOptions(updateResults []update.UpdateResult, updateCheckDone bool, s
 	opts = append(opts, "Receipt-Driven Development")
 	opts = append(opts, "Managed uninstall")
 	opts = append(opts, "Community Tools/Plugins")
+	opts = append(opts, "Customize brand & persona")
 	opts = append(opts, "Quit")
 
 	return opts

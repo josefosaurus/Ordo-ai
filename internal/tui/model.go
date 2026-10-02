@@ -606,9 +606,15 @@ const (
 	ScreenReviewStoreResetResult
 	// ScreenReviewMode displays and changes the global review-mode switch.
 	ScreenReviewMode
+	// ScreenCustomize edits the per-user brand and Ordo persona with a live
+	// preview (internal/tui/customize.go).
+	ScreenCustomize
 )
 
 type Model struct {
+	// Customize is the state of ScreenCustomize.
+	Customize CustomizeState
+
 	openCodePresentationMajor opencode.RuntimeMajor
 	Screen                    Screen
 	PreviousScreen            Screen
@@ -1315,6 +1321,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.Screen == ScreenRenameBackup {
 			return m.handleRenameInput(msg)
 		}
+		if m.Screen == ScreenCustomize {
+			return m.handleCustomizeKey(msg)
+		}
 		// Delegate to textarea when on the agent builder prompt screen,
 		// unless the user pressed Esc (to go back) or Tab (to continue).
 		if m.Screen == ScreenAgentBuilderPrompt {
@@ -1612,6 +1621,8 @@ func (m Model) View() string {
 		return screens.RenderDeleteResult(m.SelectedBackup, m.DeleteErr)
 	case ScreenRenameBackup:
 		return screens.RenderRenameBackup(m.SelectedBackup, m.BackupRenameText, m.BackupRenamePos)
+	case ScreenCustomize:
+		return m.renderCustomize()
 	case ScreenAgentBuilderEngine:
 		return screens.RenderABEngine(m.AgentBuilder.AvailableEngines, m.Cursor)
 	case ScreenAgentBuilderPrompt:
@@ -2116,6 +2127,11 @@ func (m Model) confirmSelection() (tea.Model, tea.Cmd) {
 				m.Selection.CommunityTools = nil
 				m.setScreen(ScreenCommunityTools)
 				return m, m.startCommunityToolStatusDetection()
+			}
+			next++
+
+			if m.Cursor == next {
+				return m.startCustomize()
 			}
 			next++
 

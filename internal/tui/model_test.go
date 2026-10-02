@@ -2111,13 +2111,14 @@ func TestWelcomeMenu_UninstallNavigation_WithProfiles(t *testing.T) {
 // TestWelcomeMenu_OptionCount verifies legacy discovery does not change the menu.
 func TestWelcomeMenu_OptionCount(t *testing.T) {
 	m := NewModel(system.DetectionResult{}, "dev")
-	// Without OpenCode detected: 14 options, including the review-mode entry.
+	// Without OpenCode detected: 15 options, including the review-mode entry
+	// and Ordo's "Customize brand & persona".
 	opts := screens.WelcomeOptions(m.UpdateResults, m.UpdateCheckDone, false, 0, true)
-	if len(opts) != 14 {
-		t.Fatalf("WelcomeOptions(showProfiles=false) len = %d, want 14; got %v", len(opts), opts)
+	if len(opts) != 15 {
+		t.Fatalf("WelcomeOptions(showProfiles=false) len = %d, want 15; got %v", len(opts), opts)
 	}
 	optsWithProfiles := screens.WelcomeOptions(m.UpdateResults, m.UpdateCheckDone, true, 2, true)
-	if len(optsWithProfiles) != 14 || !reflect.DeepEqual(opts, optsWithProfiles) {
+	if len(optsWithProfiles) != 15 || !reflect.DeepEqual(opts, optsWithProfiles) {
 		t.Fatalf("legacy profile discovery changed welcome menu: %v", optsWithProfiles)
 	}
 }
