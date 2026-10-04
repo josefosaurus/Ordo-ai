@@ -38,3 +38,12 @@ dist/
 # Engram local runtime state (project sync chunks are intentionally versioned)
 .engram/engram.db
 .engram/cloud.json
+
+# Ordo private planning docs (remove to publish)
+CLAUDE.md
+docs/goals.md
+gentle-ai-rebranding-guide.md
+itau-logo.txt
+
+# Release signing key (never commit)
+.secrets/
