@@ -73,6 +73,8 @@ The TUI is Ordo's default entry point (`ordo` with no arguments). Follow-up F1 i
     - `./scripts/deadcode-ratchet.sh`: no new unreachable functions (same pre-existing "3 baselined entries" note)
     - `cd bench && go build ./... && go vet ./...`: ok
 
+- RDD on `f573a0f9..c6cd0611` (Ctrl+C fix + T2): medium (`slice_budget_reached`), granted, reliability lens approved, no blockers, acknowledged. Advisory R3-001 fixed inline: a second Ctrl+C while a cancelled import is still returning now quits at once. RED: `TestMemoryImportSecondCtrlCQuitsImmediately` failed; GREEN after the change.
+
 ## Next step
 
 PR #5 open (user-authorized, included in v0.2.0). T2 committed on the branch; push and native review are the parent's decision.

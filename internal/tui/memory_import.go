@@ -74,7 +74,8 @@ func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if msg.Type == tea.KeyCtrlC {
 		// Quitting mid-import would orphan Engram and skip memorycmd's
 		// temp-file cleanup, so cancel and quit once the import returns.
-		if s.Step == screens.MemoryImportRunning && s.cancel != nil {
+		// A second Ctrl+C quits at once, so a hung Engram cannot trap the user.
+		if s.Step == screens.MemoryImportRunning && s.cancel != nil && !s.quitting {
 			s.cancel()
 			s.quitting = true
 			return m, nil

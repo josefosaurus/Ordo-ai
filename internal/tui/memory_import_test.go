@@ -269,6 +269,30 @@ func TestMemoryImportCtrlCCancelsRunningImportBeforeQuitting(t *testing.T) {
 	_ = next
 }
 
+// A second Ctrl+C while a cancelled import is still returning quits at once,
+// so a hung Engram can never trap the user.
+func TestMemoryImportSecondCtrlCQuitsImmediately(t *testing.T) {
+	m, _ := newMemoryImportModel(t, "", nil)
+	m.memoryImportRun = func(ctx context.Context, _ []memorycmd.Entry, _ string, _ io.Writer) error {
+		<-ctx.Done()
+		return ctx.Err()
+	}
+	m = enterPath(t, m, memoryFile(t))
+	m = press(t, setInput(m, "demo"), keyEnter)
+	next, _ := m.Update(keyEnter)
+	m = next.(Model)
+
+	next, _ = m.Update(tea.KeyMsg{Type: tea.KeyCtrlC})
+	m = next.(Model)
+	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyCtrlC})
+	if cmd == nil {
+		t.Fatal("second Ctrl+C returned no command, want tea.Quit")
+	}
+	if _, quit := cmd().(tea.QuitMsg); !quit {
+		t.Fatalf("second Ctrl+C cmd = %T, want tea.Quit", cmd())
+	}
+}
+
 // The preview and the import come from one scan: a file added to the
 // directory after the preview must not reach the import.
 func TestMemoryImportScansOnceForPreviewAndImport(t *testing.T) {
