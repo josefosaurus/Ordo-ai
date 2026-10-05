@@ -71,7 +71,9 @@ Teams want agents to start with shared conventions, decisions, and known-good an
 - `go run ./internal/gofmtcheck`: pass. `./scripts/deadcode-ratchet.sh`: no new unreachable functions.
 - Isolated smoke (built binary, `ENGRAM_DATA_DIR`/`HOME` in scratch): run 1 `2 imported, 0 updated, 0 skipped stale`; run 2 `0 imported, 0 updated, 2 skipped stale`; after appending a section `1 imported, 2 updated, 0 skipped stale`; missing `--project` exits 1 with usage error.
 - RDD assessment: not run by the writer (parent owns review routing).
+- RDD on `main..4ee1e0a7`: assessed high (process exec in `memorycmd.go`), consent granted, 4 lenses, approved with no blocking findings, acknowledged (lineage `review-a285a7caa74e5cb2`). Reviewed boundary advances to `4ee1e0a7`.
+- Advisory follow-ups (non-blocking): R4 directory walk descends into `.git`/`node_modules` and aborts on first bad file; R3 `sync_id` differs when the same file is imported directly vs via a parent dir; R4 no timeout on `engram import`; R3 update/import-on-edit path lacks an automated test; R2/R3 fence toggle ignores fence kind; R3 mtime-only update trigger; R2 dry-run index coupling, missing-engram message omits Homebrew dirs, unexplained 16-hex `sync_id` length.
 
 ## Next step
 
-Parent: RDD assess on `e2c267a8..46dff7de`; push/PR remain user decisions. TUI entry is out of scope (later).
+User decides whether to address the two advisory WARNINGs (walk scope, import-root-independent `sync_id`) before the PR; branch is ~1045 changed lines, over the 400-line PR budget, so the PR needs a chain strategy or `size:exception`. Push/PR remain user decisions. TUI entry is out of scope (later).
