@@ -214,7 +214,8 @@ jobs:
         run: |
           Add-MpPreference -ExclusionPath $env:GITHUB_WORKSPACE -ErrorAction SilentlyContinue
           Add-MpPreference -ExclusionPath $env:RUNNER_TEMP -ErrorAction SilentlyContinue
-          Add-MpPreference -ExclusionProcess 'git.exe','go.exe','gentle-ai.exe' -ErrorAction SilentlyContinue
+          # 'ordo.exe' must match the -o output name in "Build native test binary".
+          Add-MpPreference -ExclusionProcess 'git.exe','go.exe','ordo.exe' -ErrorAction SilentlyContinue
 
       - name: Checkout exact event candidate
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
@@ -261,15 +262,17 @@ jobs:
           go test -v ./internal/reviewtransaction -count=1 -run $selector
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      # The binary ships as ordo, but cmd/gentle-ai and GENTLE_AI_* are protocol
+      # names that stay unchanged. Keep ordo.exe in sync with the Defender exclusion.
       - name: Build native test binary
         shell: pwsh
-        run: go build -trimpath -ldflags="-s -w -X main.version=ci" -o "$env:RUNNER_TEMP\gentle-ai.exe" ./cmd/gentle-ai
+        run: go build -trimpath -ldflags="-s -w -X main.version=ci" -o "$env:RUNNER_TEMP\ordo.exe" ./cmd/gentle-ai
 
       - name: Run Windows release-blocker tests
         shell: pwsh
         timeout-minutes: 10
         env:
-          GENTLE_AI_TEST_BINARY: ${{ runner.temp }}\gentle-ai.exe
+          GENTLE_AI_TEST_BINARY: ${{ runner.temp }}\ordo.exe
           GENTLE_AI_REQUIRE_DISTINCT_WINDOWS_TOKEN_OWNER: "1"
         run: |
           $packages = @('./internal/cli', './internal/reviewtransaction', './internal/components/engram')
