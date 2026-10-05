@@ -13,7 +13,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -298,19 +297,17 @@ func parseJSONL(data []byte) ([]Entry, error) {
 
 // BuildExport converts entries into one Engram import document bound to a
 // single session for project. typeOverride, when set, replaces every record's
-// type; otherwise the record type or "manual" is used.
+// type; otherwise the record type or "manual" is used. Observations keep the
+// order of entries, which Collect returns in sorted path order.
 //
 // Timestamps come from each source file's modification time, so re-importing
 // an unchanged file is skipped by Engram and editing a file updates its
 // entries in place (Engram updates only when updated_at is newer).
 func BuildExport(entries []Entry, project, typeOverride string) Export {
 	sessionID := "ordo-import-" + project
-	sorted := append([]Entry(nil), entries...)
-	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].Source < sorted[j].Source })
-
 	var earliest, latest time.Time
-	observations := make([]Observation, 0, len(sorted))
-	for _, e := range sorted {
+	observations := make([]Observation, 0, len(entries))
+	for _, e := range entries {
 		ts := e.ModTime.UTC().Truncate(time.Second)
 		if earliest.IsZero() || ts.Before(earliest) {
 			earliest = ts

@@ -193,6 +193,28 @@ Codex, Claude Code, and OpenCode installs wire this command into startup/plugin 
 
 See [Skill Registry](skill-registry.md) for the full index-first flow and diagrams.
 
+### memory import
+
+Load curated knowledge (team conventions, decisions, known-good answers) into your local Engram™ memory so agents start with it:
+
+```bash
+ordo memory import ./golden --project my-app --dry-run   # preview, writes nothing
+ordo memory import ./golden --project my-app
+ordo memory import ./faq.csv --project my-app --type decision
+```
+
+| Input | Each memory is |
+| :--- | :--- |
+| `.md` | one `## ` section (title = heading); a file with no `## ` is one memory titled by its file name |
+| `.csv` | one row; the header needs `title,content` and may add `type` |
+| `.jsonl` | one `{"title","content","type"}` object per line |
+| directory | every `.md`, `.csv`, `.jsonl` file inside, in sorted order |
+
+- `--project` is required. `--type` sets the type for every memory; otherwise the record's `type`, else `manual`.
+- Titles must be unique per file, and content must be non-empty and at most 8000 characters.
+- Ordo converts the input and runs `engram import`; it never writes Engram's database directly. It needs `engram` on `PATH` (or in Homebrew's bin directory).
+- Re-importing is safe. See [Engram: importing curated memories](engram.md#importing-curated-memories).
+
 ### Community Tools
 
 The installer’s **Community Tools/Plugins** screen offers opt-in integrations that are never selected by a preset or detection.

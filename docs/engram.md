@@ -63,6 +63,27 @@ Add `.engram/` to your repo and commit it. When a teammate clones and runs `engr
 
 ---
 
+## Importing Curated Memories
+
+`ordo memory import <path> --project <name>` loads Markdown, CSV, or JSONL knowledge into Engram through `engram import`. Flags and input formats are in [Usage](usage.md#memory-import).
+
+How re-imports behave:
+
+| You re-run the import after... | Engram reports | Result |
+| :--- | :--- | :--- |
+| changing nothing | `skipped stale` | no duplicates, nothing changes |
+| editing a source file | `updated` | that file's memories are updated in place |
+| adding a section, row, or line | `imported` (plus `updated` for the rest of that file) | the new entry is added; nothing is duplicated |
+
+Why it works:
+
+- Each memory gets a stable `sync_id` derived from the project, the file path relative to the import root, and the entry title. Engram deduplicates by `sync_id`.
+- `created_at` and `updated_at` are the source file's modification time. Engram updates an existing memory only when `updated_at` is newer, so an untouched file is skipped and an edited one updates all of its entries.
+- Renaming a file or a title creates a new memory; the old one stays until you delete it in Engram.
+- A fresh checkout gives files new modification times, so the first import there reports `updated` instead of `skipped`. It still never duplicates.
+
+---
+
 ## Cloud Sync (Optional)
 
 Engram Cloud is optional replication for people who want project memories to follow them across machines they own. Local SQLite memory remains the default and authoritative source. Gentle AI ships the Engram client, but the cloud runtime and server lifecycle are owned by Engram upstream.
