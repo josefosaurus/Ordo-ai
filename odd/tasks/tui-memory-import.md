@@ -30,7 +30,7 @@ The TUI is Ordo's default entry point (`ordo` with no arguments). Follow-up F1 i
 
 ## Tasks
 
-- [x] **T1 — Import memories screen.** Menu entry, multi-step screen, memorycmd API for the TUI, tests, `docs/usage.md` TUI section. Route: delegated (writer; 4+ files to understand, 2+ non-trivial files to write). Commit: `feat(tui): add import memories screen` (sha in Progress).
+- [x] **T1 — Import memories screen.** Menu entry, multi-step screen, memorycmd API for the TUI, tests, `docs/usage.md` TUI section. Route: delegated (writer; 4+ files to understand, 2+ non-trivial files to write). Commit: `feat(tui): add import memories screen` `8ca04ec7`.
 
 ## Acceptance criteria
 
@@ -42,7 +42,7 @@ The TUI is Ordo's default entry point (`ordo` with no arguments). Follow-up F1 i
 ## Progress
 
 - Branch `feat/tui-memory-import` from `main` (`11b276cc`).
-- T1 done (delegated writer).
+- T1 done (delegated writer), commit `8ca04ec7`.
   - memorycmd API: `Preview`, `Import`, `DefaultProject`; the CLI `runImport` and `Import` share one unexported `importEntries` path. The `runEngram` seam now takes a stderr writer so engram's stderr stays off the TUI (CLI still passes `os.Stderr`).
   - TUI: `internal/tui/memory_import.go`, `internal/tui/screens/memory_import.go`; "Import memories" sits directly above RDD (RDD stays 5th from the end, so bench `reviewModeMenuUpPresses = 5` holds; asserted by `TestImportMemoriesSitsDirectlyAboveReceiptDrivenDevelopment`). The import runs as a `tea.Cmd`; tests inject `Model.memoryImportRun`.
   - Surface expansion (user-approved): `internal/tui/review_store_reset_test.go` (now asserts backups < reset < import memories < uninstall) and `internal/tui/screens/welcome_internal_test.go` (compact viewport height 17 -> 18, with its twin in `internal/tui/model_test.go`), because the compact menu grew to 18 rows.
@@ -51,7 +51,7 @@ The TUI is Ordo's default entry point (`ordo` with no arguments). Follow-up F1 i
     - `go build ./... && go vet ./...`: ok
     - `go test ./internal/tui/... ./internal/memorycmd/... ./internal/app/... -count=1`: ok
     - `go run ./internal/gofmtcheck`: clean
-    - `./scripts/deadcode-ratchet.sh`: no new unreachable functions (its note "3 baselined entries are now reachable or gone" is pre-existing and not from this change; baseline not updated)
+    - `./scripts/deadcode-ratchet.sh`: no new unreachable functions (its note "3 baselined entries are now reachable or gone" was not checked against main and is assumed to be pre-existing; baseline not updated)
     - `cd bench && go build ./... && go vet ./...`: ok
   - Native review: not run by the writer; left to the parent under RDD.
 
