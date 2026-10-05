@@ -72,7 +72,7 @@ Run `ordo` and pick **Customize brand & persona** to edit them with a live previ
 ```bash
 ordo brand set name "Acme"
 ordo brand set tagline "Ship calmly"
-ordo brand set logo ./logo.txt          # plain text, up to 12 lines × 80 columns
+ordo brand set logo ./logo.txt          # plain text, up to 24 lines × 80 columns
 ordo brand set color.primary "#ff5f87"  # roles: primary accent text muted border success error warning highlight
 ordo brand show
 ordo brand reset
