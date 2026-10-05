@@ -21,7 +21,7 @@ COMMANDS
   sync         Sync agent configs and skills to current version
   brand        Customize the name, tagline, logo, and colors (show|set|reset)
   persona      Customize the ordo persona voice, chat language, and rules
-  memory import <path> --project <name> [--type <type>] [--dry-run]
+  memory import <path> --project <name> [--type <type>] [--force] [--dry-run]
                Load Markdown, CSV, or JSONL knowledge into Engram memory
   skill-registry refresh
                Refresh .atl/skill-registry.md with cache-hit fast path
