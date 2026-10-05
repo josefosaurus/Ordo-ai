@@ -386,15 +386,6 @@ func parseJSONL(data []byte) ([]Entry, error) {
 	return entries, scanner.Err()
 }
 
-// BuildExport converts entries into one Engram import document bound to a
-// single session for project. typeOverride, when set, replaces every record's
-// type; otherwise the record type or "manual" is used. Observations keep the
-// order of entries, which Collect returns in sorted path order.
-//
-// Timestamps come from each source file's modification time, so re-importing
-// an unchanged file is skipped by Engram and editing a file updates its
-// entries in place (Engram updates only when updated_at is newer). ForceAt
-// overrides updated_at for edits whose mtime did not advance.
 // BuildOptions tunes BuildExport.
 type BuildOptions struct {
 	// TypeOverride, when set, replaces every record's type.
@@ -404,6 +395,15 @@ type BuildOptions struct {
 	ForceAt time.Time
 }
 
+// BuildExport converts entries into one Engram import document bound to a
+// single session for project. opts.TypeOverride, when set, replaces every record's
+// type; otherwise the record type or "manual" is used. Observations keep the
+// order of entries, which Collect returns in sorted path order.
+//
+// Timestamps come from each source file's modification time, so re-importing
+// an unchanged file is skipped by Engram and editing a file updates its
+// entries in place (Engram updates only when updated_at is newer). ForceAt
+// overrides updated_at for edits whose mtime did not advance.
 func BuildExport(entries []Entry, project string, opts BuildOptions) Export {
 	sessionID := "ordo-import-" + project
 	var earliest, latest time.Time

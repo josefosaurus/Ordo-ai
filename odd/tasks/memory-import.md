@@ -80,8 +80,10 @@ Teams want agents to start with shared conventions, decisions, and known-good an
 - Second RDD on `7358145..531b893e` (whole branch): high, granted, 4 lenses, approved, no blockers, acknowledged (`review-d5f4bb17440be7e0`). New advisory WARNINGs: basename `sync_id` collision across directories, mtime-only update trigger (cp -p/rsync/symlinks), BOM drops first section, fence kind toggle, dry-run index coupling. User authorized fixing them (T3) and opening the PR.
 
 - T3 verification: `go build ./... && go vet ./...` pass (plus `GOOS=windows`/`linux go vet ./internal/memorycmd`); `go test ./internal/memorycmd/... ./internal/app/... -count=1` ok (real-engram test ran on engram 3.1.0); `go run ./internal/gofmtcheck` pass; `./scripts/deadcode-ratchet.sh` no new unreachable functions. Isolated smoke (built binary, `ENGRAM_DATA_DIR`/`HOME` in scratch, file inside a `.git` root): direct file import `2 imported, 0 updated, 0 skipped stale`; then its parent dir `0 imported, 0 updated, 2 skipped stale`; dry-run from the repo root and from the file show the same ids with paths `golden/faq.md` and `faq.md`.
-- T3 deviation: `internal/app/help.go` usage line does not list `--force` (outside the writer's edit surface); `ordo memory help` does.
+- `internal/app/help.go` usage line lists `--force` (parent commit `2b1ddb9f`).
+
+- Third RDD on `531b893e..2b1ddb9f` (T3 + help line): high, granted, 4 lenses, approved, no blockers, acknowledged (`review-352550dbadb49201`). Fixed inline after review: `BuildExport` doc comment re-attached to the func (R2-001); task log no longer contradicts help.go (R2-002).
 
 ## Next step
 
-T3 done; RDD assessment of the T3 commit (parent), then PR. Optional: add `--force` to `internal/app/help.go`. Previously: user decides whether to address the two advisory WARNINGs (walk scope, import-root-independent `sync_id`) before the PR; branch is ~1045 changed lines, over the 400-line PR budget, so the PR needs a chain strategy or `size:exception`. Push/PR remain user decisions. TUI entry is out of scope (later).
+Open one PR to `main` with `size:exception` (user-selected delivery strategy). Follow-ups (later): TUI entry; identity outside git uses the absolute path, so moving a non-git folder re-keys memories; same repo-relative path in two repos under one `--project` collides; `--force` vs future mtimes; tighten real-engram summary assertions.
