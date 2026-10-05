@@ -88,6 +88,12 @@ ordo persona show                       # includes exactly what agents receive
 ordo sync                               # apply it to your agents
 ```
 
+**Memory** — seed Engram with your team's curated knowledge (Markdown, CSV, or JSONL; re-imports never duplicate):
+
+```bash
+ordo memory import ./golden --project my-app
+```
+
 ## Documentation
 
 | Where | What |

@@ -11,7 +11,7 @@ func TestHelpContainsAllCommands(t *testing.T) {
 	printHelp(&buf, "v1.0.0-test")
 	output := buf.String()
 
-	commands := []string{"install", "uninstall", "sync", "review start", "review capture-result", "review capture-correction-plan", "review capture-refuter", "review capture-validation", "review validate", "review status", "review repair", "review-start", "review-resume", "review-bundle-export", "review-bundle-import", "review-validate", "update", "upgrade", "restore", "version"}
+	commands := []string{"install", "uninstall", "sync", "review start", "review capture-result", "review capture-correction-plan", "review capture-refuter", "review capture-validation", "review validate", "review status", "review repair", "review-start", "review-resume", "review-bundle-export", "review-bundle-import", "review-validate", "memory import", "update", "upgrade", "restore", "version"}
 	for _, cmd := range commands {
 		if !strings.Contains(output, cmd) {
 			t.Errorf("help output missing command %q", cmd)

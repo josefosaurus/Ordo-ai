@@ -180,6 +180,7 @@ var documentedInvocationExecutionExclusions = map[string]string{
 	"install":   "its case only prints help; a real install falls through to system detection and the TUI",
 	"uninstall": "may prompt interactively and mutates installed agent state",
 	"codegraph": "proxies to the external codegraph binary, which CI does not install",
+	"memory":    "shells out to the external engram binary and writes the user's memory DB",
 }
 
 type invocationTier string

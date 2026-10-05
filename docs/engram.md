@@ -63,6 +63,29 @@ Add `.engram/` to your repo and commit it. When a teammate clones and runs `engr
 
 ---
 
+## Importing Curated Memories
+
+`ordo memory import <path> --project <name>` loads Markdown, CSV, or JSONL knowledge into Engram through `engram import`. Flags and input formats are in [Usage](usage.md#memory-import).
+
+How re-imports behave:
+
+| You re-run the import after... | Engram reports | Result |
+| :--- | :--- | :--- |
+| changing nothing | `skipped stale` | no duplicates, nothing changes |
+| editing a source file | `updated` | that file's memories are updated in place |
+| adding a section, row, or line | `imported` (plus `updated` for the rest of that file) | the new entry is added; nothing is duplicated |
+| copying files with preserved timestamps (`cp -p`, `rsync -a`, archive extraction) | `skipped stale` | edits are not applied; re-run with `--force` |
+
+Why it works:
+
+- Each memory gets a stable `sync_id` derived from the project, the file's path, and the entry title. The path is relative to the enclosing git repository root (the absolute path outside a repository), so importing a file directly or through any parent directory gives the same `sync_id`, and `teamA/faq.md` and `teamB/faq.md` stay separate. Engram deduplicates by `sync_id`.
+- `created_at` and `updated_at` are the source file's modification time (a symlink uses its target's). Engram updates an existing memory only when `updated_at` is newer, so an untouched file is skipped and an edited one updates all of its entries.
+- `--force` sets `updated_at` to the current time for every entry, so Engram applies the content even when the file's modification time did not advance. Use it after copying files with preserved timestamps, or whenever an edit was reported as `skipped stale`.
+- Renaming a file or a title creates a new memory; the old one stays until you delete it in Engram.
+- A fresh checkout gives files new modification times, so the first import there reports `updated` instead of `skipped`. It still never duplicates.
+
+---
+
 ## Cloud Sync (Optional)
 
 Engram Cloud is optional replication for people who want project memories to follow them across machines they own. Local SQLite memory remains the default and authoritative source. Gentle AI ships the Engram client, but the cloud runtime and server lifecycle are owned by Engram upstream.
