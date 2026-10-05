@@ -49,11 +49,11 @@ skipped and edited files update their memories in place.
 var (
 	// lookPath and runEngram are seams so tests never need a real engram.
 	lookPath  = exec.LookPath
-	runEngram = func(ctx context.Context, bin string, args []string, stdout io.Writer) error {
+	runEngram = func(ctx context.Context, bin string, args []string, stdout, stderr io.Writer) error {
 		cmd := exec.CommandContext(ctx, bin, args...)
 		system.EnsureCommandDir(cmd)
 		cmd.Stdout = stdout
-		cmd.Stderr = os.Stderr
+		cmd.Stderr = stderr
 		return cmd.Run()
 	}
 	// homebrewDirs are checked when engram is not on PATH, matching where
@@ -112,8 +112,8 @@ func runImport(args []string, stdout io.Writer) error {
 		return err
 	}
 	if *dryRun {
-		for _, e := range entries {
-			_, _ = fmt.Fprintf(stdout, "%s  %s  (%s)\n", entrySyncID(name, e), e.Title, e.Source)
+		for _, e := range previewEntries(entries, name) {
+			_, _ = fmt.Fprintf(stdout, "%s  %s  (%s)\n", e.SyncID, e.Title, e.Source)
 		}
 		_, _ = fmt.Fprintf(stdout, "%d entries (dry run, nothing written)\n", len(entries))
 		return nil
@@ -122,29 +122,12 @@ func runImport(args []string, stdout io.Writer) error {
 	if *force {
 		opts.ForceAt = time.Now()
 	}
-	export := BuildExport(entries, name, opts)
 
-	bin, err := resolveEngram()
-	if err != nil {
-		return err
-	}
-	file, err := writeExport(export)
-	if err != nil {
-		return err
-	}
-	defer os.Remove(file)
-
-	// Cancel engram on Ctrl-C or SIGTERM so the deferred temp-file removal
-	// still runs. There is no timeout: large imports may legitimately be slow.
+	// Cancel engram on Ctrl-C or SIGTERM so the temp-file removal still runs.
+	// There is no timeout: large imports may legitimately be slow.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := runEngram(ctx, bin, []string{"import", file}, stdout); err != nil {
-		if ctx.Err() != nil {
-			return fmt.Errorf("engram import interrupted: %w", err)
-		}
-		return fmt.Errorf("engram import failed: %w", err)
-	}
-	return nil
+	return importEntries(ctx, entries, name, opts, stdout, os.Stderr)
 }
 
 func resolveEngram() (string, error) {

@@ -609,11 +609,18 @@ const (
 	// ScreenCustomize edits the per-user brand and Ordo persona with a live
 	// preview (internal/tui/customize.go).
 	ScreenCustomize
+	// ScreenMemoryImport loads curated knowledge into Engram through
+	// internal/memorycmd (internal/tui/memory_import.go).
+	ScreenMemoryImport
 )
 
 type Model struct {
 	// Customize is the state of ScreenCustomize.
 	Customize CustomizeState
+	// MemoryImport is the state of ScreenMemoryImport.
+	MemoryImport MemoryImportState
+	// memoryImportRun runs the import; nil means memorycmd.Import.
+	memoryImportRun memoryImportFunc
 
 	openCodePresentationMajor opencode.RuntimeMajor
 	Screen                    Screen
@@ -1195,6 +1202,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				"RDD mode was not saved. Retry with `ordo review mode enable --scope global` or `ordo review mode disable --scope global`.")
 		}
 		return m, nil
+	case memoryImportDoneMsg:
+		return m.handleMemoryImportDone(msg)
 	case ReviewStoreResetDoneMsg:
 		// Deliberately not guarded on the current screen. This message reports
 		// an irreversible removal that has already happened; dropping it
@@ -1323,6 +1332,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if m.Screen == ScreenCustomize {
 			return m.handleCustomizeKey(msg)
+		}
+		if m.Screen == ScreenMemoryImport {
+			return m.handleMemoryImportKey(msg)
 		}
 		// Delegate to textarea when on the agent builder prompt screen,
 		// unless the user pressed Esc (to go back) or Tab (to continue).
@@ -1623,6 +1635,8 @@ func (m Model) View() string {
 		return screens.RenderRenameBackup(m.SelectedBackup, m.BackupRenameText, m.BackupRenamePos)
 	case ScreenCustomize:
 		return m.renderCustomize()
+	case ScreenMemoryImport:
+		return m.renderMemoryImport()
 	case ScreenAgentBuilderEngine:
 		return screens.RenderABEngine(m.AgentBuilder.AvailableEngines, m.Cursor)
 	case ScreenAgentBuilderPrompt:
@@ -2103,6 +2117,11 @@ func (m Model) confirmSelection() (tea.Model, tea.Cmd) {
 
 			if m.Cursor == next {
 				return m.startReviewStoreResetSurvey()
+			}
+			next++
+
+			if m.Cursor == next {
+				return m.startMemoryImport()
 			}
 			next++
 

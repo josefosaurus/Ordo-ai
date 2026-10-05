@@ -56,6 +56,9 @@ func WelcomeOptions(updateResults []update.UpdateResult, updateCheckDone bool, s
 
 	opts = append(opts, "Manage backups")
 	opts = append(opts, "Reset review store")
+	// Ordo: sits directly above RDD so bench/journeys_issue3766.go still
+	// reaches RDD with five up presses from the first entry.
+	opts = append(opts, "Import memories")
 	opts = append(opts, "Receipt-Driven Development")
 	opts = append(opts, "Managed uninstall")
 	opts = append(opts, "Community Tools/Plugins")

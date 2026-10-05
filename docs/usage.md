@@ -122,6 +122,17 @@ The uninstall flow is also available from the TUI menu. It lets you:
 
 Before any managed file is modified, `ordo` creates a backup snapshot so the configuration can be restored later if needed.
 
+### Import memories
+
+**Import memories** in the TUI menu runs [`ordo memory import`](#memory-import) step by step:
+
+1. Enter a file or directory (`~/` is expanded). An empty path, a missing path, or input with no entries shows an error on the same step.
+2. Enter the Engram project. It defaults to the name of the git repository containing the current directory, else the directory's own name.
+3. Review the preview: the entry count and each entry's title, source, and sync ID (the same IDs as `--dry-run`).
+4. Press Enter to import. The result screen shows Engram's summary or the error, such as `engram` not being installed. Press any key to return to the menu.
+
+Esc goes back one step. The TUI always uses each record's own type and never forces updates; use the CLI for `--type` and `--force`.
+
 ### Receipt-Driven Development during installation
 
 Before the final installation confirmation, the customizable installer explains Receipt-Driven Development (RDD) and asks you to choose **RDD ON** or **RDD OFF**. RDD records bounded, independent review evidence for a frozen change candidate and supports a bounded correction process. It can add review time and model cost.
