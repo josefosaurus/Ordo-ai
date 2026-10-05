@@ -201,3 +201,43 @@ func TestMemoryImportShowsInlineErrors(t *testing.T) {
 		}
 	})
 }
+
+// Ctrl+C while Engram runs must cancel the import and wait for it to return,
+// so Engram stops and memorycmd removes its temporary export file, before the
+// TUI quits.
+func TestMemoryImportCtrlCCancelsRunningImportBeforeQuitting(t *testing.T) {
+	m, _ := newMemoryImportModel(t, "", nil)
+	cancelled := false
+	m.memoryImportRun = func(ctx context.Context, _, _ string, _ io.Writer) error {
+		<-ctx.Done()
+		cancelled = true
+		return ctx.Err()
+	}
+	m = press(t, m, typeText(memoryFile(t)), keyEnter)
+	m = press(t, setInput(m, "demo"), keyEnter)
+	next, importCmd := m.Update(keyEnter)
+	m = next.(Model)
+	if m.MemoryImport.Step != screens.MemoryImportRunning {
+		t.Fatalf("step = %v, want running", m.MemoryImport.Step)
+	}
+
+	next, cmd := m.Update(tea.KeyMsg{Type: tea.KeyCtrlC})
+	m = next.(Model)
+	if cmd != nil {
+		if _, quit := cmd().(tea.QuitMsg); quit {
+			t.Fatal("Ctrl+C quit while the import was still running")
+		}
+	}
+
+	next, cmd = m.Update(importCmd())
+	if !cancelled {
+		t.Fatal("Ctrl+C did not cancel the running import")
+	}
+	if cmd == nil {
+		t.Fatal("no quit after the cancelled import returned")
+	}
+	if _, quit := cmd().(tea.QuitMsg); !quit {
+		t.Fatalf("after the cancelled import returned, cmd = %T, want tea.Quit", cmd())
+	}
+	_ = next
+}

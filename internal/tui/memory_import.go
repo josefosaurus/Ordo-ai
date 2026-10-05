@@ -26,6 +26,11 @@ type MemoryImportState struct {
 	Entries  []memorycmd.PreviewEntry
 	Err      string
 	Output   string
+
+	// cancel stops a running import; quitting records a Ctrl+C that waits
+	// for the cancelled import to return before the TUI exits.
+	cancel   context.CancelFunc
+	quitting bool
 }
 
 // memoryImportDoneMsg reports a finished import with Engram's output.
@@ -52,6 +57,13 @@ func (m Model) renderMemoryImport() string {
 func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	s := &m.MemoryImport
 	if msg.Type == tea.KeyCtrlC {
+		// Quitting mid-import would orphan Engram and skip memorycmd's
+		// temp-file cleanup, so cancel and quit once the import returns.
+		if s.Step == screens.MemoryImportRunning && s.cancel != nil {
+			s.cancel()
+			s.quitting = true
+			return m, nil
+		}
 		return m, tea.Quit
 	}
 	switch s.Step {
@@ -67,7 +79,9 @@ func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			s.setInput(s.Project)
 		case tea.KeyEnter:
 			s.Step, s.Err = screens.MemoryImportRunning, ""
-			return m, m.runMemoryImport(s.Path, s.Project)
+			ctx, cancel := context.WithCancel(context.Background())
+			s.cancel = cancel
+			return m, m.runMemoryImport(ctx, s.Path, s.Project)
 		}
 		return m, nil
 	}
@@ -138,14 +152,14 @@ func (s *MemoryImportState) setInput(value string) {
 
 // runMemoryImport runs the import off the update loop and reports Engram's
 // output, stdout and stderr, as a memoryImportDoneMsg.
-func (m Model) runMemoryImport(path, project string) tea.Cmd {
+func (m Model) runMemoryImport(ctx context.Context, path, project string) tea.Cmd {
 	run := m.memoryImportRun
 	if run == nil {
 		run = memorycmd.Import
 	}
 	return func() tea.Msg {
 		var out strings.Builder
-		err := run(context.Background(), path, project, &out)
+		err := run(ctx, path, project, &out)
 		return memoryImportDoneMsg{Output: out.String(), Err: err}
 	}
 }
@@ -155,6 +169,13 @@ func (m Model) handleMemoryImportDone(msg memoryImportDoneMsg) (tea.Model, tea.C
 		return m, nil
 	}
 	s := &m.MemoryImport
+	if s.cancel != nil {
+		s.cancel()
+		s.cancel = nil
+	}
+	if s.quitting {
+		return m, tea.Quit
+	}
 	s.Step, s.Output, s.Err = screens.MemoryImportResult, msg.Output, ""
 	if msg.Err != nil {
 		s.Err = msg.Err.Error()

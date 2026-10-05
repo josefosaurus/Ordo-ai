@@ -55,6 +55,10 @@ The TUI is Ordo's default entry point (`ordo` with no arguments). Follow-up F1 i
     - `cd bench && go build ./... && go vet ./...`: ok
   - Native review: not run by the writer; left to the parent under RDD.
 
+- RDD on `origin/main..f573a0f9`: medium (`slice_budget_reached`), granted, reliability lens approved, no blockers, acknowledged (`review-abf04569e630473f`).
+- Fix for advisory R3-001 (user-approved, inline): Ctrl+C while the import runs now cancels it and quits only after it returns, so Engram stops and memorycmd removes its temp export file. RED: `TestMemoryImportCtrlCCancelsRunningImportBeforeQuitting` failed ("Ctrl+C quit while the import was still running"); GREEN after the change; `go test ./internal/tui/... ./internal/memorycmd/...`, `go vet ./internal/tui/...`, gofmtcheck pass.
+- Remaining advisory follow-ups: scan runs synchronously in Update (large dirs freeze the UI briefly; preview and import scan separately); no test for `~/` expansion; reset ordering test is looser (adjacency covered by the RDD-position test).
+
 ## Next step
 
-Parent review of T1, then a PR decision (push/PR remain the user's call).
+Open the PR (user-authorized).
