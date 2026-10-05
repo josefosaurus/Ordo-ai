@@ -39,11 +39,13 @@ func settledStoreResetReport() reviewtransaction.StoreResetReport {
 // rather than among the everyday entries.
 func TestWelcomeMenuOffersTheReviewStoreReset(t *testing.T) {
 	options := screens.WelcomeOptions(nil, true, false, 0, true)
-	reset, backups, uninstall := -1, -1, -1
+	reset, backups, importMemories, uninstall := -1, -1, -1, -1
 	for index, option := range options {
 		switch option {
 		case "Reset review store":
 			reset = index
+		case "Import memories":
+			importMemories = index
 		case "Manage backups":
 			backups = index
 		case "Managed uninstall":
@@ -53,8 +55,9 @@ func TestWelcomeMenuOffersTheReviewStoreReset(t *testing.T) {
 	if reset < 0 {
 		t.Fatalf("the welcome menu does not offer the reset: %#v", options)
 	}
-	if reset != backups+1 || reset+2 != uninstall {
-		t.Fatalf("reset at %d is not between backups (%d) and uninstall (%d)", reset, backups, uninstall)
+	// Ordo: "Import memories" sits between the reset and RDD/uninstall.
+	if reset != backups+1 || !(reset < importMemories && importMemories < uninstall) {
+		t.Fatalf("reset at %d is not between backups (%d) and import memories (%d) / uninstall (%d)", reset, backups, importMemories, uninstall)
 	}
 }
 

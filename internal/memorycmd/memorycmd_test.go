@@ -27,7 +27,7 @@ func stubEngram(t *testing.T, found bool, runErr error) *Export {
 		return "", exec.ErrNotFound
 	}
 	captured := &Export{}
-	runEngram = func(ctx context.Context, bin string, args []string, stdout io.Writer) error {
+	runEngram = func(ctx context.Context, bin string, args []string, stdout, _ io.Writer) error {
 		if ctx.Done() == nil {
 			t.Fatal("engram must run with a cancellable context")
 		}
@@ -91,7 +91,7 @@ func TestRunDryRunWritesNothingAndNeedsNoEngram(t *testing.T) {
 	oldLook, oldRun := lookPath, runEngram
 	t.Cleanup(func() { lookPath, runEngram = oldLook, oldRun })
 	lookPath = func(string) (string, error) { t.Fatal("dry run must not resolve engram"); return "", nil }
-	runEngram = func(context.Context, string, []string, io.Writer) error {
+	runEngram = func(context.Context, string, []string, io.Writer, io.Writer) error {
 		t.Fatal("dry run must not run engram")
 		return nil
 	}
@@ -295,7 +295,7 @@ func TestRunDryRunMatchesImportedIDs(t *testing.T) {
 func TestRunInterruptRemovesTempFile(t *testing.T) {
 	stubEngram(t, true, nil)
 	var importFile string
-	runEngram = func(ctx context.Context, bin string, args []string, stdout io.Writer) error {
+	runEngram = func(ctx context.Context, bin string, args []string, stdout, _ io.Writer) error {
 		if ctx.Done() == nil {
 			t.Fatal("engram must run with a cancellable context")
 		}

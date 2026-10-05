@@ -2083,13 +2083,13 @@ func TestWelcomeMenu_UninstallOpenCodePluginEmptyTUIJSON(t *testing.T) {
 func TestWelcomeMenu_UninstallNavigation_WithoutProfiles(t *testing.T) {
 	m := NewModel(system.DetectionResult{}, "dev")
 	m.Screen = ScreenWelcome
-	m.Cursor = 11
+	m.Cursor = 12
 
 	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	state := updated.(Model)
 
 	if state.Screen != ScreenUninstallMode {
-		t.Fatalf("cursor=11 (Managed uninstall): screen = %v, want %v", state.Screen, ScreenUninstallMode)
+		t.Fatalf("cursor=12 (Managed uninstall): screen = %v, want %v", state.Screen, ScreenUninstallMode)
 	}
 }
 
@@ -2098,27 +2098,27 @@ func TestWelcomeMenu_UninstallNavigation_WithProfiles(t *testing.T) {
 		Configs: []system.ConfigState{{Agent: string(model.AgentOpenCode), Exists: true}},
 	}, "dev")
 	m.Screen = ScreenWelcome
-	m.Cursor = 11
+	m.Cursor = 12
 
 	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	state := updated.(Model)
 
 	if state.Screen != ScreenUninstallMode {
-		t.Fatalf("cursor=11 (Managed uninstall with OpenCode): screen = %v, want %v", state.Screen, ScreenUninstallMode)
+		t.Fatalf("cursor=12 (Managed uninstall with OpenCode): screen = %v, want %v", state.Screen, ScreenUninstallMode)
 	}
 }
 
 // TestWelcomeMenu_OptionCount verifies legacy discovery does not change the menu.
 func TestWelcomeMenu_OptionCount(t *testing.T) {
 	m := NewModel(system.DetectionResult{}, "dev")
-	// Without OpenCode detected: 15 options, including the review-mode entry
-	// and Ordo's "Customize brand & persona".
+	// Without OpenCode detected: 16 options, including the review-mode entry
+	// and Ordo's "Customize brand & persona" and "Import memories".
 	opts := screens.WelcomeOptions(m.UpdateResults, m.UpdateCheckDone, false, 0, true)
-	if len(opts) != 15 {
-		t.Fatalf("WelcomeOptions(showProfiles=false) len = %d, want 15; got %v", len(opts), opts)
+	if len(opts) != 16 {
+		t.Fatalf("WelcomeOptions(showProfiles=false) len = %d, want 16; got %v", len(opts), opts)
 	}
 	optsWithProfiles := screens.WelcomeOptions(m.UpdateResults, m.UpdateCheckDone, true, 2, true)
-	if len(optsWithProfiles) != 15 || !reflect.DeepEqual(opts, optsWithProfiles) {
+	if len(optsWithProfiles) != 16 || !reflect.DeepEqual(opts, optsWithProfiles) {
 		t.Fatalf("legacy profile discovery changed welcome menu: %v", optsWithProfiles)
 	}
 }
@@ -5837,7 +5837,7 @@ func TestWelcomeView_WindowResizeFitsMeasuredViewport(t *testing.T) {
 		{name: "below frame border width", width: 2, height: 20, minimum: true, wantPrimary: "Go"},
 		{name: "tiny viewport uses atomic labels", width: 2, height: 2, minimum: true, wantPrimary: "Go", wantControl: "q"},
 		{name: "single column tiny viewport uses atomic labels", width: 1, height: 2, minimum: true, wantPrimary: ">", wantControl: "q"},
-		{name: "compact viewport with optional content", width: 120, height: 17, withOptional: true},
+		{name: "compact viewport with optional content", width: 120, height: 18, withOptional: true},
 		{name: "wide resize", width: 160, height: 50},
 	}
 

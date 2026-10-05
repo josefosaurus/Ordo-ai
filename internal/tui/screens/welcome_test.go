@@ -27,7 +27,7 @@ func TestWelcomeOptions_WithoutProfiles(t *testing.T) {
 func TestWelcomeOptions_LegacyProfilesDoNotAddMenuEntry(t *testing.T) {
 	for _, count := range []int{0, 1, 2} {
 		opts := screens.WelcomeOptions(nil, true, true, count, true)
-		if len(opts) != 15 || !containsOption(opts, "Configure models") {
+		if len(opts) != 16 || !containsOption(opts, "Configure models") {
 			t.Fatalf("legacy count %d: unexpected menu: %v", count, opts)
 		}
 		for _, opt := range opts {
@@ -38,12 +38,12 @@ func TestWelcomeOptions_LegacyProfilesDoNotAddMenuEntry(t *testing.T) {
 	}
 }
 
-// TestWelcomeOptions_OptionCount_WithoutProfiles verifies 15 options when showProfiles=false
+// TestWelcomeOptions_OptionCount_WithoutProfiles verifies 16 options when showProfiles=false
 // and hasEngines=true.
 func TestWelcomeOptions_OptionCount_WithoutProfiles(t *testing.T) {
 	opts := screens.WelcomeOptions(nil, true, false, 0, true)
 	// Includes the Receipt-Driven Development entry.
-	want := 15 // Ordo: includes "Customize brand & persona"
+	want := 16 // Ordo: includes "Customize brand & persona" and "Import memories"
 	if len(opts) != want {
 		t.Errorf("WelcomeOptions(showProfiles=false, hasEngines=true) = %d options, want %d; opts: %v", len(opts), want, opts)
 	}
@@ -53,7 +53,7 @@ func TestWelcomeOptions_OptionCount_WithoutProfiles(t *testing.T) {
 func TestWelcomeOptions_OptionCount_WithProfiles(t *testing.T) {
 	opts := screens.WelcomeOptions(nil, true, true, 2, true)
 	// Includes the Receipt-Driven Development entry.
-	want := 15 // Ordo: includes "Customize brand & persona"
+	want := 16 // Ordo: includes "Customize brand & persona" and "Import memories"
 	if len(opts) != want {
 		t.Errorf("WelcomeOptions(showProfiles=true, hasEngines=true) = %d options, want %d; opts: %v", len(opts), want, opts)
 	}

@@ -82,7 +82,7 @@ func TestRenderWelcome_StaysWithinViewport(t *testing.T) {
 		{
 			name:         "compact viewport with optional content",
 			width:        120,
-			height:       17,
+			height:       18,
 			updateBanner: "Updates available",
 			advisory:     WelcomeAdvisory{Message: "Optional advisory content"},
 		},
