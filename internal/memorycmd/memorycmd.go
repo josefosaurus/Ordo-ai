@@ -5,6 +5,7 @@
 package memorycmd
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -12,8 +13,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 )
@@ -21,10 +25,11 @@ import (
 const usage = `Load curated knowledge into your local Engram memory.
 
 USAGE
-  ordo memory import <path> --project <name> [--type <type>] [--dry-run]
+  ordo memory import <path> --project <name> [--type <type>] [--force] [--dry-run]
 
 INPUT
-  <path> is a file or a directory (scanned recursively, sorted).
+  <path> is a file or a directory (scanned recursively, sorted; hidden
+  directories, node_modules and vendor are skipped).
   .md      each "## " section is one memory; a file without sections is one
            memory titled by its file name; text before the first section is ignored
   .csv     header with title,content and an optional type column
@@ -33,19 +38,19 @@ INPUT
 FLAGS
   --project <name>   Engram project that receives the memories (required)
   --type <type>      type for every memory (default: per-record type, else manual)
+  --force            update every memory even if its file's mtime did not
+                     advance (after cp -p, rsync -a or archive extraction)
   --dry-run          list the entries that would be imported; writes nothing
 
 Re-importing the same input never duplicates memories: unchanged files are
 skipped and edited files update their memories in place.
 `
 
-const missingEngram = "engram not found on PATH; install it with: ordo install --agent <agent> --component engram"
-
 var (
 	// lookPath and runEngram are seams so tests never need a real engram.
 	lookPath  = exec.LookPath
-	runEngram = func(bin string, args []string, stdout io.Writer) error {
-		cmd := exec.Command(bin, args...)
+	runEngram = func(ctx context.Context, bin string, args []string, stdout io.Writer) error {
+		cmd := exec.CommandContext(ctx, bin, args...)
 		system.EnsureCommandDir(cmd)
 		cmd.Stdout = stdout
 		cmd.Stderr = os.Stderr
@@ -79,6 +84,7 @@ func runImport(args []string, stdout io.Writer) error {
 	project := fs.String("project", "", "")
 	typ := fs.String("type", "", "")
 	dryRun := fs.Bool("dry-run", false, "")
+	force := fs.Bool("force", false, "")
 
 	// Accept flags before or after the path.
 	var positional []string
@@ -94,7 +100,7 @@ func runImport(args []string, stdout io.Writer) error {
 		args = args[1:]
 	}
 	if len(positional) != 1 {
-		return errors.New("usage: ordo memory import <path> --project <name> [--type <type>] [--dry-run] (see ordo memory help)")
+		return errors.New("usage: ordo memory import <path> --project <name> [--type <type>] [--force] [--dry-run] (see ordo memory help)")
 	}
 	name := strings.TrimSpace(*project)
 	if name == "" {
@@ -105,15 +111,18 @@ func runImport(args []string, stdout io.Writer) error {
 	if err != nil {
 		return err
 	}
-	export := BuildExport(entries, name, strings.TrimSpace(*typ))
-
 	if *dryRun {
-		for i, o := range export.Observations {
-			_, _ = fmt.Fprintf(stdout, "%s  %s  (%s)\n", o.SyncID, o.Title, entries[i].Source)
+		for _, e := range entries {
+			_, _ = fmt.Fprintf(stdout, "%s  %s  (%s)\n", entrySyncID(name, e), e.Title, e.Source)
 		}
-		_, _ = fmt.Fprintf(stdout, "%d entries (dry run, nothing written)\n", len(export.Observations))
+		_, _ = fmt.Fprintf(stdout, "%d entries (dry run, nothing written)\n", len(entries))
 		return nil
 	}
+	opts := BuildOptions{TypeOverride: strings.TrimSpace(*typ)}
+	if *force {
+		opts.ForceAt = time.Now()
+	}
+	export := BuildExport(entries, name, opts)
 
 	bin, err := resolveEngram()
 	if err != nil {
@@ -124,7 +133,15 @@ func runImport(args []string, stdout io.Writer) error {
 		return err
 	}
 	defer os.Remove(file)
-	if err := runEngram(bin, []string{"import", file}, stdout); err != nil {
+
+	// Cancel engram on Ctrl-C or SIGTERM so the deferred temp-file removal
+	// still runs. There is no timeout: large imports may legitimately be slow.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if err := runEngram(ctx, bin, []string{"import", file}, stdout); err != nil {
+		if ctx.Err() != nil {
+			return fmt.Errorf("engram import interrupted: %w", err)
+		}
 		return fmt.Errorf("engram import failed: %w", err)
 	}
 	return nil
@@ -140,7 +157,11 @@ func resolveEngram() (string, error) {
 			return candidate, nil
 		}
 	}
-	return "", errors.New(missingEngram)
+	searched := "PATH"
+	if len(homebrewDirs) > 0 {
+		searched += " or in " + strings.Join(homebrewDirs, ", ")
+	}
+	return "", fmt.Errorf("engram not found on %s; install it with: ordo install --agent <agent> --component engram", searched)
 }
 
 func writeExport(export Export) (string, error) {

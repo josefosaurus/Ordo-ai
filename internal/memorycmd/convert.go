@@ -34,7 +34,8 @@ type Entry struct {
 	Title   string
 	Content string
 	Type    string    // optional per-record type; empty means default
-	Source  string    // slash-separated path relative to the import root
+	Source  string    // display path: slash-separated, relative to the import root
+	Origin  string    // identity path for sync_id; see originPath
 	ModTime time.Time // source file modification time
 }
 
@@ -70,18 +71,22 @@ type Observation struct {
 }
 
 // Collect reads every supported file under path (a file or a directory,
-// walked in sorted order) and returns its validated entries.
+// walked in sorted order) and returns its validated entries. Directory walks
+// skip hidden directories (".git", ".cache", ...) and vendored trees
+// ("node_modules", "vendor") below the root. Any invalid in-scope file fails
+// the whole collection, naming the file and the record.
 func Collect(path string) ([]Entry, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
+	origins := originResolver{roots: map[string]string{}}
 	var entries []Entry
 	if !info.IsDir() {
 		if !supported(path) {
 			return nil, fmt.Errorf("%s: unsupported file type (use .md, .csv or .jsonl)", path)
 		}
-		entries, err = readFile(path, filepath.Base(path), info.ModTime())
+		entries, err = readFile(path, filepath.Base(path), origins.origin(path), info.ModTime())
 		if err != nil {
 			return nil, err
 		}
@@ -90,18 +95,25 @@ func Collect(path string) ([]Entry, error) {
 			if walkErr != nil {
 				return walkErr
 			}
-			if d.IsDir() || !supported(p) {
+			if d.IsDir() {
+				if p != path && skipDir(d.Name()) {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if !supported(p) {
 				return nil
 			}
 			rel, relErr := filepath.Rel(path, p)
 			if relErr != nil {
 				return relErr
 			}
-			fi, statErr := d.Info()
+			// os.Stat follows symlinks, so a linked file carries its target's mtime.
+			fi, statErr := os.Stat(p)
 			if statErr != nil {
 				return statErr
 			}
-			found, readErr := readFile(p, filepath.ToSlash(rel), fi.ModTime())
+			found, readErr := readFile(p, filepath.ToSlash(rel), origins.origin(p), fi.ModTime())
 			if readErr != nil {
 				return readErr
 			}
@@ -118,6 +130,48 @@ func Collect(path string) ([]Entry, error) {
 	return entries, nil
 }
 
+// skipDir reports whether a directory below the import root is out of scope.
+func skipDir(name string) bool {
+	return strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor"
+}
+
+// originResolver computes the identity path behind each sync_id: the file path
+// relative to its enclosing git repository root, or the cleaned absolute path
+// outside a repository. It never depends on the import root, so importing a
+// file directly or through any parent directory yields the same sync_id, and
+// same-named files in different directories stay distinct. Repository roots
+// are cached per directory.
+type originResolver struct {
+	roots map[string]string // directory -> git root ("" when none)
+}
+
+func (r originResolver) origin(path string) string {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		abs = filepath.Clean(path)
+	}
+	if root := r.gitRoot(filepath.Dir(abs)); root != "" {
+		if rel, err := filepath.Rel(root, abs); err == nil {
+			return filepath.ToSlash(rel)
+		}
+	}
+	return filepath.ToSlash(abs)
+}
+
+func (r originResolver) gitRoot(dir string) string {
+	if root, ok := r.roots[dir]; ok {
+		return root
+	}
+	var root string
+	if _, err := os.Lstat(filepath.Join(dir, ".git")); err == nil {
+		root = dir
+	} else if parent := filepath.Dir(dir); parent != dir {
+		root = r.gitRoot(parent)
+	}
+	r.roots[dir] = root
+	return root
+}
+
 func supported(path string) bool {
 	switch strings.ToLower(filepath.Ext(path)) {
 	case ".md", ".csv", ".jsonl":
@@ -128,11 +182,14 @@ func supported(path string) bool {
 
 // readFile parses one source file and validates its entries. Errors name the
 // source path and, where known, the row or line and the entry title.
-func readFile(path, source string, modTime time.Time) ([]Entry, error) {
+func readFile(path, source, origin string, modTime time.Time) ([]Entry, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+	// Editors on Windows often prepend a UTF-8 BOM; it would hide the first
+	// Markdown heading and break JSON decoding.
+	data = bytes.TrimPrefix(data, []byte("\uFEFF"))
 	var entries []Entry
 	switch strings.ToLower(filepath.Ext(path)) {
 	case ".md":
@@ -152,6 +209,7 @@ func readFile(path, source string, modTime time.Time) ([]Entry, error) {
 		}
 		seen[entries[i].Title] = true
 		entries[i].Source = source
+		entries[i].Origin = origin
 		entries[i].ModTime = modTime
 	}
 	return entries, nil
@@ -172,13 +230,16 @@ func validate(e Entry) error {
 
 // parseMarkdown turns each `## ` section into one entry. Text before the
 // first section is ignored; a file without sections becomes one entry titled
-// by the file name. Headings inside fenced code blocks are content.
+// by the file name. Headings inside fenced code blocks are content. Fences
+// follow CommonMark: a fence of N backticks or tildes closes only on a line of
+// at least N of the same character with nothing but whitespace after it, and
+// an unclosed fence runs to the end of the file.
 func parseMarkdown(data []byte, fileTitle string) ([]Entry, error) {
 	var (
 		entries []Entry
 		current *Entry
 		body    []string
-		inFence bool
+		fence   fenceMarker
 		hasHead bool
 	)
 	flush := func() {
@@ -192,11 +253,13 @@ func parseMarkdown(data []byte, fileTitle string) ([]Entry, error) {
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
 		line := strings.TrimRight(scanner.Text(), "\r")
-		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
-			inFence = !inFence
-		}
-		if !inFence && strings.HasPrefix(line, "## ") {
+		if fence.open() {
+			if fence.closedBy(line) {
+				fence = fenceMarker{}
+			}
+		} else if opened := openFence(line); opened.open() {
+			fence = opened
+		} else if strings.HasPrefix(line, "## ") {
 			flush()
 			hasHead = true
 			current = &Entry{Title: strings.TrimSpace(strings.TrimPrefix(line, "## "))}
@@ -217,6 +280,34 @@ func parseMarkdown(data []byte, fileTitle string) ([]Entry, error) {
 		}
 	}
 	return entries, nil
+}
+
+// fenceMarker is an open code fence: its character and run length.
+type fenceMarker struct {
+	char byte
+	n    int
+}
+
+func (f fenceMarker) open() bool { return f.n > 0 }
+
+// openFence returns the fence a line opens, or a zero marker.
+func openFence(line string) fenceMarker {
+	trimmed := strings.TrimLeft(line, " \t")
+	if trimmed == "" || (trimmed[0] != '`' && trimmed[0] != '~') {
+		return fenceMarker{}
+	}
+	n := len(trimmed) - len(strings.TrimLeft(trimmed, trimmed[:1]))
+	if n < 3 {
+		return fenceMarker{}
+	}
+	return fenceMarker{char: trimmed[0], n: n}
+}
+
+// closedBy reports whether line closes the fence.
+func (f fenceMarker) closedBy(line string) bool {
+	trimmed := strings.TrimLeft(line, " \t")
+	rest := strings.TrimLeft(trimmed, string(f.char))
+	return len(trimmed)-len(rest) >= f.n && strings.TrimSpace(rest) == ""
 }
 
 // parseCSV reads rows under a header that names title and content columns
@@ -302,8 +393,18 @@ func parseJSONL(data []byte) ([]Entry, error) {
 //
 // Timestamps come from each source file's modification time, so re-importing
 // an unchanged file is skipped by Engram and editing a file updates its
-// entries in place (Engram updates only when updated_at is newer).
-func BuildExport(entries []Entry, project, typeOverride string) Export {
+// entries in place (Engram updates only when updated_at is newer). ForceAt
+// overrides updated_at for edits whose mtime did not advance.
+// BuildOptions tunes BuildExport.
+type BuildOptions struct {
+	// TypeOverride, when set, replaces every record's type.
+	TypeOverride string
+	// ForceAt, when non-zero, becomes every observation's updated_at so Engram
+	// applies edits whose file modification time did not advance.
+	ForceAt time.Time
+}
+
+func BuildExport(entries []Entry, project string, opts BuildOptions) Export {
 	sessionID := "ordo-import-" + project
 	var earliest, latest time.Time
 	observations := make([]Observation, 0, len(entries))
@@ -315,16 +416,22 @@ func BuildExport(entries []Entry, project, typeOverride string) Export {
 		if ts.After(latest) {
 			latest = ts
 		}
-		typ := typeOverride
+		typ := opts.TypeOverride
 		if typ == "" {
 			typ = e.Type
 		}
 		if typ == "" {
 			typ = defaultType
 		}
-		stamp := ts.Format(timeLayout)
+		stamp, updated := ts.Format(timeLayout), ts
+		if !opts.ForceAt.IsZero() {
+			updated = opts.ForceAt.UTC().Truncate(time.Second)
+		}
+		if updated.After(latest) {
+			latest = updated
+		}
 		observations = append(observations, Observation{
-			SyncID:    syncID(project, e.Source, e.Title),
+			SyncID:    entrySyncID(project, e),
 			SessionID: sessionID,
 			Type:      typ,
 			Title:     e.Title,
@@ -332,7 +439,7 @@ func BuildExport(entries []Entry, project, typeOverride string) Export {
 			Project:   project,
 			Scope:     defaultScope,
 			CreatedAt: stamp,
-			UpdatedAt: stamp,
+			UpdatedAt: updated.Format(timeLayout),
 		})
 	}
 	return Export{
@@ -343,9 +450,20 @@ func BuildExport(entries []Entry, project, typeOverride string) Export {
 	}
 }
 
+// syncIDHexLen is how many hex characters of the hash form a sync_id. It
+// matches the look of Engram's own obs-<16hex> ids, and a 64-bit space is
+// ample for per-project curated sets. Changing it re-keys every imported
+// memory, so later imports would duplicate them.
+const syncIDHexLen = 16
+
+// entrySyncID is the sync_id an entry imports under for project.
+func entrySyncID(project string, e Entry) string {
+	return syncID(project, e.Origin, e.Title)
+}
+
 // syncID derives Engram's dedupe key from where an entry came from, so the
 // same entry always maps to the same observation.
-func syncID(project, source, key string) string {
-	sum := sha256.Sum256([]byte(project + "\x00" + source + "\x00" + key))
-	return "obs-" + hex.EncodeToString(sum[:])[:16]
+func syncID(project, origin, key string) string {
+	sum := sha256.Sum256([]byte(project + "\x00" + origin + "\x00" + key))
+	return "obs-" + hex.EncodeToString(sum[:])[:syncIDHexLen]
 }

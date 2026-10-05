@@ -201,6 +201,7 @@ Load curated knowledge (team conventions, decisions, known-good answers) into yo
 ordo memory import ./golden --project my-app --dry-run   # preview, writes nothing
 ordo memory import ./golden --project my-app
 ordo memory import ./faq.csv --project my-app --type decision
+ordo memory import ./golden --project my-app --force     # apply edits whose mtime did not change
 ```
 
 | Input | Each memory is |
@@ -208,11 +209,13 @@ ordo memory import ./faq.csv --project my-app --type decision
 | `.md` | one `## ` section (title = heading); a file with no `## ` is one memory titled by its file name |
 | `.csv` | one row; the header needs `title,content` and may add `type` |
 | `.jsonl` | one `{"title","content","type"}` object per line |
-| directory | every `.md`, `.csv`, `.jsonl` file inside, in sorted order |
+| directory | every `.md`, `.csv`, `.jsonl` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped |
 
 - `--project` is required. `--type` sets the type for every memory; otherwise the record's `type`, else `manual`.
 - Titles must be unique per file, and content must be non-empty and at most 8000 characters.
-- Ordo converts the input and runs `engram import`; it never writes Engram's database directly. It needs `engram` on `PATH` (or in Homebrew's bin directory).
+- Markdown, CSV, and JSONL files may start with a UTF-8 BOM. In Markdown, `## ` lines inside fenced code blocks (backticks or tildes) are content.
+- `--force` updates every memory even when the source file's modification time did not advance, for example after `cp -p`, `rsync -a`, or extracting an archive.
+- Ordo converts the input and runs `engram import`; it never writes Engram's database directly. It needs `engram` on `PATH` (or in Homebrew's bin directory). Ctrl-C stops `engram import` and removes the temporary import file.
 - Re-importing is safe. See [Engram: importing curated memories](engram.md#importing-curated-memories).
 
 ### Community Tools
