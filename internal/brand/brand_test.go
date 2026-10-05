@@ -94,6 +94,19 @@ func TestMergeRejectsInvalidFieldsIndividually(t *testing.T) {
 	}
 }
 
+// A logo drawn to the logo's real proportions needs more lines than columns
+// suggest, because a terminal cell is about twice as tall as it is wide.
+func TestMergeAcceptsTwentyFourLineLogo(t *testing.T) {
+	logo := make([]string, 24)
+	for i := range logo {
+		logo[i] = strings.Repeat("█", 40)
+	}
+	b, warnings := Merge(Default(), Override{Logo: logo})
+	if len(warnings) != 0 || len(b.Logo) != 24 {
+		t.Fatalf("24-line logo: lines = %d, warnings = %v", len(b.Logo), warnings)
+	}
+}
+
 func TestOverrideCannotChangeAttribution(t *testing.T) {
 	home := t.TempDir()
 	writeOverrideFile(t, home, "name: Acme\nattribution: nobody\n")

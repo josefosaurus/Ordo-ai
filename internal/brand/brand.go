@@ -48,7 +48,7 @@ const OverrideFile = "brand.yaml"
 const (
 	MaxNameRunes     = 40
 	MaxTaglineRunes  = 80
-	MaxLogoLines     = 12
+	MaxLogoLines     = 24
 	MaxLogoWidth     = 80
 	MaxGradientStops = 12
 )
