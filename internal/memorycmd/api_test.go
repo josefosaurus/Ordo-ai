@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestPreviewMatchesImportedSyncIDs(t *testing.T) {
+func TestPreviewOfMatchesImportEntriesSyncIDs(t *testing.T) {
 	repo := t.TempDir()
 	if err := os.Mkdir(filepath.Join(repo, ".git"), 0o755); err != nil {
 		t.Fatal(err)
@@ -18,13 +18,17 @@ func TestPreviewMatchesImportedSyncIDs(t *testing.T) {
 	writeFile(t, filepath.Join(repo, "teamA", "faq.md"), "## Q1\na\n## Q2\nb\n")
 	writeFile(t, filepath.Join(repo, "teamB", "faq.jsonl"), "{\"title\":\"Q3\",\"content\":\"c\"}\n")
 
-	preview, err := Preview(repo, "demo")
+	entries, err := Collect(repo)
 	if err != nil {
-		t.Fatalf("Preview: %v", err)
+		t.Fatalf("Collect: %v", err)
+	}
+	preview, err := PreviewOf(entries, "demo")
+	if err != nil {
+		t.Fatalf("PreviewOf: %v", err)
 	}
 	captured := stubEngram(t, true, nil)
-	if err := Import(context.Background(), repo, "demo", io.Discard); err != nil {
-		t.Fatalf("Import: %v", err)
+	if err := ImportEntries(context.Background(), entries, "demo", io.Discard); err != nil {
+		t.Fatalf("ImportEntries: %v", err)
 	}
 	if len(preview) != len(captured.Observations) {
 		t.Fatalf("preview has %d entries, import sent %d", len(preview), len(captured.Observations))
@@ -38,6 +42,25 @@ func TestPreviewMatchesImportedSyncIDs(t *testing.T) {
 	}
 }
 
+// ImportEntries imports exactly the entries it is given; it never rescans
+// their source, so a file added after the preview is not imported.
+func TestImportEntriesDoesNotRescan(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "a.md"), "## One\na\n")
+	entries, err := Collect(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, filepath.Join(dir, "b.md"), "## Two\nb\n")
+	captured := stubEngram(t, true, nil)
+	if err := ImportEntries(context.Background(), entries, "demo", io.Discard); err != nil {
+		t.Fatalf("ImportEntries: %v", err)
+	}
+	if len(captured.Observations) != 1 || captured.Observations[0].Title != "One" {
+		t.Fatalf("imported %+v, want only the collected entry", captured.Observations)
+	}
+}
+
 func TestImportStreamsEngramOutputAndErrors(t *testing.T) {
 	stubEngram(t, true, nil)
 	inner := runEngram
@@ -45,9 +68,13 @@ func TestImportStreamsEngramOutputAndErrors(t *testing.T) {
 		_, _ = io.WriteString(stderr, "warning: something\n")
 		return inner(ctx, bin, args, stdout, stderr)
 	}
+	entries, err := Collect(sampleFile(t))
+	if err != nil {
+		t.Fatal(err)
+	}
 	var out bytes.Buffer
-	if err := Import(context.Background(), sampleFile(t), " demo ", &out); err != nil {
-		t.Fatalf("Import: %v", err)
+	if err := ImportEntries(context.Background(), entries, " demo ", &out); err != nil {
+		t.Fatalf("ImportEntries: %v", err)
 	}
 	if !strings.Contains(out.String(), "1 imported") || !strings.Contains(out.String(), "warning: something") {
 		t.Fatalf("Import output = %q, want engram stdout and stderr", out.String())
@@ -55,18 +82,19 @@ func TestImportStreamsEngramOutputAndErrors(t *testing.T) {
 }
 
 func TestImportAndPreviewReportProblems(t *testing.T) {
-	empty := t.TempDir()
+	entries, err := Collect(sampleFile(t))
+	if err != nil {
+		t.Fatal(err)
+	}
 	tests := []struct {
 		name    string
 		run     func() error
 		wantErr string
 	}{
-		{"preview without project", func() error { _, err := Preview(sampleFile(t), "  "); return err }, "project is required"},
-		{"preview without entries", func() error { _, err := Preview(empty, "demo"); return err }, "no entries found"},
-		{"import without project", func() error { return Import(context.Background(), sampleFile(t), "", io.Discard) }, "project is required"},
-		{"import missing path", func() error {
-			return Import(context.Background(), filepath.Join(empty, "nope.md"), "demo", io.Discard)
-		}, "no such file"},
+		{"preview without project", func() error { _, err := PreviewOf(entries, "  "); return err }, "project is required"},
+		{"preview without entries", func() error { _, err := PreviewOf(nil, "demo"); return err }, "no entries"},
+		{"import without project", func() error { return ImportEntries(context.Background(), entries, "", io.Discard) }, "project is required"},
+		{"import without entries", func() error { return ImportEntries(context.Background(), nil, "demo", io.Discard) }, "no entries"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -81,7 +109,7 @@ func TestImportAndPreviewReportProblems(t *testing.T) {
 		oldDirs := homebrewDirs
 		t.Cleanup(func() { homebrewDirs = oldDirs })
 		homebrewDirs = nil
-		err := Import(context.Background(), sampleFile(t), "demo", io.Discard)
+		err := ImportEntries(context.Background(), entries, "demo", io.Discard)
 		if err == nil || !strings.Contains(err.Error(), "engram not found") {
 			t.Fatalf("err = %v, want engram not found", err)
 		}

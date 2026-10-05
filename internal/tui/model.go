@@ -619,7 +619,7 @@ type Model struct {
 	Customize CustomizeState
 	// MemoryImport is the state of ScreenMemoryImport.
 	MemoryImport MemoryImportState
-	// memoryImportRun runs the import; nil means memorycmd.Import.
+	// memoryImportRun runs the import; nil means memorycmd.ImportEntries.
 	memoryImportRun memoryImportFunc
 
 	openCodePresentationMajor opencode.RuntimeMajor
@@ -1202,6 +1202,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				"RDD mode was not saved. Retry with `ordo review mode enable --scope global` or `ordo review mode disable --scope global`.")
 		}
 		return m, nil
+	case memoryImportScanDoneMsg:
+		return m.handleMemoryImportScanDone(msg)
 	case memoryImportDoneMsg:
 		return m.handleMemoryImportDone(msg)
 	case ReviewStoreResetDoneMsg:

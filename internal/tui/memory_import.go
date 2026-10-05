@@ -11,9 +11,10 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/tui/screens"
 )
 
-// memoryImportFunc runs one import; memorycmd.Import unless a test injects
-// a stub through Model.memoryImportRun.
-type memoryImportFunc func(ctx context.Context, path, project string, out io.Writer) error
+// memoryImportFunc runs one import of already collected entries;
+// memorycmd.ImportEntries unless a test injects a stub through
+// Model.memoryImportRun.
+type memoryImportFunc func(ctx context.Context, entries []memorycmd.Entry, project string, out io.Writer) error
 
 // MemoryImportState is the state of ScreenMemoryImport. The screen handles
 // all of its keys itself (see handleMemoryImportKey).
@@ -27,10 +28,24 @@ type MemoryImportState struct {
 	Err      string
 	Output   string
 
+	// scanned holds the entries the path scan collected; the preview and the
+	// import both use them, so the path is scanned exactly once. scanSeq
+	// identifies the current scan so a result that lands after Esc is ignored.
+	scanned []memorycmd.Entry
+	scanSeq int
+
 	// cancel stops a running import; quitting records a Ctrl+C that waits
 	// for the cancelled import to return before the TUI exits.
 	cancel   context.CancelFunc
 	quitting bool
+}
+
+// memoryImportScanDoneMsg reports a finished path scan.
+type memoryImportScanDoneMsg struct {
+	Seq     int
+	Path    string
+	Entries []memorycmd.Entry
+	Err     error
 }
 
 // memoryImportDoneMsg reports a finished import with Engram's output.
@@ -67,6 +82,14 @@ func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 	switch s.Step {
+	case screens.MemoryImportScanning:
+		// The scan is read-only, so Esc just abandons it; its late result
+		// no longer matches scanSeq and is ignored.
+		if msg.Type == tea.KeyEsc {
+			s.scanSeq++
+			s.Step, s.Err = screens.MemoryImportPath, ""
+		}
+		return m, nil
 	case screens.MemoryImportRunning:
 		return m, nil
 	case screens.MemoryImportResult:
@@ -81,7 +104,7 @@ func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			s.Step, s.Err = screens.MemoryImportRunning, ""
 			ctx, cancel := context.WithCancel(context.Background())
 			s.cancel = cancel
-			return m, m.runMemoryImport(ctx, s.Path, s.Project)
+			return m, m.runMemoryImport(ctx, s.scanned, s.Project)
 		}
 		return m, nil
 	}
@@ -96,7 +119,7 @@ func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		s.Step, s.Err = screens.MemoryImportPath, ""
 		s.setInput(s.Path)
 	case tea.KeyEnter:
-		s.submit()
+		return m, s.submit()
 	default:
 		if editInput(&s.Input, &s.InputPos, msg) {
 			s.Err = ""
@@ -106,44 +129,77 @@ func (m Model) handleMemoryImportKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // submit validates the current input step and advances on success; errors
-// stay inline on the same step.
-func (s *MemoryImportState) submit() {
+// stay inline on the same step. On the path step it starts the scan and
+// returns the command that runs it.
+func (s *MemoryImportState) submit() tea.Cmd {
 	value := strings.TrimSpace(s.Input)
 	if s.Step == screens.MemoryImportPath {
 		if value == "" {
 			s.Err = "enter a file or directory to import"
-			return
+			return nil
 		}
-		if strings.HasPrefix(value, "~/") {
-			value = homeDir() + value[1:]
-		}
-		// Validate the path now so a typo is reported where it was typed.
-		if _, err := memorycmd.Collect(value); err != nil {
-			s.Err = err.Error()
-			return
-		}
-		s.Path, s.Err = value, ""
-		s.Step = screens.MemoryImportProject
-		if s.Project == "" {
-			if cwd, err := os.Getwd(); err == nil {
-				s.Project = memorycmd.DefaultProject(cwd)
-			}
-		}
-		s.setInput(s.Project)
-		return
+		s.scanSeq++
+		s.scanned = nil
+		s.Step, s.Err = screens.MemoryImportScanning, ""
+		return scanMemoryImport(s.scanSeq, expandHome(value, homeDir()))
 	}
 
 	if value == "" {
 		s.Err = "enter an Engram project for these memories"
-		return
+		return nil
 	}
-	entries, err := memorycmd.Preview(s.Path, value)
+	entries, err := memorycmd.PreviewOf(s.scanned, value)
 	if err != nil {
 		s.Err = err.Error()
-		return
+		return nil
 	}
 	s.Project, s.Entries, s.Err = value, entries, ""
 	s.Step = screens.MemoryImportPreview
+	return nil
+}
+
+// expandHome expands a leading "~" or "~/" against home. An empty home
+// leaves path unchanged rather than turning "~/x" into "/x".
+func expandHome(path, home string) string {
+	if home == "" {
+		return path
+	}
+	if path == "~" {
+		return home
+	}
+	if strings.HasPrefix(path, "~/") {
+		return home + path[1:]
+	}
+	return path
+}
+
+// scanMemoryImport collects the entries under path off the update loop, so a
+// large directory never freezes the TUI.
+func scanMemoryImport(seq int, path string) tea.Cmd {
+	return func() tea.Msg {
+		entries, err := memorycmd.Collect(path)
+		return memoryImportScanDoneMsg{Seq: seq, Path: path, Entries: entries, Err: err}
+	}
+}
+
+func (m Model) handleMemoryImportScanDone(msg memoryImportScanDoneMsg) (tea.Model, tea.Cmd) {
+	s := &m.MemoryImport
+	if m.Screen != ScreenMemoryImport || s.Step != screens.MemoryImportScanning || msg.Seq != s.scanSeq {
+		return m, nil
+	}
+	if msg.Err != nil {
+		s.Step, s.Err = screens.MemoryImportPath, msg.Err.Error()
+		return m, nil
+	}
+	s.Path, s.scanned, s.Err = msg.Path, msg.Entries, ""
+	s.Step = screens.MemoryImportProject
+	if s.Project == "" {
+		if cwd, err := os.Getwd(); err == nil {
+			s.Project = memorycmd.DefaultProject(cwd)
+		}
+	}
+	s.setInput(s.Project)
+	return m, nil
 }
 
 func (s *MemoryImportState) setInput(value string) {
@@ -152,14 +208,14 @@ func (s *MemoryImportState) setInput(value string) {
 
 // runMemoryImport runs the import off the update loop and reports Engram's
 // output, stdout and stderr, as a memoryImportDoneMsg.
-func (m Model) runMemoryImport(ctx context.Context, path, project string) tea.Cmd {
+func (m Model) runMemoryImport(ctx context.Context, entries []memorycmd.Entry, project string) tea.Cmd {
 	run := m.memoryImportRun
 	if run == nil {
-		run = memorycmd.Import
+		run = memorycmd.ImportEntries
 	}
 	return func() tea.Msg {
 		var out strings.Builder
-		err := run(ctx, path, project, &out)
+		err := run(ctx, entries, project, &out)
 		return memoryImportDoneMsg{Output: out.String(), Err: err}
 	}
 }

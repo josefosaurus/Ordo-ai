@@ -17,30 +17,22 @@ type PreviewEntry struct {
 	Source string
 }
 
-// Preview collects the memories under path and returns them with the sync
-// IDs they would import under for project. It writes nothing and does not
-// need engram.
-func Preview(path, project string) ([]PreviewEntry, error) {
-	name, err := requireProject(project)
-	if err != nil {
-		return nil, err
-	}
-	entries, err := Collect(path)
+// PreviewOf returns entries, as Collect returned them, with the sync IDs they
+// would import under for project. It writes nothing and does not need engram.
+func PreviewOf(entries []Entry, project string) ([]PreviewEntry, error) {
+	name, err := requireImport(entries, project)
 	if err != nil {
 		return nil, err
 	}
 	return previewEntries(entries, name), nil
 }
 
-// Import loads the memories under path into the Engram project through
-// `engram import`, with each memory's own type and no forced update. Engram's
-// stdout and stderr both go to out.
-func Import(ctx context.Context, path, project string, out io.Writer) error {
-	name, err := requireProject(project)
-	if err != nil {
-		return err
-	}
-	entries, err := Collect(path)
+// ImportEntries loads entries, as Collect returned them, into the Engram
+// project through `engram import`, with each memory's own type and no forced
+// update. It never rescans their source, so it imports exactly what PreviewOf
+// listed. Engram's stdout and stderr both go to out.
+func ImportEntries(ctx context.Context, entries []Entry, project string, out io.Writer) error {
+	name, err := requireImport(entries, project)
 	if err != nil {
 		return err
 	}
@@ -65,10 +57,14 @@ func DefaultProject(dir string) string {
 	return filepath.Base(root)
 }
 
-func requireProject(project string) (string, error) {
+// requireImport validates an import request and returns the trimmed project.
+func requireImport(entries []Entry, project string) (string, error) {
 	name := strings.TrimSpace(project)
 	if name == "" {
 		return "", errors.New("project is required")
+	}
+	if len(entries) == 0 {
+		return "", errors.New("no entries to import")
 	}
 	return name, nil
 }

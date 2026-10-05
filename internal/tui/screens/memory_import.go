@@ -13,6 +13,7 @@ type MemoryImportStep int
 
 const (
 	MemoryImportPath MemoryImportStep = iota
+	MemoryImportScanning
 	MemoryImportProject
 	MemoryImportPreview
 	MemoryImportRunning
@@ -50,6 +51,11 @@ func RenderMemoryImport(v MemoryImportView) string {
 		b.WriteString("\n")
 		b.WriteString(styles.SubtextStyle.Render("  .md (one memory per \"## \" section), .csv or .jsonl; directories are scanned recursively"))
 		b.WriteString("\n")
+	case MemoryImportScanning:
+		b.WriteString(styles.UnselectedStyle.Render("  File or directory  " + v.Input))
+		b.WriteString("\n\n")
+		b.WriteString("Scanning…\n")
+		help = "esc: back"
 	case MemoryImportProject:
 		b.WriteString(styles.UnselectedStyle.Render("  File or directory  " + v.Path))
 		b.WriteString("\n")

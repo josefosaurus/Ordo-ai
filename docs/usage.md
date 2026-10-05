@@ -126,9 +126,9 @@ Before any managed file is modified, `ordo` creates a backup snapshot so the con
 
 **Import memories** in the TUI menu runs [`ordo memory import`](#memory-import) step by step:
 
-1. Enter a file or directory (`~/` is expanded). An empty path, a missing path, or input with no entries shows an error on the same step.
+1. Enter a file or directory (`~` and `~/` are expanded). Ordo scans it once in the background; Esc while it shows "Scanning…" goes back to the path. An empty path, a missing path, or input with no entries shows an error on the same step.
 2. Enter the Engram project. It defaults to the name of the git repository containing the current directory, else the directory's own name.
-3. Review the preview: the entry count and each entry's title, source, and sync ID (the same IDs as `--dry-run`).
+3. Review the preview: the entry count and each entry's title, source, and sync ID (the same IDs as `--dry-run`). The import uses exactly these entries; files changed after the scan are not picked up until you scan again.
 4. Press Enter to import. The result screen shows Engram's summary or the error, such as `engram` not being installed. Press any key to return to the menu.
 
 Esc goes back one step. The TUI always uses each record's own type and never forces updates; use the CLI for `--type` and `--force`.
