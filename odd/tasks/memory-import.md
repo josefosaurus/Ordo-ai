@@ -84,6 +84,22 @@ Teams want agents to start with shared conventions, decisions, and known-good an
 
 - Third RDD on `531b893e..2b1ddb9f` (T3 + help line): high, granted, 4 lenses, approved, no blockers, acknowledged (`review-352550dbadb49201`). Fixed inline after review: `BuildExport` doc comment re-attached to the func (R2-001); task log no longer contradicts help.go (R2-002).
 
+- Whole-branch RDD on `7358145..e46e2d05`: high, granted, 4 lenses, approved, no blockers, acknowledged (`review-aaecb13a255e5624`).
+- Delivered: PR #2 merged to `main` as `11b276cc` (single PR with `size:exception`, user-selected).
+
+## Follow-ups
+
+Tracked here because issues are disabled in this repository. None blocks the shipped feature.
+
+- [ ] **F1 — TUI entry.** "Import memories" on the welcome screen, above the RDD entry so the bench up-press count stays 5.
+- [ ] **F2 — Symlinked import root.** A root that is a symlink to a directory is not walked (`filepath.WalkDir` does not follow the root). Resolve the root before walking.
+- [ ] **F3 — Stable identity outside git.** The non-git `sync_id` source is `filepath.Abs` without `EvalSymlinks`: aliases such as `/tmp` vs `/private/tmp` give different IDs, and moving the folder re-keys every memory.
+- [ ] **F4 — Cross-repo collisions.** The same repo-relative path and title in two repositories under one `--project` share a `sync_id`.
+- [ ] **F5 — Timestamp granularity.** `updated_at` is truncated to seconds; an edit within the same second as the previous import is skipped as stale. `--force` can also lose to a stored future mtime.
+- [ ] **F6 — Dangling symlinks.** One broken `.md`/`.csv`/`.jsonl` symlink aborts a directory import.
+- [ ] **F7 — Parser edge cases.** A backtick fence opener whose info string contains backticks is accepted (CommonMark rejects it); CSV errors report record numbers, not file lines.
+- [ ] **F8 — Clarity and tests.** Document why `ExportedAt` is the latest source mtime; assert the full imported/updated/skipped triple in the real-engram test.
+
 ## Next step
 
-Open one PR to `main` with `size:exception` (user-selected delivery strategy). Follow-ups (later): TUI entry; identity outside git uses the absolute path, so moving a non-git folder re-keys memories; same repo-relative path in two repos under one `--project` collides; `--force` vs future mtimes; tighten real-engram summary assertions.
+Feature delivered. Pick follow-ups from the list above as separate work units.
