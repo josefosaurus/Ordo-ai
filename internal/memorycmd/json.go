@@ -48,6 +48,10 @@ func parseJSON(data []byte, titleField string) ([]Entry, error) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
 	top, err := decodeJSONValue(dec, 0)
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+		// Empty or truncated input; a bare "EOF" would not say what went wrong.
+		return nil, errors.New("unexpected end of JSON input")
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -247,14 +251,24 @@ func renderJSONField(name string, v jsonValue, labels bool) []string {
 			if len(scalars) == 0 {
 				return nil
 			}
-			return strings.Split(name+": "+strings.Join(scalars, ", "), "\n")
+			return labeledJSON(name, strings.Join(scalars, ", "))
 		}
 		return nestJSON(name, renderJSONItems(v.items))
 	}
 	if s, ok := v.scalarText(); ok {
-		return strings.Split(name+": "+s, "\n")
+		return labeledJSON(name, s)
 	}
 	return nil
+}
+
+// labeledJSON renders "name: text"; continuation lines of a multi-line text
+// are indented two spaces under the label line.
+func labeledJSON(name, text string) []string {
+	lines := strings.Split(name+": "+text, "\n")
+	for i := 1; i < len(lines); i++ {
+		lines[i] = "  " + lines[i]
+	}
+	return lines
 }
 
 // renderJSONItems numbers the non-empty items of a mixed or object array;

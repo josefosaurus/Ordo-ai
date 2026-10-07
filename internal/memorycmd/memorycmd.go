@@ -45,7 +45,7 @@ FLAGS
   --type <type>      type for every memory (default: per-record type, else manual)
   --title-field <name>
                      .json field that titles each record (default: title,
-                     titulo or name, combined with id)
+                     titulo or name, combined with id); not content or type
   --include-json     also read .json files when <path> is a directory
   --force            update every memory even if its file's mtime did not
                      advance (after cp -p, rsync -a or archive extraction)
@@ -68,6 +68,8 @@ var (
 	// homebrewDirs are checked when engram is not on PATH, matching where
 	// `ordo install` places it through Homebrew.
 	homebrewDirs = []string{"/opt/homebrew/bin", "/usr/local/bin", "/home/linuxbrew/.linuxbrew/bin"}
+	// stderr receives warnings and engram's stderr; tests swap it.
+	stderr io.Writer = os.Stderr
 )
 
 // Run dispatches a memory subcommand.
@@ -117,14 +119,21 @@ func runImport(args []string, stdout io.Writer) error {
 	if name == "" {
 		return errors.New("--project is required: usage: ordo memory import <path> --project <name> (see ordo memory help)")
 	}
+	field := strings.TrimSpace(*titleField)
+	if field == "content" || field == "type" {
+		// content and type keep their own meaning in a record; titling by
+		// them would also leave them out of the rendered content.
+		return errors.New(`--title-field cannot be "content" or "type" (see ordo memory help)`)
+	}
 
 	entries, err := collect(positional[0], collectOptions{
-		titleField:  strings.TrimSpace(*titleField),
+		titleField:  field,
 		includeJSON: *includeJSON,
 	})
 	if err != nil {
 		return err
 	}
+	warnIneffectiveFlags(positional[0], *includeJSON, field != "", entries)
 	if *dryRun {
 		for _, e := range previewEntries(entries, name) {
 			_, _ = fmt.Fprintf(stdout, "%s  %s  (%s)\n", e.SyncID, e.Title, e.Source)
@@ -141,7 +150,26 @@ func runImport(args []string, stdout io.Writer) error {
 	// There is no timeout: large imports may legitimately be slow.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	return importEntries(ctx, entries, name, opts, stdout, os.Stderr)
+	return importEntries(ctx, entries, name, opts, stdout, stderr)
+}
+
+// warnIneffectiveFlags tells the user on stderr when a flag changed nothing:
+// --include-json only affects directory scans, and --title-field only applies
+// to .json files.
+func warnIneffectiveFlags(path string, includeJSON, titleField bool, entries []Entry) {
+	if includeJSON {
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			_, _ = fmt.Fprintf(stderr, "warning: --include-json has no effect when %s is a file\n", path)
+		}
+	}
+	if titleField {
+		for _, e := range entries {
+			if strings.EqualFold(filepath.Ext(e.Source), ".json") {
+				return
+			}
+		}
+		_, _ = fmt.Fprintln(stderr, "warning: --title-field had no effect: no .json file was read")
+	}
 }
 
 func resolveEngram() (string, error) {
