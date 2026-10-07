@@ -48,6 +48,10 @@ func parseJSON(data []byte, titleField string) ([]Entry, error) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
 	top, err := decodeJSONValue(dec, 0)
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+		// Empty or truncated input; a bare "EOF" would not say what went wrong.
+		return nil, errors.New("unexpected end of JSON input")
+	}
 	if err != nil {
 		return nil, err
 	}

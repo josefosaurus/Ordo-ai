@@ -45,7 +45,7 @@ FLAGS
   --type <type>      type for every memory (default: per-record type, else manual)
   --title-field <name>
                      .json field that titles each record (default: title,
-                     titulo or name, combined with id)
+                     titulo or name, combined with id); not content or type
   --include-json     also read .json files when <path> is a directory
   --force            update every memory even if its file's mtime did not
                      advance (after cp -p, rsync -a or archive extraction)
@@ -117,9 +117,15 @@ func runImport(args []string, stdout io.Writer) error {
 	if name == "" {
 		return errors.New("--project is required: usage: ordo memory import <path> --project <name> (see ordo memory help)")
 	}
+	field := strings.TrimSpace(*titleField)
+	if field == "content" || field == "type" {
+		// content and type keep their own meaning in a record; titling by
+		// them would also leave them out of the rendered content.
+		return errors.New(`--title-field cannot be "content" or "type" (see ordo memory help)`)
+	}
 
 	entries, err := collect(positional[0], collectOptions{
-		titleField:  strings.TrimSpace(*titleField),
+		titleField:  field,
 		includeJSON: *includeJSON,
 	})
 	if err != nil {

@@ -296,3 +296,41 @@ func TestCollectUnsupportedListsJSON(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestCollectJSONTruncatedInput(t *testing.T) {
+	for name, body := range map[string]string{
+		"empty file":     ``,
+		"unclosed array": `[{"id":"a","content":"b"}`,
+		"missing value":  `{"a":`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "x.json")
+			writeFile(t, path, body)
+			_, err := Collect(path)
+			if err == nil || err.Error() != "x.json: unexpected end of JSON input" {
+				t.Fatalf("err = %v, want %q", err, "x.json: unexpected end of JSON input")
+			}
+		})
+	}
+}
+
+func TestCollectJSONRejectsDeepNesting(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "x.json")
+	writeFile(t, path, strings.Repeat("[", maxJSONDepth+2))
+	if _, err := Collect(path); err == nil || !strings.Contains(err.Error(), "nesting exceeds 1000 levels") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestRunRejectsReservedTitleFields(t *testing.T) {
+	// The path does not exist: the flag is rejected before any file is read.
+	missing := filepath.Join(t.TempDir(), "missing.json")
+	want := `--title-field cannot be "content" or "type" (see ordo memory help)`
+	for _, field := range []string{"content", "type", " type "} {
+		var out bytes.Buffer
+		err := Run([]string{"import", missing, "--project", "demo", "--title-field", field, "--dry-run"}, &out)
+		if err == nil || err.Error() != want {
+			t.Errorf("--title-field %q: err = %v, want %q", field, err, want)
+		}
+	}
+}
