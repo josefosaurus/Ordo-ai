@@ -65,7 +65,7 @@ Add `.engram/` to your repo and commit it. When a teammate clones and runs `engr
 
 ## Importing Curated Memories
 
-`ordo memory import <path> --project <name>` loads Markdown, CSV, or JSONL knowledge into Engram through `engram import`. Flags and input formats are in [Usage](usage.md#memory-import).
+`ordo memory import <path> --project <name>` loads Markdown, CSV, JSONL, or JSON knowledge into Engram through `engram import`. Flags and input formats are in [Usage](usage.md#memory-import).
 
 How re-imports behave:
 

@@ -213,6 +213,7 @@ ordo memory import ./golden --project my-app --dry-run   # preview, writes nothi
 ordo memory import ./golden --project my-app
 ordo memory import ./faq.csv --project my-app --type decision
 ordo memory import ./golden --project my-app --force     # apply edits whose mtime did not change
+ordo memory import ./documents.json --project my-app --title-field slug
 ```
 
 | Input | Each memory is |
@@ -220,11 +221,13 @@ ordo memory import ./golden --project my-app --force     # apply edits whose mti
 | `.md` | one `## ` section (title = heading); a file with no `## ` is one memory titled by its file name |
 | `.csv` | one row; the header needs `title,content` and may add `type` |
 | `.jsonl` | one `{"title","content","type"}` object per line |
-| directory | every `.md`, `.csv`, `.jsonl` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped |
+| `.json` | one object of a top-level array, or of the single array an object holds (for example `{"documents": [...]}`) |
+| directory | every `.md`, `.csv`, `.jsonl`, `.json` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped |
 
 - `--project` is required. `--type` sets the type for every memory; otherwise the record's `type`, else `manual`.
+- A `.json` record is titled by `--title-field <name>` when given; otherwise by the first non-empty `title`, `titulo`, or `name`, written as `<id> — <title>` when the record also has a different `id` (or `id` alone). A non-empty string `content` field is the memory's content; otherwise every other field (except the title fields and `type`) renders as labeled text in source order: `Label: value` for scalars, comma-joined scalar arrays, indented nested objects, and numbered items for arrays of objects. Null and empty values are skipped. The record's `type` string sets its type.
 - Titles must be unique per file, and content must be non-empty and at most 8000 characters.
-- Markdown, CSV, and JSONL files may start with a UTF-8 BOM. In Markdown, `## ` lines inside fenced code blocks (backticks or tildes) are content.
+- Markdown, CSV, JSONL, and JSON files may start with a UTF-8 BOM. In Markdown, `## ` lines inside fenced code blocks (backticks or tildes) are content.
 - `--force` updates every memory even when the source file's modification time did not advance, for example after `cp -p`, `rsync -a`, or extracting an archive.
 - Ordo converts the input and runs `engram import`; it never writes Engram's database directly. It needs `engram` on `PATH` (or in Homebrew's bin directory). Ctrl-C stops `engram import` and removes the temporary import file.
 - Re-importing is safe. See [Engram: importing curated memories](engram.md#importing-curated-memories).
