@@ -42,14 +42,6 @@ type jsonField struct {
 	value jsonValue
 }
 
-// notDatasetError marks a .json file that is not a dataset at all (invalid
-// JSON, or not shaped as an array of objects), as opposed to a dataset with an
-// invalid record. Directory scans skip such files, for example package.json or
-// tsconfig.json, instead of failing the whole import.
-type notDatasetError struct{ error }
-
-func (e notDatasetError) Unwrap() error { return e.error }
-
 // parseJSON reads a .json dataset: an array of objects, or an object holding
 // exactly one array of objects. Each record becomes one entry; see jsonEntry.
 func parseJSON(data []byte, titleField string) ([]Entry, error) {
@@ -57,25 +49,23 @@ func parseJSON(data []byte, titleField string) ([]Entry, error) {
 	dec.UseNumber()
 	top, err := decodeJSONValue(dec, 0)
 	if err != nil {
-		return nil, notDatasetError{err}
+		return nil, err
 	}
 	if _, err := dec.Token(); err != io.EOF {
 		if err == nil {
 			err = errors.New("unexpected data after the top-level value")
 		}
-		return nil, notDatasetError{err}
+		return nil, err
 	}
 	records, ok := jsonRecords(top)
 	if !ok {
-		return nil, notDatasetError{errors.New("expected an array of objects or an object holding one array")}
-	}
-	for i, rec := range records {
-		if rec.kind != jsonObject {
-			return nil, notDatasetError{fmt.Errorf("record %d: not an object", i+1)}
-		}
+		return nil, errors.New("expected an array of objects or an object holding one array")
 	}
 	entries := make([]Entry, 0, len(records))
 	for i, rec := range records {
+		if rec.kind != jsonObject {
+			return nil, fmt.Errorf("record %d: not an object", i+1)
+		}
 		e, err := jsonEntry(rec, titleField)
 		if err == nil {
 			err = validate(e)

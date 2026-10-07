@@ -131,7 +131,7 @@ Before any managed file is modified, `ordo` creates a backup snapshot so the con
 3. Review the preview: the entry count and each entry's title, source, and sync ID (the same IDs as `--dry-run`). The import uses exactly these entries; files changed after the scan are not picked up until you scan again.
 4. Press Enter to import. The result screen shows Engram's summary or the error, such as `engram` not being installed. Press any key to return to the menu.
 
-Esc goes back one step. The TUI always uses each record's own type and never forces updates; use the CLI for `--type` and `--force`.
+Esc goes back one step. The TUI always uses each record's own type and never forces updates, and its directory scans skip `.json` files (enter a `.json` file directly); use the CLI for `--type`, `--force`, and `--include-json`.
 
 ### Receipt-Driven Development during installation
 
@@ -214,6 +214,7 @@ ordo memory import ./golden --project my-app
 ordo memory import ./faq.csv --project my-app --type decision
 ordo memory import ./golden --project my-app --force     # apply edits whose mtime did not change
 ordo memory import ./documents.json --project my-app --title-field slug
+ordo memory import ./golden --project my-app --include-json  # also read .json files in the directory
 ```
 
 | Input | Each memory is |
@@ -222,7 +223,7 @@ ordo memory import ./documents.json --project my-app --title-field slug
 | `.csv` | one row; the header needs `title,content` and may add `type` |
 | `.jsonl` | one `{"title","content","type"}` object per line |
 | `.json` | one object of a top-level array, or of the single array an object holds (for example `{"documents": [...]}`) |
-| directory | every `.md`, `.csv`, `.jsonl`, `.json` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped, and so is any `.json` file that is not a dataset (invalid JSON or not an array of objects, such as `package.json`), with a `skipped` notice on stderr |
+| directory | every `.md`, `.csv`, `.jsonl` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped. `.json` files are skipped too, since they are often configuration (`package.json`, `tsconfig.json`); add `--include-json` to read them, and then every `.json` file must be a valid dataset |
 
 - `--project` is required. `--type` sets the type for every memory; otherwise the record's `type`, else `manual`.
 - A `.json` record is titled by `--title-field <name>` when given; otherwise by the first non-empty `title`, `titulo`, or `name`, written as `<id> — <title>` when the record also has a different `id` (or `id` alone). A non-empty string `content` field is the memory's content; otherwise every other field (except the title fields and `type`) renders as labeled text in source order: `Label: value` for scalars, comma-joined scalar arrays, indented nested objects, and numbered items for arrays of objects. Null and empty values are skipped. The record's `type` string sets its type.

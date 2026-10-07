@@ -26,12 +26,12 @@ const usage = `Load curated knowledge into your local Engram memory.
 
 USAGE
   ordo memory import <path> --project <name> [--type <type>] [--title-field <name>]
-                     [--force] [--dry-run]
+                     [--include-json] [--force] [--dry-run]
 
 INPUT
   <path> is a file or a directory (scanned recursively, sorted; hidden
-  directories, node_modules, vendor and .json files that are not datasets
-  are skipped).
+  directories, node_modules and vendor are skipped; .json files are skipped
+  unless --include-json is given, since they are often configuration).
   .md      each "## " section is one memory; a file without sections is one
            memory titled by its file name; text before the first section is ignored
   .csv     header with title,content and an optional type column
@@ -46,6 +46,7 @@ FLAGS
   --title-field <name>
                      .json field that titles each record (default: title,
                      titulo or name, combined with id)
+  --include-json     also read .json files when <path> is a directory
   --force            update every memory even if its file's mtime did not
                      advance (after cp -p, rsync -a or archive extraction)
   --dry-run          list the entries that would be imported; writes nothing
@@ -94,6 +95,7 @@ func runImport(args []string, stdout io.Writer) error {
 	dryRun := fs.Bool("dry-run", false, "")
 	force := fs.Bool("force", false, "")
 	titleField := fs.String("title-field", "", "")
+	includeJSON := fs.Bool("include-json", false, "")
 
 	// Accept flags before or after the path.
 	var positional []string
@@ -109,7 +111,7 @@ func runImport(args []string, stdout io.Writer) error {
 		args = args[1:]
 	}
 	if len(positional) != 1 {
-		return errors.New("usage: ordo memory import <path> --project <name> [--type <type>] [--title-field <name>] [--force] [--dry-run] (see ordo memory help)")
+		return errors.New("usage: ordo memory import <path> --project <name> [--type <type>] [--title-field <name>] [--include-json] [--force] [--dry-run] (see ordo memory help)")
 	}
 	name := strings.TrimSpace(*project)
 	if name == "" {
@@ -117,10 +119,8 @@ func runImport(args []string, stdout io.Writer) error {
 	}
 
 	entries, err := collect(positional[0], collectOptions{
-		titleField: strings.TrimSpace(*titleField),
-		onSkip: func(source string, err error) {
-			_, _ = fmt.Fprintf(os.Stderr, "skipped %s: not a JSON dataset (%v)\n", source, err)
-		},
+		titleField:  strings.TrimSpace(*titleField),
+		includeJSON: *includeJSON,
 	})
 	if err != nil {
 		return err

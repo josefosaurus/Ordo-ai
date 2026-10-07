@@ -49,7 +49,7 @@ func RenderMemoryImport(v MemoryImportView) string {
 	case MemoryImportPath:
 		b.WriteString(styles.SelectedStyle.Render(styles.Cursor+"File or directory  ") + inputWithCursor(v.Input, v.InputPos))
 		b.WriteString("\n")
-		b.WriteString(styles.SubtextStyle.Render("  .md (one memory per \"## \" section), .csv, .jsonl or .json; directories are scanned recursively"))
+		b.WriteString(styles.SubtextStyle.Render("  .md (one memory per \"## \" section), .csv, .jsonl, or a .json file; directories are scanned recursively (without .json)"))
 		b.WriteString("\n")
 	case MemoryImportScanning:
 		b.WriteString(styles.UnselectedStyle.Render("  File or directory  " + v.Input))

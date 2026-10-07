@@ -213,13 +213,28 @@ func TestRunDryRunHonorsTitleField(t *testing.T) {
 	}
 }
 
-func TestCollectDirectoryScansJSON(t *testing.T) {
+func TestCollectDirectoryIgnoresJSONByDefault(t *testing.T) {
 	dir := t.TempDir()
 	writeFile(t, filepath.Join(dir, "a.md"), "## A\na\n")
-	writeFile(t, filepath.Join(dir, "sub", "b.json"), `[{"id":"B-1","content":"b"}]`)
+	writeFile(t, filepath.Join(dir, "data.json"), `[{"id":"D-1","content":"d"}]`)
+	writeFile(t, filepath.Join(dir, "manifest.json"), `{"icons":[{"src":"a.png"}]}`)
+	writeFile(t, filepath.Join(dir, "tsconfig.json"), "{\n  // comment\n}")
 	entries, err := Collect(dir)
 	if err != nil {
 		t.Fatalf("Collect: %v", err)
+	}
+	if got := strings.Join(titles(entries), "|"); got != "A" {
+		t.Fatalf("titles = %q", got)
+	}
+}
+
+func TestCollectDirectoryIncludesJSONWhenAsked(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "a.md"), "## A\na\n")
+	writeFile(t, filepath.Join(dir, "sub", "b.json"), `[{"id":"B-1","content":"b"}]`)
+	entries, err := collect(dir, collectOptions{includeJSON: true})
+	if err != nil {
+		t.Fatalf("collect: %v", err)
 	}
 	if got := strings.Join(titles(entries), "|"); got != "A|B-1" {
 		t.Fatalf("titles = %q", got)
@@ -229,46 +244,48 @@ func TestCollectDirectoryScansJSON(t *testing.T) {
 	}
 }
 
-func TestCollectDirectorySkipsNonDatasetJSON(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(t, filepath.Join(dir, "data.json"), `[{"id":"D-1","content":"d"}]`)
-	writeFile(t, filepath.Join(dir, "package.json"), `{"name":"x","files":["dist"],"keywords":["k"]}`)
-	writeFile(t, filepath.Join(dir, "tsconfig.json"), "{\n  // comment\n  \"strict\": true\n}")
-	writeFile(t, filepath.Join(dir, "sub", "list.json"), `["a","b"]`)
-	var skipped []string
-	entries, err := collect(dir, collectOptions{onSkip: func(source string, err error) {
-		skipped = append(skipped, source)
-	}})
-	if err != nil {
-		t.Fatalf("collect: %v", err)
+func TestCollectDirectoryIncludedJSONMustBeDatasets(t *testing.T) {
+	for name, body := range map[string]string{
+		"package.json": `{"name":"x","files":["dist"],"keywords":["k"]}`,
+		"broken.json":  `[{"id":"D-1","content":"d"}`,
+		"data.json":    `[{"id":"D-1","content":"d"},{"content":"no title"}]`,
+	} {
+		dir := t.TempDir()
+		writeFile(t, filepath.Join(dir, name), body)
+		if _, err := collect(dir, collectOptions{includeJSON: true}); err == nil || !strings.HasPrefix(err.Error(), name+": ") {
+			t.Errorf("%s: err = %v", name, err)
+		}
 	}
-	if got := strings.Join(titles(entries), "|"); got != "D-1" {
-		t.Fatalf("titles = %q", got)
-	}
-	if got := strings.Join(skipped, "|"); got != "package.json|sub/list.json|tsconfig.json" {
-		t.Fatalf("skipped = %q", got)
-	}
-	// Collect (the TUI path) skips them too.
-	if entries, err := Collect(dir); err != nil || len(entries) != 1 {
+}
+
+func TestCollectSingleJSONFileNeedsNoFlag(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "documents.json")
+	writeFile(t, path, `[{"id":"D-1","content":"d"}]`)
+	entries, err := Collect(path)
+	if err != nil || len(entries) != 1 {
 		t.Fatalf("Collect = %d entries, %v", len(entries), err)
 	}
 }
 
-func TestCollectDirectoryStillFailsOnInvalidDatasetRecord(t *testing.T) {
+func TestRunDryRunIncludeJSON(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, filepath.Join(dir, "data.json"), `[{"id":"D-1","content":"d"},{"content":"no title"}]`)
-	_, err := Collect(dir)
-	if err == nil || !strings.Contains(err.Error(), "data.json: record 2: no title field") {
-		t.Fatalf("err = %v", err)
-	}
-}
-
-func TestCollectSingleNonDatasetJSONFails(t *testing.T) {
-	dir := t.TempDir()
-	path := filepath.Join(dir, "package.json")
-	writeFile(t, path, `{"name":"x","files":["dist"],"keywords":["k"]}`)
-	if _, err := Collect(path); err == nil || !strings.Contains(err.Error(), "expected an array of objects") {
-		t.Fatalf("err = %v", err)
+	writeFile(t, filepath.Join(dir, "a.md"), "## A\na\n")
+	writeFile(t, filepath.Join(dir, "b.json"), `[{"id":"B-1","content":"b"}]`)
+	for _, tc := range []struct {
+		args []string
+		want string
+	}{
+		{nil, "1 entries"},
+		{[]string{"--include-json"}, "2 entries"},
+	} {
+		var out bytes.Buffer
+		args := append([]string{"import", dir, "--project", "demo", "--dry-run"}, tc.args...)
+		if err := Run(args, &out); err != nil {
+			t.Fatalf("Run %v: %v", tc.args, err)
+		}
+		if !strings.Contains(out.String(), tc.want) {
+			t.Errorf("Run %v output missing %q:\n%s", tc.args, tc.want, out.String())
+		}
 	}
 }
 
