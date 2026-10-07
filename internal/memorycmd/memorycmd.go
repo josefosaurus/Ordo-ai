@@ -1,5 +1,5 @@
 // Package memorycmd implements `ordo memory`: load curated knowledge from
-// Markdown, CSV, or JSONL files into the local Engram memory store. Ordo never
+// Markdown, CSV, JSONL, or JSON files into the local Engram memory store. Ordo never
 // writes Engram's database itself; it converts the input into Engram's export
 // format and hands it to `engram import`.
 package memorycmd
@@ -25,19 +25,28 @@ import (
 const usage = `Load curated knowledge into your local Engram memory.
 
 USAGE
-  ordo memory import <path> --project <name> [--type <type>] [--force] [--dry-run]
+  ordo memory import <path> --project <name> [--type <type>] [--title-field <name>]
+                     [--include-json] [--force] [--dry-run]
 
 INPUT
   <path> is a file or a directory (scanned recursively, sorted; hidden
-  directories, node_modules and vendor are skipped).
+  directories, node_modules and vendor are skipped; .json files are skipped
+  unless --include-json is given, since they are often configuration).
   .md      each "## " section is one memory; a file without sections is one
            memory titled by its file name; text before the first section is ignored
   .csv     header with title,content and an optional type column
   .jsonl   one {"title","content","type"} object per line
+  .json    an array of objects (or an object holding one array); each object
+           is one memory titled by title, titulo or name (prefixed by id), and
+           its content field or, without one, its other fields as labeled text
 
 FLAGS
   --project <name>   Engram project that receives the memories (required)
   --type <type>      type for every memory (default: per-record type, else manual)
+  --title-field <name>
+                     .json field that titles each record (default: title,
+                     titulo or name, combined with id)
+  --include-json     also read .json files when <path> is a directory
   --force            update every memory even if its file's mtime did not
                      advance (after cp -p, rsync -a or archive extraction)
   --dry-run          list the entries that would be imported; writes nothing
@@ -85,6 +94,8 @@ func runImport(args []string, stdout io.Writer) error {
 	typ := fs.String("type", "", "")
 	dryRun := fs.Bool("dry-run", false, "")
 	force := fs.Bool("force", false, "")
+	titleField := fs.String("title-field", "", "")
+	includeJSON := fs.Bool("include-json", false, "")
 
 	// Accept flags before or after the path.
 	var positional []string
@@ -100,14 +111,17 @@ func runImport(args []string, stdout io.Writer) error {
 		args = args[1:]
 	}
 	if len(positional) != 1 {
-		return errors.New("usage: ordo memory import <path> --project <name> [--type <type>] [--force] [--dry-run] (see ordo memory help)")
+		return errors.New("usage: ordo memory import <path> --project <name> [--type <type>] [--title-field <name>] [--include-json] [--force] [--dry-run] (see ordo memory help)")
 	}
 	name := strings.TrimSpace(*project)
 	if name == "" {
 		return errors.New("--project is required: usage: ordo memory import <path> --project <name> (see ordo memory help)")
 	}
 
-	entries, err := Collect(positional[0])
+	entries, err := collect(positional[0], collectOptions{
+		titleField:  strings.TrimSpace(*titleField),
+		includeJSON: *includeJSON,
+	})
 	if err != nil {
 		return err
 	}

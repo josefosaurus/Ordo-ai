@@ -73,9 +73,24 @@ type Observation struct {
 // Collect reads every supported file under path (a file or a directory,
 // walked in sorted order) and returns its validated entries. Directory walks
 // skip hidden directories (".git", ".cache", ...) and vendored trees
-// ("node_modules", "vendor") below the root. Any invalid in-scope file fails
-// the whole collection, naming the file and the record.
+// ("node_modules", "vendor") below the root. They also skip .json files, which
+// are as often configuration (package.json, tsconfig.json) as datasets: a
+// .json file is read when given as the path itself, or in a directory only
+// with the CLI's --include-json. Any invalid in-scope file fails the whole
+// collection, naming the file and the record.
 func Collect(path string) ([]Entry, error) {
+	return collect(path, collectOptions{})
+}
+
+// collectOptions tunes collect for the CLI.
+type collectOptions struct {
+	// titleField, when set, names the field that titles each .json record.
+	titleField string
+	// includeJSON makes directory scans read .json files too.
+	includeJSON bool
+}
+
+func collect(path string, opts collectOptions) ([]Entry, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -84,9 +99,9 @@ func Collect(path string) ([]Entry, error) {
 	var entries []Entry
 	if !info.IsDir() {
 		if !supported(path) {
-			return nil, fmt.Errorf("%s: unsupported file type (use .md, .csv or .jsonl)", path)
+			return nil, fmt.Errorf("%s: unsupported file type (use .md, .csv, .jsonl or .json)", path)
 		}
-		entries, err = readFile(path, filepath.Base(path), origins.origin(path), info.ModTime())
+		entries, err = readFile(path, filepath.Base(path), origins.origin(path), info.ModTime(), opts)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +116,7 @@ func Collect(path string) ([]Entry, error) {
 				}
 				return nil
 			}
-			if !supported(p) {
+			if !supported(p) || (!opts.includeJSON && strings.EqualFold(filepath.Ext(p), ".json")) {
 				return nil
 			}
 			rel, relErr := filepath.Rel(path, p)
@@ -113,7 +128,7 @@ func Collect(path string) ([]Entry, error) {
 			if statErr != nil {
 				return statErr
 			}
-			found, readErr := readFile(p, filepath.ToSlash(rel), origins.origin(p), fi.ModTime())
+			found, readErr := readFile(p, filepath.ToSlash(rel), origins.origin(p), fi.ModTime(), opts)
 			if readErr != nil {
 				return readErr
 			}
@@ -125,7 +140,7 @@ func Collect(path string) ([]Entry, error) {
 		}
 	}
 	if len(entries) == 0 {
-		return nil, fmt.Errorf("%s: no entries found (expected .md, .csv or .jsonl content)", path)
+		return nil, fmt.Errorf("%s: no entries found (expected .md, .csv, .jsonl or .json content)", path)
 	}
 	return entries, nil
 }
@@ -174,7 +189,7 @@ func (r originResolver) gitRoot(dir string) string {
 
 func supported(path string) bool {
 	switch strings.ToLower(filepath.Ext(path)) {
-	case ".md", ".csv", ".jsonl":
+	case ".md", ".csv", ".jsonl", ".json":
 		return true
 	}
 	return false
@@ -182,7 +197,7 @@ func supported(path string) bool {
 
 // readFile parses one source file and validates its entries. Errors name the
 // source path and, where known, the row or line and the entry title.
-func readFile(path, source, origin string, modTime time.Time) ([]Entry, error) {
+func readFile(path, source, origin string, modTime time.Time, opts collectOptions) ([]Entry, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -198,6 +213,8 @@ func readFile(path, source, origin string, modTime time.Time) ([]Entry, error) {
 		entries, err = parseCSV(data)
 	case ".jsonl":
 		entries, err = parseJSONL(data)
+	case ".json":
+		entries, err = parseJSON(data, opts.titleField)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", source, err)
