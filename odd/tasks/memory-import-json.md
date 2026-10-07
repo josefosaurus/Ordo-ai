@@ -57,6 +57,14 @@ Converting by hand is error-prone and blocks the TUI path, which has no place fo
   - `./scripts/deadcode-ratchet.sh`: "no new unreachable functions" (it also notes 3 pre-existing baselined entries are now reachable; baseline untouched).
   - Sample `documents.json` dry run: `obs-e6826728c4bb66bd  AUTH-001 — Inicio de sesion con RUT y clave  (documents.json)`, `1 entries (dry run, nothing written)`.
 
+- Parent spot check: `go test ./internal/memorycmd/... -count=1` re-run: ok.
+- RDD: `ordo review assess --base-ref main --committed-only` → medium (`executable_change` in `internal/app/help.go`), `review_due` (`slice_budget_reached`, 699 changed lines). Consent granted; lineage `review-e5facf6f539b23c5`, one lens (`review-reliability`) → approved; acknowledged, authority burned. Reviewed boundary advances to `d4ec61bd`.
+- Non-blocking follow-ups from that review (separate later work):
+  - R3-001 (WARNING) `json.go:184`: a non-string or blank `content` field is dropped silently; docs imply it would render. Untested.
+  - R3-002 `json.go:83-85`: no test for the `maxJSONDepth` guard.
+  - R3-003 `json.go:251-253`: continuation lines of a multi-line top-level scalar are not indented.
+  - R3-004 `memorycmd.go:118`: `--title-field` is silently ignored when no `.json` file is imported.
+
 ## Next Step
 
-- Parent review and RDD assessment of the two work-unit commits; push/PR remain the user's decision.
+- Delivery is the user's decision. The branch has 699 changed lines (over the 400-line PR policy): chain the PR or request `size:exception`. Optionally address R3-001..R3-004 first.
