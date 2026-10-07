@@ -2,6 +2,7 @@ package memorycmd
 
 import (
 	"bytes"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -126,7 +127,7 @@ func TestCollectJSONTitles(t *testing.T) {
 	}
 }
 
-func TestCollectJSONRenderExcludesTitleFieldsAndType(t *testing.T) {
+func TestCollectJSONRenderExcludesUsedTitleFieldsAndType(t *testing.T) {
 	entries := collectOne(t, "x.json", `[{"name":"N","titulo":"Ti","id":"I","type":"decision","content":"","x-y":"z"}]`)
 	e := entries[0]
 	if e.Title != "I — Ti" || e.Type != "decision" {
@@ -332,5 +333,71 @@ func TestRunRejectsReservedTitleFields(t *testing.T) {
 		if err == nil || err.Error() != want {
 			t.Errorf("--title-field %q: err = %v, want %q", field, err, want)
 		}
+	}
+}
+
+func TestCollectJSONIndentsMultiLineStrings(t *testing.T) {
+	tests := []struct {
+		name, content, want string
+	}{
+		{"top-level field", `[{"id":"A","note":"l1\nl2"}]`, "Note: l1\n  l2"},
+		{"nested object field", `[{"id":"A","meta":{"note":"l1\nl2\nl3"}}]`, "Meta:\n  Note: l1\n    l2\n    l3"},
+		{"array item field", `[{"id":"A","steps":[{"note":"l1\nl2","n":1}]}]`, "Steps:\n  1. note: l1\n       l2\n     n: 1"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entries := collectOne(t, "x.json", tt.content)
+			if entries[0].Content != tt.want {
+				t.Fatalf("content =\n%s\nwant\n%s", entries[0].Content, tt.want)
+			}
+		})
+	}
+}
+
+// captureStderr swaps the package stderr for a buffer during one test.
+func captureStderr(t *testing.T) *bytes.Buffer {
+	t.Helper()
+	var buf bytes.Buffer
+	prev := stderr
+	stderr = &buf
+	t.Cleanup(func() { stderr = prev })
+	return &buf
+}
+
+func TestRunWarnsOnFlagsWithoutEffect(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "a.md"), "## A\na\n")
+	writeFile(t, filepath.Join(dir, "b.json"), `[{"id":"B-1","slug":"b-1","content":"b"}]`)
+	mdFile := filepath.Join(dir, "a.md")
+	jsonFile := filepath.Join(dir, "b.json")
+	const includeWarning = "warning: --include-json has no effect when %s is a file\n"
+	const titleWarning = "warning: --title-field had no effect: no .json file was read\n"
+	for _, tc := range []struct {
+		name string
+		args []string
+		want string
+	}{
+		{"include-json with a file", []string{mdFile, "--include-json"}, fmt.Sprintf(includeWarning, mdFile)},
+		{"include-json with a directory", []string{dir, "--include-json"}, ""},
+		{"title-field without json", []string{mdFile, "--title-field", "slug"}, titleWarning},
+		{"title-field with json skipped in directory", []string{dir, "--title-field", "slug"}, titleWarning},
+		{"title-field with json read", []string{jsonFile, "--title-field", "slug"}, ""},
+		{"both", []string{jsonFile, "--include-json", "--title-field", "slug"}, fmt.Sprintf(includeWarning, jsonFile)},
+		{"both without json", []string{mdFile, "--include-json", "--title-field", "slug"}, fmt.Sprintf(includeWarning, mdFile) + titleWarning},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			errOut := captureStderr(t)
+			var out bytes.Buffer
+			args := append([]string{"import", "--project", "demo", "--dry-run"}, tc.args...)
+			if err := Run(args, &out); err != nil {
+				t.Fatalf("Run: %v", err)
+			}
+			if errOut.String() != tc.want {
+				t.Errorf("stderr = %q, want %q", errOut.String(), tc.want)
+			}
+			if !strings.Contains(out.String(), "(dry run, nothing written)") {
+				t.Errorf("dry-run output missing:\n%s", out.String())
+			}
+		})
 	}
 }
