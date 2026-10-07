@@ -229,6 +229,49 @@ func TestCollectDirectoryScansJSON(t *testing.T) {
 	}
 }
 
+func TestCollectDirectorySkipsNonDatasetJSON(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "data.json"), `[{"id":"D-1","content":"d"}]`)
+	writeFile(t, filepath.Join(dir, "package.json"), `{"name":"x","files":["dist"],"keywords":["k"]}`)
+	writeFile(t, filepath.Join(dir, "tsconfig.json"), "{\n  // comment\n  \"strict\": true\n}")
+	writeFile(t, filepath.Join(dir, "sub", "list.json"), `["a","b"]`)
+	var skipped []string
+	entries, err := collect(dir, collectOptions{onSkip: func(source string, err error) {
+		skipped = append(skipped, source)
+	}})
+	if err != nil {
+		t.Fatalf("collect: %v", err)
+	}
+	if got := strings.Join(titles(entries), "|"); got != "D-1" {
+		t.Fatalf("titles = %q", got)
+	}
+	if got := strings.Join(skipped, "|"); got != "package.json|sub/list.json|tsconfig.json" {
+		t.Fatalf("skipped = %q", got)
+	}
+	// Collect (the TUI path) skips them too.
+	if entries, err := Collect(dir); err != nil || len(entries) != 1 {
+		t.Fatalf("Collect = %d entries, %v", len(entries), err)
+	}
+}
+
+func TestCollectDirectoryStillFailsOnInvalidDatasetRecord(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "data.json"), `[{"id":"D-1","content":"d"},{"content":"no title"}]`)
+	_, err := Collect(dir)
+	if err == nil || !strings.Contains(err.Error(), "data.json: record 2: no title field") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestCollectSingleNonDatasetJSONFails(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "package.json")
+	writeFile(t, path, `{"name":"x","files":["dist"],"keywords":["k"]}`)
+	if _, err := Collect(path); err == nil || !strings.Contains(err.Error(), "expected an array of objects") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
 func TestCollectUnsupportedListsJSON(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "x.txt")
 	writeFile(t, path, "hi")

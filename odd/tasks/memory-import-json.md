@@ -65,6 +65,9 @@ Converting by hand is error-prone and blocks the TUI path, which has no place fo
   - R3-003 `json.go:251-253`: continuation lines of a multi-line top-level scalar are not indented.
   - R3-004 `memorycmd.go:118`: `--title-field` is silently ignored when no `.json` file is imported.
 
+- Second review (lineage `review-0a0325e3d856d661`, approved, acknowledged) raised a new WARNING: directory scans picked up every `.json`, so an unrelated `package.json` or `tsconfig.json` failed a previously working directory import. **Fixed**: `parseJSON` marks files that are not datasets (invalid JSON, not an array of objects) with `notDatasetError`; directory scans skip them and the CLI prints `skipped <file>: not a JSON dataset (...)` to stderr. A single file passed directly still fails, and record errors inside a real dataset still fail. Tests: `TestCollectDirectorySkipsNonDatasetJSON`, `TestCollectDirectoryStillFailsOnInvalidDatasetRecord`, `TestCollectSingleNonDatasetJSONFails` (RED: `unknown field onSkip`, then GREEN). The TUI skips silently; its preview lists the included sources.
+- Remaining suggestions: `--title-field content` or `--title-field type` collide with the content/type fields (untested).
+
 ## Next Step
 
 - Delivery is the user's decision. The branch has 699 changed lines (over the 400-line PR policy): chain the PR or request `size:exception`. Optionally address R3-001..R3-004 first.

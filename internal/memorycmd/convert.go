@@ -73,8 +73,9 @@ type Observation struct {
 // Collect reads every supported file under path (a file or a directory,
 // walked in sorted order) and returns its validated entries. Directory walks
 // skip hidden directories (".git", ".cache", ...) and vendored trees
-// ("node_modules", "vendor") below the root. Any invalid in-scope file fails
-// the whole collection, naming the file and the record.
+// ("node_modules", "vendor") below the root, and .json files that are not
+// datasets (see notDatasetError). Any other invalid in-scope file fails the
+// whole collection, naming the file and the record.
 func Collect(path string) ([]Entry, error) {
 	return collect(path, collectOptions{})
 }
@@ -83,6 +84,9 @@ func Collect(path string) ([]Entry, error) {
 type collectOptions struct {
 	// titleField, when set, names the field that titles each .json record.
 	titleField string
+	// onSkip, when set, is told about each .json file a directory scan skips
+	// because it is not a dataset.
+	onSkip func(source string, err error)
 }
 
 func collect(path string, opts collectOptions) ([]Entry, error) {
@@ -124,6 +128,13 @@ func collect(path string, opts collectOptions) ([]Entry, error) {
 				return statErr
 			}
 			found, readErr := readFile(p, filepath.ToSlash(rel), origins.origin(p), fi.ModTime(), opts)
+			var notDataset notDatasetError
+			if errors.As(readErr, &notDataset) {
+				if opts.onSkip != nil {
+					opts.onSkip(filepath.ToSlash(rel), notDataset.error)
+				}
+				return nil
+			}
 			if readErr != nil {
 				return readErr
 			}

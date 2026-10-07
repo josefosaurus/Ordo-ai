@@ -30,7 +30,8 @@ USAGE
 
 INPUT
   <path> is a file or a directory (scanned recursively, sorted; hidden
-  directories, node_modules and vendor are skipped).
+  directories, node_modules, vendor and .json files that are not datasets
+  are skipped).
   .md      each "## " section is one memory; a file without sections is one
            memory titled by its file name; text before the first section is ignored
   .csv     header with title,content and an optional type column
@@ -115,7 +116,12 @@ func runImport(args []string, stdout io.Writer) error {
 		return errors.New("--project is required: usage: ordo memory import <path> --project <name> (see ordo memory help)")
 	}
 
-	entries, err := collect(positional[0], collectOptions{titleField: strings.TrimSpace(*titleField)})
+	entries, err := collect(positional[0], collectOptions{
+		titleField: strings.TrimSpace(*titleField),
+		onSkip: func(source string, err error) {
+			_, _ = fmt.Fprintf(os.Stderr, "skipped %s: not a JSON dataset (%v)\n", source, err)
+		},
+	})
 	if err != nil {
 		return err
 	}

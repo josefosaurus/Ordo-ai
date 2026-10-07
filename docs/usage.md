@@ -222,7 +222,7 @@ ordo memory import ./documents.json --project my-app --title-field slug
 | `.csv` | one row; the header needs `title,content` and may add `type` |
 | `.jsonl` | one `{"title","content","type"}` object per line |
 | `.json` | one object of a top-level array, or of the single array an object holds (for example `{"documents": [...]}`) |
-| directory | every `.md`, `.csv`, `.jsonl`, `.json` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped |
+| directory | every `.md`, `.csv`, `.jsonl`, `.json` file inside, in sorted order; hidden directories, `node_modules`, and `vendor` are skipped, and so is any `.json` file that is not a dataset (invalid JSON or not an array of objects, such as `package.json`), with a `skipped` notice on stderr |
 
 - `--project` is required. `--type` sets the type for every memory; otherwise the record's `type`, else `manual`.
 - A `.json` record is titled by `--title-field <name>` when given; otherwise by the first non-empty `title`, `titulo`, or `name`, written as `<id> — <title>` when the record also has a different `id` (or `id` alone). A non-empty string `content` field is the memory's content; otherwise every other field (except the title fields and `type`) renders as labeled text in source order: `Label: value` for scalars, comma-joined scalar arrays, indented nested objects, and numbered items for arrays of objects. Null and empty values are skipped. The record's `type` string sets its type.
