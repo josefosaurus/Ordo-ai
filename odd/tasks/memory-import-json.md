@@ -18,6 +18,7 @@ Converting by hand is error-prone and blocks the TUI path, which has no place fo
 - Title: `--title-field <name>` when given; otherwise the first non-empty of `title`, `titulo`, `name`, combined with `id` as `<id> — <title>` when `id` is present and different; `id` alone when no title field; otherwise a clear error naming `--title-field`.
 - Content: a non-empty string `content` field is used as is; otherwise the remaining fields (except the title fields and `type`) render as labeled text in source key order (scalars `Label: v`, scalar arrays joined by `, `, objects and object arrays indented and numbered). Null and empty values are skipped.
 - Type: record `type` string; `--type` still overrides; default `manual`.
+- `--include-json`: directory scans skip `.json` files unless this flag is given; a `.json` path given directly is always read.
 - Existing rules unchanged: unique titles per file, non-empty content, 8000-character cap, BOM tolerance, `sync_id` identity.
 - Docs: `memorycmd` usage text, `docs/usage.md`, `docs/engram.md`, TUI path hint.
 - Out of scope: per-record splitting of oversized records, YAML input, schema-specific renderers.
@@ -42,7 +43,7 @@ Converting by hand is error-prone and blocks the TUI path, which has no place fo
 
 - A `documents.json`-shaped array imports with titles like `AUTH-001 — Inicio de sesion con RUT y clave` and readable labeled content.
 - `{title, content, type}` arrays import identically to the same records as `.jsonl`.
-- Directory scans pick up `.json`; invalid `.json` fails naming the file and record index.
+- Directory scans read `.json` only with `--include-json`, and then every `.json` file must be a valid dataset; a `.json` path given directly needs no flag; invalid `.json` fails naming the file and record index.
 - `go build ./... && go vet ./...`, `go test ./internal/memorycmd/... ./internal/tui/... ./internal/app/...`, `go run ./internal/gofmtcheck`, `./scripts/deadcode-ratchet.sh` pass.
 
 ## Progress
