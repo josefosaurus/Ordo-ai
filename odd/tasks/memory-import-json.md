@@ -49,7 +49,7 @@ Converting by hand is error-prone and blocks the TUI path, which has no place fo
 
 - T1 done in `0181a369` `feat(memory): import .json datasets with rendered content`: `internal/memorycmd/json.go` (ordered decode with `UseNumber`, title resolution, labeled rendering), `collect(path, collectOptions)` behind `Collect`, `--title-field` flag, usage text, `internal/app/help.go`, TUI hint, and tests. RED observed first (`json_test.go` failed to build: `undefined: collect`, `collectOptions`; then `flag provided but not defined: -title-field`), then GREEN.
 - T2 done in `96102941` `docs(memory): document .json import and --title-field` (`docs/usage.md`, `docs/engram.md`). The TUI hint and its new test went with T1.
-- Decisions: an object top level may hold other non-array fields but exactly one array field; `content` is always excluded from rendering; array items are numbered sequentially over non-empty items; nested labeled objects keep labels, while fields inside array items use raw keys; nesting deeper than 1000 levels fails.
+- Decisions: an object top level may hold other non-array fields but exactly one array field; a non-empty string `content` is used as is, any other `content` renders like the remaining fields (R3-001 fix); array items are numbered sequentially over non-empty items; nested labeled objects keep labels, while fields inside array items use raw keys; nesting deeper than 1000 levels fails.
 - Checks (observed):
   - `go build ./... && go vet ./...`: pass.
   - `go test ./internal/memorycmd/... ./internal/tui/... ./internal/app/... -count=1`: all ok.
@@ -60,7 +60,7 @@ Converting by hand is error-prone and blocks the TUI path, which has no place fo
 - Parent spot check: `go test ./internal/memorycmd/... -count=1` re-run: ok.
 - RDD: `ordo review assess --base-ref main --committed-only` → medium (`executable_change` in `internal/app/help.go`), `review_due` (`slice_budget_reached`, 699 changed lines). Consent granted; lineage `review-e5facf6f539b23c5`, one lens (`review-reliability`) → approved; acknowledged, authority burned. Reviewed boundary advances to `d4ec61bd`.
 - Non-blocking follow-ups from that review (separate later work):
-  - R3-001 (WARNING) `json.go:184`: a non-string or blank `content` field is dropped silently; docs imply it would render. Untested.
+  - R3-001 (WARNING) `json.go:184`: a non-string or blank `content` field is dropped silently; docs imply it would render. Untested. **Fixed**: non-string `content` now renders as `Content:`; covered by `TestCollectJSONRendersNonStringContent` (RED observed: `entry "B": content is empty`, then GREEN).
   - R3-002 `json.go:83-85`: no test for the `maxJSONDepth` guard.
   - R3-003 `json.go:251-253`: continuation lines of a multi-line top-level scalar are not indented.
   - R3-004 `memorycmd.go:118`: `--title-field` is silently ignored when no `.json` file is imported.

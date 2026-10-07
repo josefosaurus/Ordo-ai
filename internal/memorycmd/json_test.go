@@ -137,6 +137,25 @@ func TestCollectJSONRenderExcludesTitleFieldsAndType(t *testing.T) {
 	}
 }
 
+func TestCollectJSONRendersNonStringContent(t *testing.T) {
+	entries := collectOne(t, "x.json", `[
+{"id":"A","content":{"steps":["one","two"]},"note":"n"},
+{"id":"B","content":["x","y"]},
+{"id":"C","content":42},
+{"id":"D","content":"   ","note":"kept"}]`)
+	want := []string{
+		"Content:\n  Steps: one, two\nNote: n",
+		"Content: x, y",
+		"Content: 42",
+		"Note: kept",
+	}
+	for i, w := range want {
+		if entries[i].Content != w {
+			t.Errorf("%s content = %q, want %q", entries[i].Title, entries[i].Content, w)
+		}
+	}
+}
+
 func TestCollectJSONErrors(t *testing.T) {
 	tests := []struct {
 		name, content, wantErr string

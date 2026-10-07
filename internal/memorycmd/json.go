@@ -179,9 +179,10 @@ func (v jsonValue) scalarField(key string) string {
 // when set; otherwise the first of title, titulo, or name, prefixed by id as
 // "<id> — <title>" when id is present and different. A non-empty string
 // content is used as is; otherwise every other field (except the title fields
-// and type) renders as labeled text in source order.
+// and type) renders as labeled text in source order, including a non-string
+// content, so no record data is dropped silently.
 func jsonEntry(rec jsonValue, titleField string) (Entry, error) {
-	skip := map[string]bool{"type": true, "content": true}
+	skip := map[string]bool{"type": true}
 	var title string
 	if titleField != "" {
 		title = rec.scalarField(titleField)
