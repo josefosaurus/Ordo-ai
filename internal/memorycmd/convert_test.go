@@ -353,6 +353,7 @@ func TestCollectStripsUTF8BOM(t *testing.T) {
 		{"x.md", "\uFEFF## First\na\n## Second\nb\n", "First|Second"},
 		{"x.jsonl", "\uFEFF{\"title\":\"J\",\"content\":\"c\"}\n", "J"},
 		{"x.csv", "\uFEFFtitle,content\nC,c\n", "C"},
+		{"x.json", "\uFEFF[{\"title\":\"S\",\"content\":\"c\"}]", "S"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.file, func(t *testing.T) {

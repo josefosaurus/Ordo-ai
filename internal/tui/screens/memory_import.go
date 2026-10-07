@@ -41,7 +41,7 @@ func RenderMemoryImport(v MemoryImportView) string {
 
 	b.WriteString(styles.TitleStyle.Render("Import memories"))
 	b.WriteString("\n")
-	b.WriteString(styles.SubtextStyle.Render("Load Markdown, CSV or JSONL knowledge into your local Engram memory."))
+	b.WriteString(styles.SubtextStyle.Render("Load Markdown, CSV, JSONL or JSON knowledge into your local Engram memory."))
 	b.WriteString("\n\n")
 
 	help := "enter: next • esc: back"
@@ -49,7 +49,7 @@ func RenderMemoryImport(v MemoryImportView) string {
 	case MemoryImportPath:
 		b.WriteString(styles.SelectedStyle.Render(styles.Cursor+"File or directory  ") + inputWithCursor(v.Input, v.InputPos))
 		b.WriteString("\n")
-		b.WriteString(styles.SubtextStyle.Render("  .md (one memory per \"## \" section), .csv or .jsonl; directories are scanned recursively"))
+		b.WriteString(styles.SubtextStyle.Render("  .md (one memory per \"## \" section), .csv, .jsonl or .json; directories are scanned recursively"))
 		b.WriteString("\n")
 	case MemoryImportScanning:
 		b.WriteString(styles.UnselectedStyle.Render("  File or directory  " + v.Input))
