@@ -351,8 +351,8 @@ func TestInjectKimiGentlemanIncludesProjectInstructionsAndLoadedSkills(t *testin
 	if err != nil {
 		t.Fatalf("ReadFile(%q) error = %v", outputStylePath, err)
 	}
-	if !strings.Contains(string(styleContent), "Gentleman Output Style") {
-		t.Fatal("output-style.md missing Gentleman Output Style content")
+	if !strings.Contains(string(styleContent), "Mentor Output Style") {
+		t.Fatal("output-style.md missing Mentor Output Style content")
 	}
 	assertLanguageGuardrails(t, string(styleContent),
 		[]string{
@@ -409,14 +409,14 @@ func TestInjectClaudeGentlemanWritesOutputStyleFile(t *testing.T) {
 	}
 
 	text := string(content)
-	if !strings.Contains(text, "name: Gentleman") {
-		t.Fatal("Output style file missing YAML frontmatter 'name: Gentleman'")
+	if !strings.Contains(text, "name: Mentor") {
+		t.Fatal("Output style file missing YAML frontmatter 'name: Mentor'")
 	}
 	if !strings.Contains(text, "keep-coding-instructions: true") {
 		t.Fatal("Output style file missing 'keep-coding-instructions: true'")
 	}
-	if !strings.Contains(text, "Gentleman Output Style") {
-		t.Fatal("Output style file missing 'Gentleman Output Style' heading")
+	if !strings.Contains(text, "Mentor Output Style") {
+		t.Fatal("Output style file missing 'Mentor Output Style' heading")
 	}
 	assertLanguageGuardrails(t, text, claudeOutputStyleLanguageGuardrails, nil)
 }
@@ -455,8 +455,8 @@ func TestInjectClaudeGentlemanMergesOutputStyleIntoSettings(t *testing.T) {
 	if !ok {
 		t.Fatal("settings.json missing 'outputStyle' key")
 	}
-	if outputStyle != "Gentleman" {
-		t.Fatalf("settings.json outputStyle = %q, want %q", outputStyle, "Gentleman")
+	if outputStyle != "Mentor" {
+		t.Fatalf("settings.json outputStyle = %q, want %q", outputStyle, "Mentor")
 	}
 
 	// Verify existing keys were preserved.
@@ -2009,8 +2009,8 @@ func TestInjectClaude_SwitchGentlemanToNeutral_CleansOutputStyle(t *testing.T) {
 	if err := json.Unmarshal(settingsRaw, &settingsBefore); err != nil {
 		t.Fatalf("precondition: unmarshal settings.json: %v", err)
 	}
-	if settingsBefore["outputStyle"] != "Gentleman" {
-		t.Fatalf("precondition: outputStyle must be 'Gentleman', got %v", settingsBefore["outputStyle"])
+	if settingsBefore["outputStyle"] != "Mentor" {
+		t.Fatalf("precondition: outputStyle must be 'Mentor', got %v", settingsBefore["outputStyle"])
 	}
 
 	// Step 2: switch to neutral — should clean both residuals.
@@ -2303,8 +2303,8 @@ func TestInjectKimi_SwitchGentlemanToNeutral_NoResidualPersonaContent(t *testing
 	if strings.Contains(content, "Rioplatense") {
 		t.Error("output-style.md still contains 'Rioplatense' after switching to neutral")
 	}
-	if strings.Contains(content, "Gentleman Output Style") {
-		t.Error("output-style.md still contains 'Gentleman Output Style' after switching to neutral")
+	if strings.Contains(content, "Mentor Output Style") {
+		t.Error("output-style.md still contains 'Mentor Output Style' after switching to neutral")
 	}
 	if strings.Contains(content, "voseo") {
 		t.Error("output-style.md still contains 'voseo' after switching to neutral")
@@ -2855,6 +2855,14 @@ var legacyKimiOutputStyleGentlemanLines = []string{
 	"When you ask the user a question, STOP IMMEDIATELY after the question. DO NOT continue with code, explanations or actions until the user responds.",
 }
 
+// legacyKimiOutputStyleGentlemanRenames maps the frozen legacy lines that
+// named the upstream brand to the display name that replaced it: the style is
+// shown as "Mentor" while its file and persona ID stay "gentleman".
+var legacyKimiOutputStyleGentlemanRenames = map[string]string{
+	"name: Gentleman":          "name: Mentor",
+	"# Gentleman Output Style": "# Mentor Output Style",
+}
+
 // legacyKimiOutputStyleNeutralLines is a frozen snapshot of every non-blank
 // line from kimi/output-style-neutral.md BEFORE the Decision 4 reconciliation
 // (captured 2026-07-08).
@@ -2904,6 +2912,9 @@ func TestKimiOutputStyleSupersetOfLegacyKimiCopy(t *testing.T) {
 	t.Run("gentleman", func(t *testing.T) {
 		reconciled := assets.MustRead("kimi/output-style-gentleman.md")
 		for _, line := range legacyKimiOutputStyleGentlemanLines {
+			if renamed, ok := legacyKimiOutputStyleGentlemanRenames[line]; ok {
+				line = renamed
+			}
 			if !strings.Contains(reconciled, line) {
 				t.Fatalf("reconciled kimi/output-style-gentleman.md lost legacy line %q", line)
 			}

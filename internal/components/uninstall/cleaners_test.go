@@ -475,3 +475,34 @@ func TestJSONCleanup_OnRealFileWithTempDir(t *testing.T) {
 		t.Fatalf("custom server should remain in file JSON: %#v", mcpServers)
 	}
 }
+
+func TestRemoveManagedPersonaPreamble_RecognizesOrdoAndLegacyMarkers(t *testing.T) {
+	for _, marker := range []string{"name: Ordo Persona", "name: Gentle AI Persona"} {
+		t.Run(marker, func(t *testing.T) {
+			input := strings.Join([]string{
+				"---",
+				marker,
+				"description: Teaching-oriented persona with SDD orchestration and Engram protocol",
+				"applyTo: \"**\"",
+				"---",
+				"",
+				"Persona body without the legacy fingerprints.",
+				"",
+				"<!-- gentle-ai:sdd-orchestrator -->",
+				"SDD stays.",
+				"<!-- /gentle-ai:sdd-orchestrator -->",
+			}, "\n") + "\n"
+
+			updated, changed := removeManagedPersonaPreamble(input)
+			if !changed {
+				t.Fatalf("removeManagedPersonaPreamble() changed = false for marker %q", marker)
+			}
+			if strings.Contains(updated, marker) {
+				t.Fatalf("managed persona preamble still present:\n%s", updated)
+			}
+			if !strings.HasPrefix(updated, "<!-- gentle-ai:sdd-orchestrator -->") {
+				t.Fatalf("managed suffix was not preserved at file start:\n%s", updated)
+			}
+		})
+	}
+}

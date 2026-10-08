@@ -300,7 +300,7 @@ func TestNeutralOutputStyleAssetsProvideMeaningfulContract(t *testing.T) {
 					t.Fatalf("%s missing output-style contract %q", path, required)
 				}
 			}
-			for _, banned := range []string{"Rioplatense", "voseo", "Gentleman Output Style"} {
+			for _, banned := range []string{"Rioplatense", "voseo", "Mentor Output Style", "Gentleman Output Style"} {
 				if strings.Contains(content, banned) {
 					t.Fatalf("%s contains banned neutral output-style wording %q", path, banned)
 				}
