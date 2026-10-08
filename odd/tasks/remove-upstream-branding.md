@@ -54,9 +54,9 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
 
 ## Tasks
 
-- [ ] T1 — Slice 1: binary output. Route: delegated direct (writer trigger: 2+ non-trivial files across ~25 files).
+- [x] T1 — Slice 1: binary output. Route: delegated direct (writer trigger: 2+ non-trivial files across ~25 files).
   - [x] T1a — CLI/TUI/update/install message strings and help footer (commit `2ee3e987`).
-  - [ ] T1b — Remove brand `attribution` (field, YAML, `Headline`, `ordo brand` show) and rename the telemetry notice. Blocked: needs edit surfaces `internal/brandcmd/brandcmd.go`, `internal/brandcmd/brandcmd_test.go`, `internal/tui/styles/styles_test.go`, `docs/telemetry.md`.
+  - [x] T1b — Remove brand `attribution` (field, YAML, `Headline`, `ordo brand` show) and rename the telemetry notice (commit `815c1556`). The user approved the extra surfaces `internal/brandcmd/*`, `internal/tui/styles/styles_test.go` and `docs/telemetry.md` (notice block only).
 - [ ] T2 — Slice 2: agent-facing assets.
 - [ ] T3 — Slice 3: README, meta, assets, themes.
 - [ ] T4 — Slice 4: docs.
@@ -87,6 +87,11 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
   - Kept: GGA, Engram, Homebrew tap URLs and refs; `gentle-logo` plugin ID; `gentle-ai-bench` skill ID; `--persona gentleman` notice (IDs only).
   - Checks: `go build ./... && go vet ./...` pass; `go test` passes for all packages (`internal/cli` needs `-timeout 60m`, ~1280s); `gofmtcheck` pass; deadcode ratchet: no new unreachable functions. No refusal-baseline or golden changes.
 
+- T1b done (`815c1556`, 9 files, +28/−26).
+  - `Headline` is now `"<name> <version>[ — <tagline>]"`; `ordo --help` starts with `Ordo dev`; `ordo brand show` no longer lists an attribution; a legacy `attribution:` key in a user override is ignored, and a test covers this.
+  - `NoticeLine` now starts with "Ordo sends…"; only the matching block in `docs/telemetry.md` changed.
+  - Checks: `go build ./... && go vet ./...` pass; `go test ./internal/brand/... ./internal/brandcmd/... ./internal/tui/... ./internal/telemetry/... ./internal/app/... -count=1` all ok; `gofmtcheck` pass; deadcode ratchet: no new unreachable functions.
+
 ## Next Step
 
-- T1b after the extra edit surfaces are approved.
+- T2 (Slice 2: agent-facing assets).
