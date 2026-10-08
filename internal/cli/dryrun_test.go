@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/planner"
 )
@@ -30,5 +31,21 @@ func TestRenderDryRunIncludesPlatformDecision(t *testing.T) {
 	want := "Platform decision: os=linux distro=ubuntu package-manager=apt status=supported"
 	if !strings.Contains(output, want) {
 		t.Fatalf("RenderDryRun() missing platform decision\noutput=%s", output)
+	}
+}
+
+func TestRenderDryRunHeaderFollowsBrand(t *testing.T) {
+	t.Cleanup(func() { brand.Set(brand.Default()) })
+
+	brand.Set(brand.Default())
+	if output := RenderDryRun(InstallResult{}); !strings.HasPrefix(output, "Ordo dry-run\n============\n") {
+		t.Fatalf("RenderDryRun() header = %q, want the Ordo dry-run title underlined", strings.SplitN(output, "\n", 3)[:2])
+	}
+
+	b := brand.Default()
+	b.Name = "Acme"
+	brand.Set(b)
+	if output := RenderDryRun(InstallResult{}); !strings.HasPrefix(output, "Acme dry-run\n============\n") {
+		t.Fatalf("RenderDryRun() header = %q, want the Acme dry-run title underlined", strings.SplitN(output, "\n", 3)[:2])
 	}
 }

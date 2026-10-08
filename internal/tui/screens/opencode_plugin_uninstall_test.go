@@ -191,3 +191,9 @@ func TestRenderOpenCodePluginUninstallResultEmptyState(t *testing.T) {
 		t.Fatalf("empty-state result must not show a success checkmark; output:\n%s", out)
 	}
 }
+
+func TestPluginDisplayNameUsesSharedLogoLabel(t *testing.T) {
+	if got, want := pluginDisplayName(model.OpenCodePluginGentleLogo), opencodeplugin.LogoPluginLabel(); got != want {
+		t.Fatalf("pluginDisplayName(gentle-logo) = %q, want the shared label %q", got, want)
+	}
+}
