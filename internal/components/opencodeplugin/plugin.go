@@ -111,9 +111,11 @@ const plugin = { id: "gentle-logo", tui }
 export default plugin
 `
 
-// logoPluginLabel names the OpenCode home logo plugin in user-facing
-// messages after the active brand; the plugin ID stays "gentle-logo".
-func logoPluginLabel() string {
+// LogoPluginLabel names the OpenCode home logo plugin in user-facing
+// messages after the active brand; the plugin ID stays "gentle-logo". It is
+// the single label shared by install errors, the CLI uninstall prompt, and
+// the TUI uninstall screen.
+func LogoPluginLabel() string {
 	return brand.Current().Name + " logo TUI plugin"
 }
 
@@ -225,7 +227,7 @@ func installGentleLogo(homeDir string) (Result, error) {
 
 	prior, err := capturePriorFile(pluginPath)
 	if err != nil {
-		return Result{}, fmt.Errorf("capture prior %s state: %w", logoPluginLabel(), err)
+		return Result{}, fmt.Errorf("capture prior %s state: %w", LogoPluginLabel(), err)
 	}
 	tuiPrior, err := capturePriorFile(tuiPath)
 	if err != nil {
@@ -240,11 +242,11 @@ func installGentleLogo(homeDir string) (Result, error) {
 		restoreErr := prior.restore(pluginPath)
 		if restoreErr != nil {
 			return Result{}, errors.Join(
-				fmt.Errorf("write %s: %w", logoPluginLabel(), err),
-				fmt.Errorf("roll back %s, the previous state could not be restored: %w", logoPluginLabel(), restoreErr),
+				fmt.Errorf("write %s: %w", LogoPluginLabel(), err),
+				fmt.Errorf("roll back %s, the previous state could not be restored: %w", LogoPluginLabel(), restoreErr),
 			)
 		}
-		return Result{}, fmt.Errorf("write %s: %w", logoPluginLabel(), err)
+		return Result{}, fmt.Errorf("write %s: %w", LogoPluginLabel(), err)
 	}
 	tuiChanged, err := ensureTUIPluginFn(tuiPath, pluginPath)
 	if err != nil {
@@ -254,16 +256,16 @@ func installGentleLogo(homeDir string) (Result, error) {
 		restoreErr := prior.restore(pluginPath)
 		tuiRestoreErr := tuiPrior.restore(tuiPath)
 		if restoreErr != nil || tuiRestoreErr != nil {
-			joined := []error{fmt.Errorf("register %s: %w", logoPluginLabel(), err)}
+			joined := []error{fmt.Errorf("register %s: %w", LogoPluginLabel(), err)}
 			if restoreErr != nil {
-				joined = append(joined, fmt.Errorf("roll back %s, the previous state could not be restored: %w", logoPluginLabel(), restoreErr))
+				joined = append(joined, fmt.Errorf("roll back %s, the previous state could not be restored: %w", LogoPluginLabel(), restoreErr))
 			}
 			if tuiRestoreErr != nil {
 				joined = append(joined, fmt.Errorf("roll back OpenCode TUI config, the previous state could not be restored: %w", tuiRestoreErr))
 			}
 			return Result{}, errors.Join(joined...)
 		}
-		return Result{}, fmt.Errorf("register %s: %w", logoPluginLabel(), err)
+		return Result{}, fmt.Errorf("register %s: %w", LogoPluginLabel(), err)
 	}
 
 	return Result{

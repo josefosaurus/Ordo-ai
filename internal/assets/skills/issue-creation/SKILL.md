@@ -3,7 +3,7 @@ name: issue-creation
 description: "Trigger: issue creation, bug reports, feature requests, or issue approval. Create and triage GitHub issues from repository evidence."
 license: Apache-2.0
 metadata:
-  author: gentleman-programming
+  author: ordo
   version: "1.4"
 ---
 

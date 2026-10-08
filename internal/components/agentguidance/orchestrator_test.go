@@ -132,7 +132,7 @@ func TestInjectRoutingInstallsOrchestratorForEveryRuntime(t *testing.T) {
 				wantReview = 1
 			}
 			for _, heading := range []string{
-				"Gentle AI Provider Defect Handoff",
+				"Ordo Provider Defect Handoff",
 				"Receipt-driven development is user-owned",
 				"Native Compact Review Orchestration",
 			} {

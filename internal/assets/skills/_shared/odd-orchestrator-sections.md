@@ -69,7 +69,7 @@ Keep synthesis short by default: decision, outcome, next action. Expand only whe
 
 ### Mental Model
 
-Gentle AI is an ecosystem configurator and harness layer. After installation, the user should not memorize workflows or manually wire agents. The harness should get out of the way:
+Ordo is an ecosystem configurator and harness layer. After installation, the user should not memorize workflows or manually wire agents. The harness should get out of the way:
 
 - Small request: do it directly.
 - Substantial authorized work: use ODD; track feature progress automatically.
