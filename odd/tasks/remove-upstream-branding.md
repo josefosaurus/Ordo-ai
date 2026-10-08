@@ -57,7 +57,10 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
 - [x] T1 — Slice 1: binary output. Route: delegated direct (writer trigger: 2+ non-trivial files across ~25 files).
   - [x] T1a — CLI/TUI/update/install message strings and help footer (commit `2ee3e987`).
   - [x] T1b — Remove brand `attribution` (field, YAML, `Headline`, `ordo brand` show) and rename the telemetry notice (commit `815c1556`). The user approved the extra surfaces `internal/brandcmd/*`, `internal/tui/styles/styles_test.go` and `docs/telemetry.md` (notice block only).
-- [ ] T2 — Slice 2: agent-facing assets.
+- [x] T2 — Slice 2: agent-facing assets. Route: delegated direct (writer trigger: 2+ non-trivial files across ~60 files).
+  - [x] T2a — Show the `gentleman` persona as "Mentor" (picker label, output style `name: Mentor`, legacy `outputStyle: "Gentleman"` migration and cleanup) and write the `name: Ordo Persona` marker while still recognizing `name: Gentle AI Persona`. Commit `0c754778`, with the 5 persona/combined goldens (user approved `testdata/golden/` as an extra surface).
+  - [x] T2b — Replace the upstream brand in agent-facing assets (orchestrator defect handoff now targets `josefosaurus/Ordo-ai`, Hermes identity, OpenCode agent prompts, skill `author:` frontmatter, contract-safe review prose). Commit `e9aaadfc`, with the 8 skills goldens.
+  - [x] T2c — Share the logo plugin label from `opencodeplugin.LogoPluginLabel()` and assert the dry-run header (commit `7ff9ccb2`).
 - [ ] T3 — Slice 3: README, meta, assets, themes.
 - [ ] T4 — Slice 4: docs.
 - [ ] T5 — Optional: code comments.
@@ -92,6 +95,14 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
   - `NoticeLine` now starts with "Ordo sends…"; only the matching block in `docs/telemetry.md` changed.
   - Checks: `go build ./... && go vet ./...` pass; `go test ./internal/brand/... ./internal/brandcmd/... ./internal/tui/... ./internal/telemetry/... ./internal/app/... -count=1` all ok; `gofmtcheck` pass; deadcode ratchet: no new unreachable functions.
 
+- T2 done (`7ff9ccb2`, `0c754778`, `e9aaadfc`).
+  - RED observed before implementation: `PersonaLabel` / `removeManagedOutputStyleSetting` / `LogoPluginLabel` undefined (build failures); with a stub keeping the old behavior, `TestInjectClaudeGentlemanSelectsMentorOutputStyle`, `TestInjectMigratesLegacyGentlemanOutputStyleToMentor/{install,sync}` ("outputStyle = Gentleman, want Mentor"), `TestRemoveManagedOutputStyleSetting/current_Mentor`, `TestInjectVSCodeWritesOrdoPersonaMarker`, `TestInjectVSCodeReplacesLegacyPersonaMarker` and `TestRemoveManagedPersonaPreamble_RecognizesOrdoAndLegacyMarkers/name:_Ordo_Persona` failed. The dry-run header test passed immediately (Slice 1 already implemented it).
+  - Kept unchanged because a released or frozen contract pins them: `LensResultSchema`, `RefuterResultSchema`, `TargetedValidatorResultSchema` titles and `bundleREADME` (shipped in the provider contract bundle at `CONTRACT_SEMVER` 1.2.0, whose manifest binds each file's sha256); the capture-result dry-run schema title (byte-equal mirror of `contracts/review-integration/v2/schemas/capture-result-dry-run.schema.json`).
+  - Kept unchanged because `TestPublicBundledSkillsMatchEmbeddedAssets` / `TestRDDDefectWorkflowSkillContract` require byte parity with repo-root `skills/` (Slice 3): `systemic-issue-triage`, `gentle-ai-bench`, `rdd-defect-workflow` embedded skills.
+  - Goldens: 13 files under `testdata/golden/` regenerated with `go test ./internal/components/ -update` (14 lines each way: skill `author:`, Mentor output style, persona style line).
+  - Checks: `go build ./... && go vet ./...` pass; non-cli `go test` pass; `internal/cli` pass (1297s); `gofmtcheck` pass; deadcode ratchet: no new unreachable functions. No refusal-baseline changes.
+  - Kept as technical IDs: persona ID `gentleman`, `output-style-gentleman.md` / `gentleman.md` file names, Kimi agent `name: gentleman`, OpenCode `agent.gentleman`, TS identifiers and relay registry keys in the OpenCode review transport plugins, `gentle-ai.*` schema IDs.
+
 ## Next Step
 
-- T2 (Slice 2: agent-facing assets).
+- T3 (Slice 3: README, meta, assets, themes). Slice 3 must also update the three parity-pinned embedded skills together with repo-root `skills/`.
