@@ -78,6 +78,5 @@ FLAGS
   --help, -h    Show global help; every review subcommand also supports help
 
 Run '%[3]s help' for this message.
-Based on Gentle AI: https://github.com/Gentleman-Programming/gentle-ai
 `, b.Headline(version), b.Name, brand.Command)
 }

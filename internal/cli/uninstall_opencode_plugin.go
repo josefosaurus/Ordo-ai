@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/opencodeplugin"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 )
@@ -226,7 +227,7 @@ func pluginDisplayName(id model.OpenCodeCommunityPluginID) string {
 	}
 	switch id {
 	case model.OpenCodePluginGentleLogo:
-		return "Gentle Logo"
+		return brand.Current().Name + " logo"
 	}
 	return string(id)
 }

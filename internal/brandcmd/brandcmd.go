@@ -75,7 +75,6 @@ func show(homeDir string, stdout io.Writer) error {
 	_, _ = fmt.Fprintln(stdout)
 	_, _ = fmt.Fprintf(stdout, "name         %s\n", b.Name)
 	_, _ = fmt.Fprintf(stdout, "tagline      %s\n", b.Tagline)
-	_, _ = fmt.Fprintf(stdout, "attribution  %s (not editable)\n", b.Attribution)
 	_, _ = fmt.Fprintln(stdout, "colors")
 	for _, role := range colorRoles {
 		c := *colorField(&b.Palette, role)

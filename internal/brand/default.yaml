@@ -1,8 +1,7 @@
-# Ordo default brand. Users override any field (except attribution) in
+# Ordo default brand. Users override any field in
 # ~/.gentle-ai/brand.yaml; see `ordo brand --help`.
 name: Ordo
 tagline: ""
-attribution: based on Gentle AI
 logo:
   - " ██████╗ ██████╗ ██████╗  ██████╗"
   - "██╔═══██╗██╔══██╗██╔══██╗██╔═══██╗"

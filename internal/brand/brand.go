@@ -2,7 +2,7 @@
 // display name, tagline, logo, and color palette.
 //
 // The compiled-in defaults (default.yaml) are the Ordo brand. Each user may
-// override any field except the attribution in ~/.gentle-ai/brand.yaml.
+// override any field in ~/.gentle-ai/brand.yaml.
 // Invalid override fields fall back to the default with a warning; a broken
 // override never blocks the CLI.
 package brand
@@ -71,15 +71,13 @@ type Palette struct {
 
 // Brand is the resolved identity.
 type Brand struct {
-	Name        string   `yaml:"name"`
-	Tagline     string   `yaml:"tagline"`
-	Attribution string   `yaml:"attribution"`
-	Logo        []string `yaml:"logo"`
-	Palette     Palette  `yaml:"palette"`
+	Name    string   `yaml:"name"`
+	Tagline string   `yaml:"tagline"`
+	Logo    []string `yaml:"logo"`
+	Palette Palette  `yaml:"palette"`
 }
 
-// Override is what a user may set. Empty fields keep the default. There is
-// deliberately no attribution field.
+// Override is what a user may set. Empty fields keep the default.
 type Override struct {
 	Name    string   `yaml:"name,omitempty"`
 	Tagline string   `yaml:"tagline,omitempty"`
@@ -87,7 +85,7 @@ type Override struct {
 	Palette Palette  `yaml:"palette,omitempty"`
 }
 
-// Headline renders "<name> <version>[ — <tagline>] · <attribution>".
+// Headline renders "<name> <version>[ — <tagline>]".
 func (b Brand) Headline(version string) string {
 	line := b.Name
 	if version != "" {
@@ -96,7 +94,7 @@ func (b Brand) Headline(version string) string {
 	if b.Tagline != "" {
 		line += " — " + b.Tagline
 	}
-	return line + " · " + b.Attribution
+	return line
 }
 
 var defaultBrand = mustParseDefault()

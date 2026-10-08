@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/versions"
@@ -136,7 +137,7 @@ func ValidateAgentInstallPreflight(profile system.PlatformProfile, agent model.A
 
 func validatePiInstallPreflight() error {
 	if _, err := cmdLookPath("pi"); err != nil {
-		return fmt.Errorf("Pi requires the `pi` executable in PATH before installing Gentle AI Pi packages")
+		return fmt.Errorf("Pi requires the `pi` executable in PATH before installing %s Pi packages", brand.Current().Name)
 	}
 
 	return nil

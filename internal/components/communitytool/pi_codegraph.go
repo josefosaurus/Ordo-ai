@@ -18,6 +18,7 @@ import (
 	"time"
 
 	piagent "github.com/gentleman-programming/gentle-ai/v4/internal/agents/pi"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 )
@@ -314,7 +315,7 @@ func reconcilePiMCP(path string, journal *piJournal, changed map[string]struct{}
 	}
 	desired := map[string]any{"command": "codegraph", "args": []any{"serve", "--mcp"}}
 	if entry, found := servers["codegraph"]; found && !equivalentPiMCP(entry) {
-		return existing, fmt.Errorf("misconfigured Pi CodeGraph MCP entry at %q; Gentle AI will not overwrite it", path)
+		return existing, fmt.Errorf("misconfigured Pi CodeGraph MCP entry at %q; %s will not overwrite it", path, brand.Current().Name)
 	}
 	if entry, found := servers["codegraph"]; found && equivalentPiMCP(entry) {
 		return existing, nil
@@ -665,7 +666,7 @@ func inspectPiCodeGraph(homeDir, workspaceDir string) (bool, string, []PiCodeGra
 	}
 	if len(children) == 0 {
 		if _, err := os.Stat(paths.Manifest); err != nil {
-			return false, "no effective Pi children were discovered and no Gentle-AI ownership record exists", nil
+			return false, "no effective Pi children were discovered and no " + brand.Current().Name + " ownership record exists", nil
 		}
 		if err := verifyPiCodeGraph(paths.MCPConfig, nil); err != nil {
 			return false, err.Error(), nil

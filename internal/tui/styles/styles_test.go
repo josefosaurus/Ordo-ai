@@ -38,7 +38,7 @@ func TestRenderLogoAndTaglineFollowBrand(t *testing.T) {
 	if got := RenderLogo(); !strings.Contains(got, "ACME-LOGO") {
 		t.Fatalf("RenderLogo() = %q, want custom logo", got)
 	}
-	if got := Tagline("v1"); got != "Acme v1 · based on Gentle AI" {
+	if got := Tagline("v1"); got != "Acme v1" {
 		t.Fatalf("Tagline() = %q", got)
 	}
 }

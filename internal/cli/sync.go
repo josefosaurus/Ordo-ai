@@ -20,6 +20,7 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
 	opencodeagent "github.com/gentleman-programming/gentle-ai/v4/internal/agents/opencode"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/backup"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/agentguidance"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/communitytool"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/engram"
@@ -1601,7 +1602,7 @@ func (s componentSyncStep) Run() error {
 		}
 		res, err := opencodeplugin.Install(s.homeDir, model.OpenCodePluginGentleLogo)
 		if err != nil {
-			return fmt.Errorf("sync OpenCode Gentle Logo plugin: %w", err)
+			return fmt.Errorf("sync OpenCode %s logo plugin: %w", brand.Current().Name, err)
 		}
 		s.countChanged(boolToInt(res.Changed), res.Files...)
 		return nil
