@@ -478,13 +478,13 @@ test_cc_persona_gentleman() {
         assert_file_size_min "$HOME/.claude/CLAUDE.md" 200 "Persona section is substantial"
         # Output-style file — canonical tone channel
         assert_file_exists "$HOME/.claude/output-styles/gentleman.md" "Output-style file exists"
-        assert_file_contains "$HOME/.claude/output-styles/gentleman.md" "name: Gentleman" "Output-style has YAML frontmatter"
+        assert_file_contains "$HOME/.claude/output-styles/gentleman.md" "name: Mentor" "Output-style has YAML frontmatter"
         assert_file_contains "$HOME/.claude/output-styles/gentleman.md" "keep-coding-instructions: true" "Output-style keeps coding instructions"
         assert_file_contains "$HOME/.claude/output-styles/gentleman.md" "Senior Architect" "Output-style carries the Gentleman tone content"
         # settings.json outputStyle key
         assert_file_exists "$HOME/.claude/settings.json" "settings.json exists"
         assert_file_contains "$HOME/.claude/settings.json" "outputStyle" "settings.json has outputStyle key"
-        assert_file_contains "$HOME/.claude/settings.json" "Gentleman" "settings.json outputStyle is Gentleman"
+        assert_file_contains "$HOME/.claude/settings.json" "Mentor" "settings.json outputStyle is Mentor"
     else
         log_fail "persona (gentleman) install command failed"
     fi
