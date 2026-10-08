@@ -111,6 +111,12 @@ const plugin = { id: "gentle-logo", tui }
 export default plugin
 `
 
+// logoPluginLabel names the OpenCode home logo plugin in user-facing
+// messages after the active brand; the plugin ID stays "gentle-logo".
+func logoPluginLabel() string {
+	return brand.Current().Name + " logo TUI plugin"
+}
+
 // gentleLogoPluginSource renders the OpenCode home logo plugin from the
 // active brand, so the logo and fallback name match the user's brand.
 func gentleLogoPluginSource() string {
@@ -219,7 +225,7 @@ func installGentleLogo(homeDir string) (Result, error) {
 
 	prior, err := capturePriorFile(pluginPath)
 	if err != nil {
-		return Result{}, fmt.Errorf("capture prior Gentle Logo TUI plugin state: %w", err)
+		return Result{}, fmt.Errorf("capture prior %s state: %w", logoPluginLabel(), err)
 	}
 	tuiPrior, err := capturePriorFile(tuiPath)
 	if err != nil {
@@ -234,11 +240,11 @@ func installGentleLogo(homeDir string) (Result, error) {
 		restoreErr := prior.restore(pluginPath)
 		if restoreErr != nil {
 			return Result{}, errors.Join(
-				fmt.Errorf("write Gentle Logo TUI plugin: %w", err),
-				fmt.Errorf("roll back Gentle Logo TUI plugin, the previous state could not be restored: %w", restoreErr),
+				fmt.Errorf("write %s: %w", logoPluginLabel(), err),
+				fmt.Errorf("roll back %s, the previous state could not be restored: %w", logoPluginLabel(), restoreErr),
 			)
 		}
-		return Result{}, fmt.Errorf("write Gentle Logo TUI plugin: %w", err)
+		return Result{}, fmt.Errorf("write %s: %w", logoPluginLabel(), err)
 	}
 	tuiChanged, err := ensureTUIPluginFn(tuiPath, pluginPath)
 	if err != nil {
@@ -248,16 +254,16 @@ func installGentleLogo(homeDir string) (Result, error) {
 		restoreErr := prior.restore(pluginPath)
 		tuiRestoreErr := tuiPrior.restore(tuiPath)
 		if restoreErr != nil || tuiRestoreErr != nil {
-			joined := []error{fmt.Errorf("register Gentle Logo TUI plugin: %w", err)}
+			joined := []error{fmt.Errorf("register %s: %w", logoPluginLabel(), err)}
 			if restoreErr != nil {
-				joined = append(joined, fmt.Errorf("roll back Gentle Logo TUI plugin, the previous state could not be restored: %w", restoreErr))
+				joined = append(joined, fmt.Errorf("roll back %s, the previous state could not be restored: %w", logoPluginLabel(), restoreErr))
 			}
 			if tuiRestoreErr != nil {
 				joined = append(joined, fmt.Errorf("roll back OpenCode TUI config, the previous state could not be restored: %w", tuiRestoreErr))
 			}
 			return Result{}, errors.Join(joined...)
 		}
-		return Result{}, fmt.Errorf("register Gentle Logo TUI plugin: %w", err)
+		return Result{}, fmt.Errorf("register %s: %w", logoPluginLabel(), err)
 	}
 
 	return Result{

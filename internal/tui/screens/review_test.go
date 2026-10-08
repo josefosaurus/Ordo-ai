@@ -131,7 +131,7 @@ func TestRenderReviewShowsConductorNote(t *testing.T) {
 	payload := planner.ReviewPayload{
 		Agents: []model.AgentID{model.AgentConductor},
 		AgentNotes: []planner.AgentNote{
-			{Agent: model.AgentConductor, Note: "Conductor workspaces inherit Claude Code configuration; Gentle AI writes no Conductor-specific files."},
+			{Agent: model.AgentConductor, Note: "Conductor workspaces inherit Claude Code configuration; Ordo writes no Conductor-specific files."},
 		},
 	}
 

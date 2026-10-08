@@ -1323,7 +1323,7 @@ func TestUpdateHint(t *testing.T) {
 			name:    "ordo linux",
 			tool:    ToolInfo{Name: "gentle-ai"},
 			profile: system.PlatformProfile{OS: "linux", PackageManager: "apt"},
-			want:    "curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash",
+			want:    "curl -fsSL https://raw.githubusercontent.com/josefosaurus/Ordo-ai/main/scripts/install.sh | bash",
 		},
 		{
 			name:    "ordo windows",

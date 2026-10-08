@@ -2823,7 +2823,7 @@ func (s componentApplyStep) Run() error {
 			return nil
 		}
 		if _, err := opencodeplugin.Install(s.homeDir, model.OpenCodePluginGentleLogo); err != nil {
-			return fmt.Errorf("install OpenCode Gentle Logo plugin: %w", err)
+			return fmt.Errorf("install OpenCode %s logo plugin: %w", brand.Current().Name, err)
 		}
 		return nil
 	default:

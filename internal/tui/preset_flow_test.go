@@ -268,11 +268,11 @@ Toggle components with enter or space.
   [ ] permissions
     Security-first defaults and guardrails
   [ ] gga
-    Gentleman Guardian Angel — AI provider switcher
+    Guardian Angel — AI provider switcher
   [ ] theme
     Visual polish: OpenCode color theme
   [ ] claude-theme
-    Visual polish: Gentleman and Gentleman Cute theme assets
+    Visual polish: theme assets
   [ ] opencode-gentle-logo
     Visual polish: OpenCode home logo plugin
 
@@ -321,7 +321,7 @@ Review Skills
 
 Foundation Skills
   [x] Go Testing
-  [x] Gentle AI Bench
+  [x] Benchmark Harness
   [x] Skill Creator
   [x] Skill Improver
   [x] Branch & PR

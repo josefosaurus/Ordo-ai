@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/capabilitymanifest"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
 )
@@ -172,5 +173,5 @@ type AgentNotInstallableError struct {
 }
 
 func (e AgentNotInstallableError) Error() string {
-	return fmt.Sprintf("agent %q must be installed manually before Gentle AI can configure it", e.Agent)
+	return fmt.Sprintf("agent %q must be installed manually before %s can configure it", e.Agent, brand.Current().Name)
 }

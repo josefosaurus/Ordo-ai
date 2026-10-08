@@ -111,8 +111,8 @@ func runStrategy(ctx context.Context, r update.UpdateResult, profile system.Plat
 		return false, err
 	default:
 		return false, &ManualFallbackError{
-			Hint: fmt.Sprintf("upgrade %q: unsupported install method %q — please update manually. See: https://github.com/Gentleman-Programming/%s",
-				r.Tool.Name, method, r.Tool.Repo),
+			Hint: fmt.Sprintf("upgrade %q: unsupported install method %q — please update manually. See: https://github.com/%s/%s",
+				r.Tool.Name, method, r.Tool.Owner, r.Tool.Repo),
 		}
 	}
 }
@@ -521,7 +521,7 @@ func homebrewFailureAdvice(toolName string, output string, detected ...update.Ho
 			flag = "--formula"
 			artifact = "formula"
 		}
-		return fmt.Sprintf("Homebrew requires explicit trust for external taps. Trust only this Gentle AI %s, then retry:\n  brew trust %s %s\n  brew upgrade %s %s", artifact, flag, ref, flag, toolName)
+		return fmt.Sprintf("Homebrew requires explicit trust for external taps. Trust only this %s, then retry:\n  brew trust %s %s\n  brew upgrade %s %s", artifact, flag, ref, flag, toolName)
 	}
 
 	if strings.Contains(lower, "bubblewrap is installed but cannot create a rootless sandbox") ||
@@ -750,7 +750,7 @@ func binaryUpgrade(ctx context.Context, r update.UpdateResult, profile system.Pl
 		// with an actionable hint — NOT as UpgradeFailed.
 		hint := r.UpdateHint
 		if hint == "" {
-			hint = fmt.Sprintf("Download manually from https://github.com/Gentleman-Programming/%s/releases", r.Tool.Repo)
+			hint = fmt.Sprintf("Download manually from https://github.com/%s/%s/releases", r.Tool.Owner, r.Tool.Repo)
 		}
 		return &ManualFallbackError{
 			Hint: fmt.Sprintf("upgrade %q on Windows requires manual update: %s", r.Tool.Name, hint),

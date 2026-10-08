@@ -263,7 +263,7 @@ func TestPromptUninstallOpenCodePluginConfirmGentleLogoBranch(t *testing.T) {
 	}
 	out := stdout.String()
 	wantSubstrings := []string{
-		"Gentle Logo",
+		"Ordo logo",
 		"Layer 1: removes entry from ~/.config/opencode/tui.json",
 		"Plus: removes the local .tsx file ~/.config/opencode/tui-plugins/gentle-logo.tsx",
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/planner"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/system"
@@ -12,8 +13,9 @@ import (
 func RenderDryRun(result InstallResult) string {
 	b := &strings.Builder{}
 
-	_, _ = fmt.Fprintln(b, "AI Gentle Stack dry-run")
-	_, _ = fmt.Fprintln(b, "=====================")
+	title := brand.Current().Name + " dry-run"
+	_, _ = fmt.Fprintln(b, title)
+	_, _ = fmt.Fprintln(b, strings.Repeat("=", len([]rune(title))))
 	_, _ = fmt.Fprintf(b, "Agents: %s\n", joinAgentIDs(result.Resolved.Agents))
 	_, _ = fmt.Fprintf(b, "Unsupported agents: %s\n", joinAgentIDs(result.Resolved.UnsupportedAgents))
 	_, _ = fmt.Fprintf(b, "Persona: %s\n", result.Selection.Persona)

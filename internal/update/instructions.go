@@ -102,7 +102,7 @@ func gentleAIHint(profile system.PlatformProfile) string {
 
 	switch profile.OS {
 	case "linux":
-		return "curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash"
+		return "curl -fsSL https://raw.githubusercontent.com/" + brand.ReleaseOwner + "/" + brand.ReleaseRepo + "/main/scripts/install.sh | bash"
 	case "darwin":
 		return "ordo upgrade (downloads pre-built binary)"
 	case "windows":
