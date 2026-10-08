@@ -20,8 +20,8 @@ func writeOverrideFile(t *testing.T, home, content string) {
 
 func TestDefaultIsOrdo(t *testing.T) {
 	d := Default()
-	if d.Name != "Ordo" || d.Attribution != "based on Gentle AI" {
-		t.Fatalf("Default() = %q / %q", d.Name, d.Attribution)
+	if d.Name != "Ordo" {
+		t.Fatalf("Default().Name = %q", d.Name)
 	}
 	if len(d.Logo) == 0 || len(d.Palette.LogoGradient) == 0 {
 		t.Fatal("default logo and gradient must be set")
@@ -107,12 +107,15 @@ func TestMergeAcceptsTwentyFourLineLogo(t *testing.T) {
 	}
 }
 
-func TestOverrideCannotChangeAttribution(t *testing.T) {
+func TestLegacyAttributionOverrideIsIgnored(t *testing.T) {
 	home := t.TempDir()
 	writeOverrideFile(t, home, "name: Acme\nattribution: nobody\n")
-	b, _ := Load(home)
-	if b.Attribution != Default().Attribution {
-		t.Fatalf("attribution = %q, want %q", b.Attribution, Default().Attribution)
+	b, warnings := Load(home)
+	if len(warnings) != 0 {
+		t.Fatalf("warnings = %v, want none", warnings)
+	}
+	if got := b.Headline("v1"); got != "Acme v1" {
+		t.Fatalf("Headline() = %q, want %q", got, "Acme v1")
 	}
 }
 
@@ -152,11 +155,11 @@ func TestWriteOverrideRejectsInvalid(t *testing.T) {
 
 func TestHeadline(t *testing.T) {
 	b := Default()
-	if got := b.Headline("v1.2.3"); got != "Ordo v1.2.3 · based on Gentle AI" {
+	if got := b.Headline("v1.2.3"); got != "Ordo v1.2.3" {
 		t.Fatalf("Headline() = %q", got)
 	}
 	b.Tagline = "Build calmly"
-	if got := b.Headline(""); got != "Ordo — Build calmly · based on Gentle AI" {
+	if got := b.Headline(""); got != "Ordo — Build calmly" {
 		t.Fatalf("Headline() = %q", got)
 	}
 }

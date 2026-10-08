@@ -50,10 +50,13 @@ func TestSetShowReset(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"ACME", "name         Acme", "#ff0000", "based on Gentle AI (not editable)", brand.OverridePath(home)} {
+	for _, want := range []string{"ACME", "name         Acme", "#ff0000", brand.OverridePath(home)} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("show output missing %q:\n%s", want, out)
 		}
+	}
+	if strings.Contains(out, "attribution") {
+		t.Fatalf("show output must not list an attribution:\n%s", out)
 	}
 
 	if _, err := run(t, home, "reset", "name"); err != nil {
