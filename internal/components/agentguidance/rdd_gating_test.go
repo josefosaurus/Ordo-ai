@@ -11,7 +11,7 @@ import (
 // rddOnlyHeadings are the sections receipt-driven development owns. They reach
 // the prompt of an RDD runtime exactly once and never any other runtime.
 var rddOnlyHeadings = []string{
-	"Gentle AI Provider Defect Handoff",
+	"Ordo Provider Defect Handoff",
 	"Native Compact Review Orchestration",
 	"Receipt-driven development is user-owned",
 }

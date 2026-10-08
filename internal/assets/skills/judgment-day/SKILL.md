@@ -3,7 +3,7 @@ name: judgment-day
 description: "Trigger: judgment day, dual review, adversarial review, juzgar. Run explicit blind dual review with at most two scoped fix/re-judgment rounds."
 license: Apache-2.0
 metadata:
-  author: gentleman-programming
+  author: ordo
   version: "1.7"
 ---
 

@@ -32,7 +32,7 @@ const (
 	runtimeAgentIDPlaceholder       = "{{GENTLE_AI_RUNTIME_AGENT_ID}}"
 	reviewExecutionHeading          = "#### Review Execution Contract"
 	reviewExecutionNextHeading      = "Cost and Context Balance"
-	providerDefectHandoffHeading    = "#### Gentle AI Provider Defect Handoff (MANDATORY)"
+	providerDefectHandoffHeading    = "#### Ordo Provider Defect Handoff (MANDATORY)"
 	nativeCheckingHeading           = "#### Native Checking Contract"
 	nativeCheckingSection           = "Native Checking Contract"
 	// oddOnlySectionSuffix names the shared-section variant a runtime without
@@ -150,7 +150,7 @@ func orchestratorAsset(agent model.AgentID) string {
 // contract source, which takes precedence over the package-level fallback.
 func RenderOrchestratorWithSource(agent model.AgentID, source ReviewContractSource) (string, error) {
 	if agent == model.AgentPi {
-		return "", fmt.Errorf("render orchestrator for %q: the Pi prompt is owned by Gentle Shell", agent)
+		return "", fmt.Errorf("render orchestrator for %q: the Pi prompt is owned by the Pi runtime package", agent)
 	}
 
 	path := orchestratorAsset(agent)

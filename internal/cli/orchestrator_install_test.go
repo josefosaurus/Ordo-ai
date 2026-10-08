@@ -107,7 +107,7 @@ func TestInstallAndSyncDeliverOrchestratorOnceForEveryRuntime(t *testing.T) {
 			rdd := model.SupportsReceiptDrivenDevelopment(agent)
 			for _, marker := range []string{
 				"Native Compact Review Orchestration",
-				"Gentle AI Provider Defect Handoff",
+				"Ordo Provider Defect Handoff",
 				"Receipt-driven development is user-owned",
 				"ordo review mode enable|disable|status",
 				"The native RDD refuter owns native review claims",
