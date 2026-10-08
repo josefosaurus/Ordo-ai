@@ -58,7 +58,7 @@ func issue4377TTYExchange(reader *bufio.Reader, writer io.WriteCloser) error {
 				if _, err := io.WriteString(writer, strings.Repeat("\x1b[B", agentCheckboxRows)+"\r"); err != nil {
 					return err
 				}
-				return waitForIssue4377TTY(reader, []string{"Choose your Persona", "gentleman"}, func() error {
+				return waitForIssue4377TTY(reader, []string{"Choose your Persona", "Mentor"}, func() error {
 					if _, err := io.WriteString(writer, "\r"); err != nil {
 						return err
 					}

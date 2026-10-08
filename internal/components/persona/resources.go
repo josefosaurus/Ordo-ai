@@ -29,10 +29,17 @@ type ResourcePlan struct {
 	retired     []string
 }
 
+// The gentleman persona's output style is displayed as "Mentor"; its file
+// name stays gentleman.md because it is a protocol identifier.
 var managedOutputStyles = []OutputStyle{
-	{Name: "Gentleman", File: "gentleman.md", AssetPath: "claude/output-style-gentleman.md"},
+	{Name: "Mentor", File: "gentleman.md", AssetPath: "claude/output-style-gentleman.md"},
 	{Name: "Neutral", File: "neutral.md", AssetPath: "claude/output-style-neutral.md"},
 }
+
+// legacyManagedOutputStyleNames are outputStyle settings values written by
+// earlier versions for a managed output style. They stay recognized as
+// managed so cleanup never leaves a value that names no installed style.
+var legacyManagedOutputStyleNames = []string{"Gentleman"}
 
 func canonicalPersona(persona model.PersonaID) model.PersonaID {
 	if persona == model.PersonaGentlemanNeutralArtifacts || persona == model.PersonaOrdo {

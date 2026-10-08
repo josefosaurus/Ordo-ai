@@ -501,7 +501,7 @@ func injectInternal(homeDir string, adapter agents.Adapter, persona model.Person
 			changed = changed || settingsResult.Changed
 			files = append(files, settingsPath)
 		} else if settingsPath != "" {
-			removed, err := removeJSONKeyIfValue(settingsPath, "outputStyle", "Gentleman")
+			removed, err := removeManagedOutputStyleSetting(settingsPath)
 			if err != nil {
 				return InjectionResult{}, fmt.Errorf("clean outputStyle from settings: %w", err)
 			}
@@ -924,7 +924,7 @@ func readFileOrEmpty(path string) (string, error) {
 
 func wrapInstructionsFile(content string) string {
 	frontmatter := "---\n" +
-		"name: Gentle AI Persona\n" +
+		"name: Ordo Persona\n" +
 		"description: Teaching-oriented persona with SDD orchestration and Engram protocol\n" +
 		"applyTo: \"**\"\n" +
 		"---\n\n"
@@ -988,6 +988,19 @@ func removeFileAtomic(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// removeManagedOutputStyleSetting removes the settings outputStyle key when it
+// names the managed gentleman output style, under its current or legacy name.
+func removeManagedOutputStyleSetting(path string) (bool, error) {
+	names := append([]string{managedOutputStyles[0].Name}, legacyManagedOutputStyleNames...)
+	for _, name := range names {
+		removed, err := removeJSONKeyIfValue(path, "outputStyle", name)
+		if err != nil || removed {
+			return removed, err
+		}
+	}
+	return false, nil
 }
 
 // removeJSONKeyIfValue reads the JSON object at path, removes the top-level key

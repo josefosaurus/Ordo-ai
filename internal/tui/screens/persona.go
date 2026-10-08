@@ -22,6 +22,20 @@ var personaDescriptions = map[model.PersonaID]string{
 	model.PersonaCustom:                    "Do not install a managed persona; choose themes/logo on the next screens",
 }
 
+// personaLabels holds display names that differ from the persona ID. The ID
+// itself is a protocol value (state.json, --persona) and stays unchanged.
+var personaLabels = map[model.PersonaID]string{
+	model.PersonaGentleman: "Mentor",
+}
+
+// PersonaLabel returns the name the persona picker shows for persona.
+func PersonaLabel(persona model.PersonaID) string {
+	if label, ok := personaLabels[persona]; ok {
+		return label
+	}
+	return string(persona)
+}
+
 func RenderPersona(selected model.PersonaID, cursor int) string {
 	var b strings.Builder
 
@@ -33,7 +47,7 @@ func RenderPersona(selected model.PersonaID, cursor int) string {
 	for idx, persona := range PersonaOptions() {
 		isSelected := persona == selected
 		focused := idx == cursor
-		b.WriteString(renderRadio(string(persona), isSelected, focused))
+		b.WriteString(renderRadio(PersonaLabel(persona), isSelected, focused))
 		b.WriteString(styles.SubtextStyle.Render("    " + personaDescriptions[persona]))
 		b.WriteString("\n")
 	}

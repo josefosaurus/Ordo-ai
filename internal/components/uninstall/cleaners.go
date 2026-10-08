@@ -21,6 +21,14 @@ var managedPersonaFingerprints = []string{
 	"## Rules",
 }
 
+// managedPersonaMarkers are the frontmatter names the persona component writes
+// into instructions files: the current one first, then the legacy one written
+// by earlier versions, so old installs are still recognized and cleaned.
+var managedPersonaMarkers = []string{
+	"name: Ordo Persona",
+	"name: Gentle AI Persona",
+}
+
 func removeMarkdownSections(content string, sectionIDs ...string) (string, bool) {
 	updated := content
 	changed := false
@@ -58,8 +66,10 @@ func removeManagedPersonaPreamble(content string) (string, bool) {
 }
 
 func looksLikeManagedPersonaPrefix(prefix string) bool {
-	if strings.Contains(prefix, "name: Gentle AI Persona") && strings.Contains(prefix, "description: Teaching-oriented persona") {
-		return true
+	for _, marker := range managedPersonaMarkers {
+		if strings.Contains(prefix, marker) && strings.Contains(prefix, "description: Teaching-oriented persona") {
+			return true
+		}
 	}
 
 	for _, fingerprint := range managedPersonaFingerprints {
