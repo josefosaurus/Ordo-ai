@@ -710,6 +710,19 @@ func syncBackupTargetsScoped(homeDir, workspaceDir string, scope InstallScope, s
 				}
 			}
 		}
+		if component == model.ComponentClaudeTheme {
+			// The visual theme step may remove owned legacy theme files and
+			// switch a legacy settings selection to Ordo. These targets are
+			// backup-only: verification stays on the Ordo theme asset.
+			for _, adapter := range componentAdapters {
+				for _, path := range theme.LegacyVisualThemePaths(homeDir, adapter) {
+					paths[path] = struct{}{}
+				}
+				if path := theme.VisualThemeSettingsPath(homeDir, adapter); path != "" {
+					paths[path] = struct{}{}
+				}
+			}
+		}
 		if component == model.ComponentPersona {
 			plan := persona.ResourcePlanFor(selection.Persona)
 			for _, adapter := range componentAdapters {
