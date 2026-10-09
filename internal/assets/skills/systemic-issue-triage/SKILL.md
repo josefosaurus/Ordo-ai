@@ -3,7 +3,7 @@ name: systemic-issue-triage
 description: "Trigger: new issue, bug report, triage, backlog, issue flood, community report, root cause, dead-end, blocked user. Attack issues by root class, never one-by-one; fixes must shrink the system, not grow it."
 license: Apache-2.0
 metadata:
-  author: "Alan-TheGentleman"
+  author: ordo
   version: "1.0"
 ---
 

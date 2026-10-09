@@ -1,6 +1,6 @@
 ---
 name: gentle-ai-collab-perfect
-description: "Trigger: contributing to Gentleman-Programming/gentle-ai as an external collaborator. Strict issue-first workflow, honest PR bodies, contributor-vs-maintainer scope, chained-PR strategy, verification protocol, docstring coverage. Load whenever the active repo is Gentleman-Programming/gentle-ai and any part of the contribution flow is in scope: opening an issue, drafting or editing a PR body, splitting a change into chained/stacked PRs, or auditing a PR before requesting review."
+description: "Trigger: contributing to josefosaurus/Ordo-ai as an external collaborator. Strict issue-first workflow, honest PR bodies, contributor-vs-maintainer scope, chained-PR strategy, verification protocol, docstring coverage. Load whenever the active repo is josefosaurus/Ordo-ai and any part of the contribution flow is in scope: opening an issue, drafting or editing a PR body, splitting a change into chained/stacked PRs, or auditing a PR before requesting review."
 license: Apache-2.0
 metadata:
   author: ardelperal
@@ -9,7 +9,7 @@ metadata:
 
 ## When to use
 
-Use this skill when the active repo is `Gentleman-Programming/gentle-ai` and the contributor is an external collaborator (not the maintainer). Scope of the skill:
+Use this skill when the active repo is `josefosaurus/Ordo-ai` and the contributor is an external collaborator (not the maintainer). Scope of the skill:
 
 - Opening or commenting on issues
 - Drafting, editing, or auditing PR bodies
@@ -19,11 +19,11 @@ Use this skill when the active repo is `Gentleman-Programming/gentle-ai` and the
 
 Do NOT load this skill for:
 
-- Using gentle-ai as an installer (Gentleman-Programming/gentle-ai is the installer itself; not this skill)
+- Using Ordo as an installer (josefosaurus/Ordo-ai is the installer itself; not this skill)
 - Reading docs, debugging tests, or reviewing the codebase in general
 - Tasks on a different repository
 
-The skill assumes the contributor is working from wherever they push — a fork, a personal working repo, or anywhere they have write access. **It deliberately does not assume a fork.** Use it whether you push to `ardelperal/gentle-ai`, to a personal fork, or to a contributor org.
+The skill assumes the contributor is working from wherever they push — a fork, a personal working repo, or anywhere they have write access. **It deliberately does not assume a fork.** Use it whether you push to `<your-user>/Ordo-ai`, to a personal fork, or to a contributor org.
 
 ---
 
@@ -87,7 +87,7 @@ If a PR-label action lacks a current direct instruction or verified target-host 
 
 ## Issue workflow
 
-Use the canonical `issue-creation` skill at `internal/assets/skills/issue-creation/SKILL.md` for duplicate discovery, template handling, privacy review, and publication. Apply Gentle AI's current repository policy from `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE`, and discovered GitHub labels rather than copying form fields, label names, or commands here.
+Use the canonical `issue-creation` skill at `internal/assets/skills/issue-creation/SKILL.md` for duplicate discovery, template handling, privacy review, and publication. Apply Ordo's current repository policy from `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE`, and discovered GitHub labels rather than copying form fields, label names, or commands here.
 
 After submission, return to this collaboration workflow for the contributor/maintainer boundary and the approved-issue gate before PR work. If a maintainer requests technical sub-slices, keep them within the approved issue structure required by the current repository policy and checks.
 

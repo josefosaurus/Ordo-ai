@@ -1,15 +1,15 @@
 ---
 name: gentle-ai-bench
-description: "Trigger: bench, journey, journeys, driven mode, gentle-ai-bench, journey corpus, j-numbers, bench axis. Author and verify gentle-ai bench journeys; go test ./bench never proves driven execution."
+description: "Trigger: bench, journey, journeys, driven mode, gentle-ai-bench, journey corpus, j-numbers, bench axis. Author and verify Ordo bench journeys; go test ./bench never proves driven execution."
 license: Apache-2.0
 metadata:
-  author: "Gentleman-Programming"
+  author: ordo
   version: "1.0"
 ---
 
 ## Activation Contract
 
-Load when touching `bench/` in gentle-ai, adding or changing a journey, changing a product semantic a journey might pin, or diagnosing a bench failure in CI's Unit Tests job.
+Load when touching `bench/` in Ordo, adding or changing a journey, changing a product semantic a journey might pin, or diagnosing a bench failure in CI's Unit Tests job.
 
 ## Hard Rules
 
