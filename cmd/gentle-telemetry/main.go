@@ -1,4 +1,4 @@
-// Command gentle-telemetry is the self-hosted collector for gentle-ai's
+// Command gentle-telemetry is the self-hosted collector for Ordo's
 // anonymous telemetry events. See docs/telemetry-collector.md for the
 // deploy story and docs/telemetry-collector.md#answering-how-many-people-use-it
 // for how to read /v1/summary.
@@ -115,7 +115,7 @@ func run() error {
 	var npmPackages repeatableFlag
 	flag.Var(&npmPackages, "npm-package", "npm package to fetch daily download counts for (repeatable; default gentle-pi,gentle-engram)")
 	var githubRepos repeatableFlag
-	flag.Var(&githubRepos, "github-repo", "GitHub owner/repo to fetch release download counts for (repeatable; default Gentleman-Programming/gentle-ai)")
+	flag.Var(&githubRepos, "github-repo", "GitHub owner/repo to fetch release download counts for (repeatable; default josefosaurus/Ordo-ai)")
 	githubTokenFile := flag.String("github-token-file", "", "path to a file containing a GitHub token, to raise the API rate limit for --github-repo")
 	runtimeStore := flag.String("runtime-store", "", "how to persist a newly stored runtime delivery: sqlite (default, raw rows), metrics (Prometheus counters only, no raw rows), or both")
 	flag.Parse()
@@ -142,7 +142,7 @@ func run() error {
 		npmPackages = repeatableFlag{"gentle-pi", "gentle-engram"}
 	}
 	if len(githubRepos) == 0 {
-		githubRepos = repeatableFlag{"Gentleman-Programming/gentle-ai"}
+		githubRepos = repeatableFlag{"josefosaurus/Ordo-ai"}
 	}
 	var githubToken string
 	if *githubTokenFile != "" {

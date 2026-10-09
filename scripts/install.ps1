@@ -1,10 +1,10 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Ordo installer for Windows (based on Gentle AI).
+    Ordo installer for Windows.
 
 .DESCRIPTION
-    Installs Gentle AI from source with Go. Official Windows binary distribution
+    Installs Ordo from source with Go. Official Windows binary distribution
     and Scoop are temporarily unavailable until public-trust Authenticode signing
     is enforced. Accepted channels: stable (default), beta, nightly.
 
@@ -39,8 +39,8 @@ function Write-Success { param([string]$Message) Write-Host "[ok]      $Message"
 function Write-Warn    { param([string]$Message) Write-Host "[warn]    $Message" -ForegroundColor Yellow }
 function Write-Err     { param([string]$Message) Write-Host "[error]   $Message" -ForegroundColor Red }
 
-# Ordo publishes no Windows release, and go install would fetch the upstream
-# module (the Go module path still names Gentle AI). Refuse instead of
+# Ordo publishes no Windows release, and go install would fetch a module
+# path Ordo does not publish. Refuse instead of
 # installing the wrong binary.
 Write-Err "Ordo does not support Windows installs yet. Build from source: go build -o ordo.exe ./cmd/gentle-ai"
 exit 1
@@ -60,7 +60,7 @@ function Show-Banner {
     Write-Host " | |_| |  _ <| |_| | |_| |" -ForegroundColor Cyan
     Write-Host "  \___/|_| \_\____/ \___/ " -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Ordo - based on Gentle AI" -ForegroundColor DarkGray
+    Write-Host "  Ordo" -ForegroundColor DarkGray
     Write-Host ""
 }
 
