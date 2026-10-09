@@ -1693,10 +1693,8 @@ func TestRunSyncRefreshesPersistedVisualComponents(t *testing.T) {
 	wantFiles := []string{
 		filepath.Join(home, ".config", "opencode", "plugins", "telemetry-runtime.ts"),
 		filepath.Join(home, ".config", "opencode", ".gentle-ai-telemetry-runtime.json"),
-		filepath.Join(home, ".claude", "themes", "gentleman.json"),
-		filepath.Join(home, ".claude", "themes", "gentleman-cute.json"),
-		filepath.Join(home, ".config", "opencode", "themes", "gentleman.json"),
-		filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json"),
+		filepath.Join(home, ".claude", "themes", "ordo.json"),
+		filepath.Join(home, ".config", "opencode", "themes", "ordo.json"),
 		filepath.Join(home, ".config", "opencode", "tui-plugins", "gentle-logo.tsx"),
 		filepath.Join(home, ".config", "opencode", "tui.json"),
 		filepath.Join(home, ".claude", "agents", "jd-fix-agent.md"),
@@ -1734,6 +1732,40 @@ func TestRunSyncRefreshesPersistedVisualComponents(t *testing.T) {
 	if !second.NoOp || second.FilesChanged != 0 || len(second.ChangedFiles) != 0 {
 		t.Fatalf("second sync = NoOp %v, FilesChanged %d, ChangedFiles %#v; want idempotent no-op", second.NoOp, second.FilesChanged, second.ChangedFiles)
 	}
+}
+
+func TestRunSyncMigratesLegacyVisualThemeSelection(t *testing.T) {
+	workspace, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("EvalSymlinks(workspace) error = %v", err)
+	}
+	t.Chdir(workspace)
+	home, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("EvalSymlinks(home) error = %v", err)
+	}
+	claudeSettings, openCodeSettings, editedLegacy := legacyVisualThemeFixture(t, home)
+	if err := state.Write(home, state.InstallState{
+		InstalledAgents:     []string{"claude-code", "opencode"},
+		SelectionConfigured: true,
+		Components:          []model.ComponentID{model.ComponentClaudeTheme},
+		Persona:             "neutral",
+	}); err != nil {
+		t.Fatalf("state.Write() error = %v", err)
+	}
+	restoreHome := osUserHomeDir
+	restoreBackupHome := backup.UserHomeDirFn
+	osUserHomeDir = func() (string, error) { return home, nil }
+	backup.UserHomeDirFn = func() (string, error) { return home, nil }
+	t.Cleanup(func() {
+		osUserHomeDir = restoreHome
+		backup.UserHomeDirFn = restoreBackupHome
+	})
+
+	if _, err := RunSync([]string{"--agents", "claude-code,opencode"}); err != nil {
+		t.Fatalf("RunSync() error = %v", err)
+	}
+	assertLegacyVisualThemeMigrated(t, home, claudeSettings, openCodeSettings, editedLegacy)
 }
 
 // TestRunSyncSkipsOpenCodeGentleLogoWhenOpenCodeNotSelected ensures that when

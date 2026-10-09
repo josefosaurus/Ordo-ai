@@ -922,12 +922,20 @@ func (s *Service) componentOperations(adapter agents.Adapter, componentID model.
 			ops = append(ops, rewriteJSONFile(path, jsonPath{"theme"}))
 		}
 	case model.ComponentClaudeTheme:
-		for _, path := range theme.VisualThemePaths(homeDir, adapter) {
+		// Uninstall removes the current asset and the upstream-named assets
+		// earlier releases installed, so old installs uninstall cleanly.
+		themePaths := append(theme.VisualThemePaths(homeDir, adapter), theme.LegacyVisualThemePaths(homeDir, adapter)...)
+		for _, path := range themePaths {
 			targets = append(targets, path)
 			ops = append(ops, removeFile(path))
 		}
-		if paths := theme.VisualThemePaths(homeDir, adapter); len(paths) > 0 {
-			ops = append(ops, removeDirIfEmpty(filepath.Dir(paths[0])))
+		if len(themePaths) > 0 {
+			ops = append(ops, removeDirIfEmpty(filepath.Dir(themePaths[0])))
+			// Clear the theme selection only when it names a managed theme.
+			for _, path := range settingsTargets(homeDir, adapter) {
+				targets = append(targets, path)
+				ops = append(ops, rewriteJSONFileWith(path, removeManagedThemeSetting))
+			}
 		}
 	case model.ComponentOpenCodeGentleLogo:
 		if adapter.Agent() != model.AgentOpenCode {
@@ -1136,6 +1144,14 @@ func rewriteMarkdownFile(path string, mutate func(content string) (string, bool)
 }
 
 func rewriteJSONFile(path string, jsonPaths ...jsonPath) operation {
+	return rewriteJSONFileWith(path, func(raw []byte) ([]byte, bool, error) {
+		return removeJSONPaths(raw, jsonPaths...)
+	})
+}
+
+// rewriteJSONFileWith applies clean to a JSON settings file, deleting the file
+// when the result is an empty object and preserving its mode otherwise.
+func rewriteJSONFileWith(path string, clean func(raw []byte) ([]byte, bool, error)) operation {
 	return operation{
 		typeID: opRewriteFile,
 		path:   path,
@@ -1147,7 +1163,7 @@ func rewriteJSONFile(path string, jsonPaths ...jsonPath) operation {
 				}
 				return false, false, fmt.Errorf("read json file %q: %w", path, err)
 			}
-			updated, changed, err := removeJSONPaths(raw, jsonPaths...)
+			updated, changed, err := clean(raw)
 			if err != nil {
 				return false, false, fmt.Errorf("clean json file %q: %w", path, err)
 			}

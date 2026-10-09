@@ -724,9 +724,11 @@ func TestConfigPathsForBackup_CoversManagedAgentPaths(t *testing.T) {
 	managedFiles := map[string]string{
 		".claude.json":                                `{"oauthAccount":{"emailAddress":"user@example.com"},"mcpServers":{"engram":{"command":"engram"}}}`,
 		".claude/CLAUDE.md":                           "# Claude",
+		".claude/themes/ordo.json":                    `{"name":"ordo"}`,
 		".claude/themes/gentleman.json":               `{"name":"gentleman"}`,
 		".claude/themes/gentleman-cute.json":          `{"name":"Gentleman Cute"}`,
 		".config/opencode/AGENTS.md":                  "# OpenCode",
+		".config/opencode/themes/ordo.json":           `{"theme":{}}`,
 		".config/opencode/themes/gentleman.json":      `{"theme":{}}`,
 		".config/opencode/themes/gentleman-cute.json": `{"theme":{}}`,
 		".config/opencode/opencode.json":              `{"model":"claude"}`,
