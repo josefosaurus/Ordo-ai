@@ -113,8 +113,8 @@ The detailed docs are inherited from Gentle AI and may still use its name; comma
 - macOS and Linux only; no Homebrew formula yet.
 - Gentle Pi integration is not supported.
 
-## License and trademarks
+## License
 
-Ordo is released under the [MIT License](LICENSE), like the Gentle AI code it is based on. "Gentle AI" and "Engram" are trademarks of their owner; see [TRADEMARKS.md](TRADEMARKS.md). Ordo uses them only to describe what it is based on and compatible with.
+Ordo is released under the [MIT License](LICENSE). See [NOTICE](NOTICE) for attribution.
 
 <div align="right"><a href="#top">Back to top</a></div>
