@@ -3,7 +3,7 @@ name: rdd-advisory-transport
 description: "Trigger: reviewer transport, advisory transport, review adapter, lens prompt/schema, OpenCode reviewer plugin, Codex reviewer, ReviewProviderContract. Enforce the shared Go advisory reviewer transport contract."
 license: Apache-2.0
 metadata:
-  author: gentleman-programming
+  author: ordo
   version: "1.0"
 ---
 

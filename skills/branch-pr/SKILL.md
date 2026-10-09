@@ -1,19 +1,19 @@
 ---
 name: gentle-ai-branch-pr
-description: "Create Gentle AI pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review."
+description: "Create Ordo pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review."
 license: Apache-2.0
 metadata:
-  author: gentleman-programming
+  author: ordo
   version: "2.0"
 ---
 
-# Gentle AI — Branch & PR Skill
+# Ordo — Branch & PR Skill
 
 ## When to Use
 
 Load this skill whenever you need to:
 - Create a branch for a new fix or feature
-- Open a pull request on [Gentleman-Programming/gentle-ai](https://github.com/Gentleman-Programming/gentle-ai)
+- Open a pull request on [josefosaurus/Ordo-ai](https://github.com/josefosaurus/Ordo-ai)
 - Prepare changes for review
 
 ## Critical Rules
@@ -231,7 +231,7 @@ feat(cli)!: change default config path
 ```bash
 # Only after explicit authorization for remote destination, operation and credential/session,
 # confirm approved issue on exact target; reuse fresh target-bound approval evidence.
-gh issue view <N> --repo Gentleman-Programming/gentle-ai
+gh issue view <N> --repo josefosaurus/Ordo-ai
 
 # After exact remote read authorization, verify approval and resolve the current target default branch.
 # Checkout/branch creation requires separate human authorization; never assume main.
@@ -264,6 +264,6 @@ Draft using the current `.github/PULL_REQUEST_TEMPLATE.md`, including every requ
 
 ```bash
 # Only after explicit authorization for these exact target PR status reads.
-gh pr checks --repo Gentleman-Programming/gentle-ai <PR-number>
-gh pr view --repo Gentleman-Programming/gentle-ai <PR-number>
+gh pr checks --repo josefosaurus/Ordo-ai <PR-number>
+gh pr view --repo josefosaurus/Ordo-ai <PR-number>
 ```

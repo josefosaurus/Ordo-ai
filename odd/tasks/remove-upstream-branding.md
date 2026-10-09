@@ -64,6 +64,7 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
 - [ ] T3 — Slice 3: README, meta, assets, themes.
   - [x] T3b — README, top-level meta, issue templates, `package.json`. Route: delegated direct (writer trigger: 2+ non-trivial files). Commits `2bbce367` (add `NOTICE`, Ordo copyright line in `LICENSE`, delete upstream `TRADEMARKS.md`, README license footer) and `71043511` (README, `CONTRIBUTING.md`, `CONTRIBUTORS.md`, `AGENTS.md`, `package.json`, `.github/ISSUE_TEMPLATE/*`).
     - Decision: no Ordo `TRADEMARKS.md`; the user chose to delete the upstream one and keep attribution in `NOTICE` only.
+  - [x] T3c — Skills and install scripts. Route: delegated direct (writer trigger: 2+ non-trivial files across 17 files). Repo-root `skills/` and the three parity-pinned embedded copies now use `author: ordo`, "Ordo" prose and `josefosaurus/Ordo-ai` repository references (commit `a43e693e`). `install.sh`/`install.ps1` drop "based on Gentle AI" and point at the Ordo raw URL, and `gentle-telemetry` defaults `--github-repo` to `josefosaurus/Ordo-ai` (commit `91524f45`). The unreachable Homebrew branch was removed from `install.sh`, because `detect_install_method` always returns `binary` before reaching any brew path.
 - [ ] T4 — Slice 4: docs.
 - [ ] T5 — Optional: code comments.
 
@@ -110,7 +111,11 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
   - Also fixed: bug template version hint now says `ordo version` (was `gga version`); CONTRIBUTING run step is `./ordo` and clone dir `Ordo-ai`.
   - Checks: `node --test .github/scripts/*.test.cjs` 26/26 pass; issue templates parse as YAML; `package.json` parses; `go build ./...` pass; `go test ./internal/assets/ ./internal/app/` ok (they read `AGENTS.md`, `CONTRIBUTING.md`, `README.md`).
   - Left for Slice 4: `docs/goals.md` still cites the deleted `TRADEMARKS.md`.
+- T3c done (`a43e693e`, `91524f45`).
+  - Kept as technical IDs or functional references: skill IDs (`gentle-ai-branch-pr`, `gentle-ai-chained-pr`, `gentle-ai-bench`, `gentle-ai-collab-perfect`) and the `gentle-ai-bench run` command; `GO_MAIN_PACKAGE="gentle-ai"`, `GENTLE_AI_CHANNEL`, and the `github.com/gentleman-programming/gentle-ai/v4` module path in `install.ps1` (`TestWindowsInstallAndUpgradeContainNoRemoteBinaryOrScriptPath` requires that exact source-install command); the `gentle-telemetry` command name and module import; `gentle-pi`/`gentle-engram` npm defaults.
+  - Goldens: none changed (`go test ./internal/components/ -update` produced no diff, because no golden embeds these skills).
+  - Checks: `go build ./... && go vet ./...` pass; `go test ./internal/assets/... ./internal/components/... ./cmd/... ./internal/app/... ./internal/update/... -count=1` has no failures (24 packages ok); `bash scripts/test-install-module-path.sh` passes 6/6; `bash -n scripts/install.sh` ok; `gofmtcheck` pass; deadcode ratchet: no new unreachable functions.
 
 ## Next Step
 
-- T3 (Slice 3: README, meta, assets, themes). Slice 3 must also update the three parity-pinned embedded skills together with repo-root `skills/`.
+- T3d (Ordo theme replacing the upstream themes; user choice 2026-10-08), then T4 (docs, including `docs/assets/brand`). Open decision: `deploy/telemetry` (upstream collector, unused by Ordo).

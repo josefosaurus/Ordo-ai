@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # ============================================================================
-# Ordo — Install Script (based on Gentle AI)
+# Ordo — Install Script
 # Installs the signed ordo release binary.
 #
 # Usage:
-#   curl -sL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash
+#   curl -sL https://raw.githubusercontent.com/josefosaurus/Ordo-ai/main/scripts/install.sh | bash
 #
 # Or download and run:
-#   curl -sLO https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh
+#   curl -sLO https://raw.githubusercontent.com/josefosaurus/Ordo-ai/main/scripts/install.sh
 #   chmod +x install.sh
 #   ./install.sh
 # ============================================================================
@@ -20,8 +20,6 @@ BINARY_NAME="ordo"
 # GO_MAIN_PACKAGE is the Go main package directory (cmd/<name>); go install
 # names the binary after it, so install_go renames it to BINARY_NAME.
 GO_MAIN_PACKAGE="gentle-ai"
-BREW_TAP="Gentleman-Programming/homebrew-tap"
-BREW_FORMULA_REF="gentleman-programming/tap/${BINARY_NAME}"
 
 # ============================================================================
 # Color support
@@ -53,45 +51,13 @@ error()   { echo -e "${RED}[error]${NC}   $*" >&2; }
 fatal()   { error "$@"; exit 1; }
 step()    { echo -e "\n${CYAN}${BOLD}==>${NC} ${BOLD}$*${NC}"; }
 
-homebrew_trust_gentle_ai_formula() {
-    if brew help trust &>/dev/null; then
-        info "Trusting ${BREW_FORMULA_REF} for Homebrew tap-trust enforcement"
-        brew trust --formula "$BREW_FORMULA_REF" &>/dev/null || true
-    fi
-}
-
-print_homebrew_failure_help() {
-    local output="$1"
-    local lower
-    lower="$(printf '%s' "$output" | tr '[:upper:]' '[:lower:]')"
-
-    if [[ "$lower" == *"untrusted tap"* || "$lower" == *"tap trust is required"* || "$lower" == *"homebrew_require_tap_trust"* ]]; then
-        warn "Homebrew requires explicit trust for external taps."
-        echo "Trust only the Gentle AI formula, then retry:" >&2
-        echo "  brew trust --formula ${BREW_FORMULA_REF}" >&2
-        echo "  brew upgrade ${BINARY_NAME}" >&2
-    fi
-
-    if [[ "$lower" == *"bubblewrap is installed but cannot create a rootless sandbox"* || "$lower" == *"rootless sandbox"* || "$lower" == *"homebrew_no_sandbox_linux"* ]]; then
-        warn "Homebrew on Linux could not create its Bubblewrap rootless sandbox."
-        echo "This requires an explicit admin/security decision: enabling unprivileged user namespaces lets Homebrew use its sandbox but changes host kernel/AppArmor policy." >&2
-        echo "If acceptable, run:" >&2
-        echo "  sudo sysctl -w kernel.unprivileged_userns_clone=1" >&2
-        echo "  sudo sysctl -w user.max_user_namespaces=28633" >&2
-        echo "  sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true" >&2
-        echo >&2
-        echo "Final workaround if your distro policy forbids this sandbox:" >&2
-        echo "  HOMEBREW_NO_SANDBOX_LINUX=1 brew upgrade ${BINARY_NAME}" >&2
-    fi
-}
-
 # ============================================================================
 # Help
 # ============================================================================
 
 show_help() {
     cat <<EOF
-${BOLD}Ordo installer${NC} (based on Gentle AI)
+${BOLD}Ordo installer${NC}
 
 Usage: install.sh [OPTIONS]
 
@@ -183,9 +149,9 @@ check_prerequisites() {
 
 detect_install_method() {
     # Ordo ships signed release binaries only: there is no Homebrew tap, and
-    # go install would fetch the upstream module (the Go module path still
-    # names Gentle AI). The brew and go code paths below are kept for upstream
-    # parity but are never selected.
+    # go install would fetch a module path Ordo does not publish. install_go
+    # below is kept (scripts/test-install-module-path.sh covers it) but is
+    # never selected.
     if [ "${CHANNEL}" = "beta" ]; then
         fatal "--channel beta is not available for ${BINARY_NAME} yet; install the stable release"
     fi
@@ -194,82 +160,6 @@ detect_install_method() {
     fi
     INSTALL_METHOD="binary"
     info "Will download the signed ${BINARY_NAME} release binary from GitHub Releases"
-    return
-
-    if [ "${CHANNEL}" = "beta" ]; then
-        if [ -n "${FORCE_METHOD:-}" ] && [ "${FORCE_METHOD}" != "go" ]; then
-            fatal "--channel beta installs Gentle AI from main and only supports --method go"
-        fi
-        INSTALL_METHOD="go"
-        info "Using beta channel — will install ${BINARY_NAME} from main via go install"
-        return
-    fi
-
-    if [ -n "${FORCE_METHOD:-}" ]; then
-        case "$FORCE_METHOD" in
-            brew|go|binary) INSTALL_METHOD="$FORCE_METHOD" ;;
-            *) fatal "Unknown install method: $FORCE_METHOD. Use: brew, go, or binary" ;;
-        esac
-        info "Using forced method: $INSTALL_METHOD"
-        return
-    fi
-
-    step "Detecting best install method"
-
-    # Priority: brew > binary > go
-    # Brew handles upgrades natively and is instant.
-    # Binary download from GitHub Releases is always up-to-date.
-    # go install is last resort because the Go module proxy can lag
-    # behind new tags for up to 30 minutes, causing @latest to install
-    # a stale version.
-    if command -v brew &>/dev/null; then
-        INSTALL_METHOD="brew"
-        success "Homebrew found — will install via brew tap"
-    else
-        INSTALL_METHOD="binary"
-        info "Will download pre-built binary from GitHub Releases"
-    fi
-}
-
-# ============================================================================
-# Install via Homebrew
-# ============================================================================
-
-install_brew() {
-    step "Installing via Homebrew"
-
-    # Always refresh the tap to pick up new releases
-    info "Refreshing ${BREW_TAP}..."
-    brew untap "$BREW_TAP" 2>/dev/null || true
-    if ! brew tap "$BREW_TAP"; then
-        fatal "Failed to tap $BREW_TAP"
-    fi
-
-    homebrew_trust_gentle_ai_formula
-
-    if brew list "$BINARY_NAME" &>/dev/null; then
-        info "Already installed, upgrading ${BINARY_NAME}..."
-        local output
-        if output="$(brew upgrade "$BINARY_NAME" 2>&1)"; then
-            success "Upgraded ${BINARY_NAME} via Homebrew"
-        elif printf '%s' "$output" | grep -Eiq 'already.*(up-to-date|installed)|not outdated'; then
-            success "${BINARY_NAME} is already at the latest version"
-        else
-            printf '%s\n' "$output" >&2
-            print_homebrew_failure_help "$output"
-            fatal "Failed to upgrade ${BINARY_NAME} via Homebrew"
-        fi
-    else
-        info "Installing ${BINARY_NAME}..."
-        local output
-        if output="$(brew install "$BINARY_NAME" 2>&1)"; then
-            success "Installed ${BINARY_NAME} via Homebrew"
-        else
-            printf '%s\n' "$output" >&2
-            print_homebrew_failure_help "$output"
-            fatal "Failed to install ${BINARY_NAME} via Homebrew"
-        fi
-    fi
 }
 
 # ============================================================================
@@ -353,7 +243,7 @@ install_go() {
     # in place (per the D1 design intent: owner_lc stays available to
     # compose the env pattern) even though the current implementation
     # derives the pattern from ${module} directly — the previous code
-    # hard-coded "github.com/gentleman-programming/..." here, which the
+    # hard-coded the module owner here, which the
     # D1 forbids.
     local owner_lc
     owner_lc="$(printf '%s' "$GITHUB_OWNER" | tr '[:upper:]' '[:lower:]')"
@@ -452,7 +342,7 @@ get_latest_version() {
     body="$(echo "$response" | sed '$d')"
 
     if [ "$http_code" != "200" ]; then
-        fatal "GitHub API returned HTTP $http_code. Rate limited? Try again later or use --method brew/go"
+        fatal "GitHub API returned HTTP $http_code. Rate limited? Try again later."
     fi
 
     # Extract tag_name — works without jq
@@ -647,7 +537,7 @@ print_banner() {
     echo " | |_| |  _ <| |_| | |_| |"
     echo "  \\___/|_| \\_\\____/ \\___/ "
     echo -e "${NC}"
-    echo -e "  ${DIM}Ordo — based on Gentle AI${NC}"
+    echo -e "  ${DIM}Ordo${NC}"
     echo ""
 }
 
@@ -727,7 +617,6 @@ main() {
     detect_install_method
 
     case "$INSTALL_METHOD" in
-        brew)   install_brew ;;
         go)     install_go ;;
         binary) install_binary ;;
     esac
