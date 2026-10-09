@@ -62,6 +62,8 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
   - [x] T2b — Replace the upstream brand in agent-facing assets (orchestrator defect handoff now targets `josefosaurus/Ordo-ai`, Hermes identity, OpenCode agent prompts, skill `author:` frontmatter, contract-safe review prose). Commit `e9aaadfc`, with the 8 skills goldens.
   - [x] T2c — Share the logo plugin label from `opencodeplugin.LogoPluginLabel()` and assert the dry-run header (commit `7ff9ccb2`).
 - [ ] T3 — Slice 3: README, meta, assets, themes.
+  - [x] T3b — README, top-level meta, issue templates, `package.json`. Route: delegated direct (writer trigger: 2+ non-trivial files). Commits `2bbce367` (add `NOTICE`, Ordo copyright line in `LICENSE`, delete upstream `TRADEMARKS.md`, README license footer) and `71043511` (README, `CONTRIBUTING.md`, `CONTRIBUTORS.md`, `AGENTS.md`, `package.json`, `.github/ISSUE_TEMPLATE/*`).
+    - Decision: no Ordo `TRADEMARKS.md`; the user chose to delete the upstream one and keep attribution in `NOTICE` only.
 - [ ] T4 — Slice 4: docs.
 - [ ] T5 — Optional: code comments.
 
@@ -102,6 +104,12 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
   - Goldens: 13 files under `testdata/golden/` regenerated with `go test ./internal/components/ -update` (14 lines each way: skill `author:`, Mentor output style, persona style line).
   - Checks: `go build ./... && go vet ./...` pass; non-cli `go test` pass; `internal/cli` pass (1297s); `gofmtcheck` pass; deadcode ratchet: no new unreachable functions. No refusal-baseline changes.
   - Kept as technical IDs: persona ID `gentleman`, `output-style-gentleman.md` / `gentleman.md` file names, Kimi agent `name: gentleman`, OpenCode `agent.gentleman`, TS identifiers and relay registry keys in the OpenCode review transport plugins, `gentle-ai.*` schema IDs.
+
+- T3b done (`2bbce367`, `71043511`).
+  - Audit `command grep -n -i -E "gentle|gentleman|buscaglia"` over the touched files leaves only the `NOTICE` fork lines, the `LICENSE` MIT copyright line, and technical identifiers (`cmd/gentle-ai`, `~/.gentle-ai`, `gentle-ai-*` skill IDs and paths, the `gentle-pi` package).
+  - Also fixed: bug template version hint now says `ordo version` (was `gga version`); CONTRIBUTING run step is `./ordo` and clone dir `Ordo-ai`.
+  - Checks: `node --test .github/scripts/*.test.cjs` 26/26 pass; issue templates parse as YAML; `package.json` parses; `go build ./...` pass; `go test ./internal/assets/ ./internal/app/` ok (they read `AGENTS.md`, `CONTRIBUTING.md`, `README.md`).
+  - Left for Slice 4: `docs/goals.md` still cites the deleted `TRADEMARKS.md`.
 
 ## Next Step
 

@@ -1,8 +1,8 @@
 {
-  "name": "gentleman-ai-installer",
+  "name": "ordo",
   "version": "1.0.0",
   "private": true,
-  "description": "Gentle-AI — ecosystem, frameworks, and workflows for AI coding agents.",
+  "description": "Ordo — memory, workflow, and evidence for AI coding agents.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gentleman-Programming/gentle-ai.git"
+    "url": "git+https://github.com/josefosaurus/Ordo-ai.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/Gentleman-Programming/gentle-ai/issues"
+    "url": "https://github.com/josefosaurus/Ordo-ai/issues"
   },
-  "homepage": "https://github.com/Gentleman-Programming/gentle-ai#readme"
+  "homepage": "https://github.com/josefosaurus/Ordo-ai#readme"
 }
