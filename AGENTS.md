@@ -1,4 +1,4 @@
-# Gentle AI™ — Agent Skills Index
+# Ordo — Agent Skills Index
 
 When working on this project, load the relevant skill(s) BEFORE writing any code.
 

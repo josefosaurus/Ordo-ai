@@ -22,8 +22,6 @@
 <a href="LICENSE"><img src="https://img.shields.io/badge/MIT-ebbcba?style=for-the-badge&labelColor=191724" alt="License: MIT"></a>
 </p>
 
-<sub>Ordo is an independent distribution <strong>based on <a href="https://github.com/Gentleman-Programming/gentle-ai">Gentle AI</a></strong>. It is not affiliated with or endorsed by the Gentle AI project.</sub>
-
 </div>
 
 ## What it does
@@ -106,12 +104,10 @@ ordo memory import ./golden --project my-app
 | [Telemetry](docs/telemetry.md) | Ordo ships with telemetry off (no collector configured) |
 | [Codebase guide](docs/CODEBASE-GUIDE.md) · [Contributing](CONTRIBUTING.md) | Working on Ordo itself |
 
-The detailed docs are inherited from Gentle AI and may still use its name; commands work the same with `ordo`.
-
 ## Known limits
 
 - macOS and Linux only; no Homebrew formula yet.
-- Gentle Pi integration is not supported.
+- Pi package integration is not supported.
 
 ## License
 
