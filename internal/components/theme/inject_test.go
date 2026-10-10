@@ -543,6 +543,82 @@ func TestInjectVisualThemesLeavesUserThemeAndMissingSettingsAlone(t *testing.T) 
 	}
 }
 
+// Before the migration existed, the visual theme step never read settings, so
+// a settings file it cannot parse must not abort it: only the legacy selection
+// switch is skipped, and the broken file is left byte-for-byte untouched.
+func TestInjectVisualThemesSkipsSettingsMigrationForMalformedSettings(t *testing.T) {
+	home, xdg := t.TempDir(), t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	legacy := legacyThemeFixture(t, home)
+	broken := `{"theme": "gentleman", ` // truncated JSON
+	for _, adapter := range []agents.Adapter{claudeAdapter(), opencodeAdapter()} {
+		settings := VisualThemeSettingsPath(home, adapter)
+		writeSettings(t, settings, broken)
+		result, err := InjectVisualThemes(home, adapter)
+		if err != nil {
+			t.Fatalf("%s InjectVisualThemes() error = %v; want malformed settings tolerated", adapter.Agent(), err)
+		}
+		if !result.Changed {
+			t.Fatalf("%s result = %#v; want Ordo theme written", adapter.Agent(), result)
+		}
+		if _, err := os.Stat(VisualThemePaths(home, adapter)[0]); err != nil {
+			t.Fatalf("%s Ordo theme missing: %v", adapter.Agent(), err)
+		}
+		if got, err := os.ReadFile(settings); err != nil || string(got) != broken {
+			t.Fatalf("%s malformed settings changed: %q, %v", adapter.Agent(), got, err)
+		}
+	}
+	for _, path := range legacy {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("owned legacy theme %q should still be removed: %v", path, err)
+		}
+	}
+}
+
+// OpenCode theme assets live under the adapter config root, like its plugins
+// and skills, while the theme selection lives in the effective settings file
+// that also honors an absolute OPENCODE_CONFIG_DIR. Every caller resolves both
+// through the same two helpers.
+func TestOpenCodeVisualThemePathsWithConfigDirOverride(t *testing.T) {
+	home, xdg, override := t.TempDir(), t.TempDir(), t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	t.Setenv("OPENCODE_CONFIG_DIR", override)
+	adapter := opencodeAdapter()
+
+	themesDir := filepath.Join(adapter.GlobalConfigDir(home), "themes")
+	if got := VisualThemePaths(home, adapter); len(got) != 1 || got[0] != filepath.Join(themesDir, "ordo.json") {
+		t.Fatalf("VisualThemePaths = %#v, want ordo.json under %q", got, themesDir)
+	}
+	for _, path := range LegacyVisualThemePaths(home, adapter) {
+		if filepath.Dir(path) != themesDir {
+			t.Fatalf("legacy path %q not under %q", path, themesDir)
+		}
+	}
+	settings := filepath.Join(override, "opencode.json")
+	if got := VisualThemeSettingsPath(home, adapter); got != settings {
+		t.Fatalf("VisualThemeSettingsPath = %q, want %q", got, settings)
+	}
+
+	writeSettings(t, settings, `{"theme":"gentleman-cute"}`)
+	if _, err := InjectVisualThemes(home, adapter); err != nil {
+		t.Fatal(err)
+	}
+	if got := settingsTheme(t, settings); got != "ordo" {
+		t.Fatalf("override settings theme = %q, want ordo", got)
+	}
+	if _, err := os.Stat(filepath.Join(themesDir, "ordo.json")); err != nil {
+		t.Fatalf("Ordo theme not under adapter config root: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(override, "themes")); !os.IsNotExist(err) {
+		t.Fatalf("theme assets must not be written under OPENCODE_CONFIG_DIR: %v", err)
+	}
+}
+
 func TestIsManagedThemeName(t *testing.T) {
 	for name, want := range map[string]bool{
 		"ordo": true, "gentleman": true, "Gentleman Cute": true, "gentleman-cute": true,

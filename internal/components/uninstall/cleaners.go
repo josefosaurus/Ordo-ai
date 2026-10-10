@@ -83,11 +83,12 @@ func looksLikeManagedPersonaPrefix(prefix string) bool {
 }
 
 // removeManagedThemeSetting removes the top-level theme selection only when it
-// names the Ordo theme or a legacy theme Ordo used to select.
+// names the Ordo theme or a legacy theme Ordo used to select. Settings it
+// cannot parse are left untouched so the theme-file cleanup still completes.
 func removeManagedThemeSetting(raw []byte) ([]byte, bool, error) {
 	root, err := unmarshalJSONObject(raw)
 	if err != nil {
-		return nil, false, err
+		return raw, false, nil
 	}
 	if current, _ := root["theme"].(string); !theme.IsManagedThemeName(current) {
 		return raw, false, nil

@@ -384,6 +384,50 @@ func TestInstallVisualThemesMigratesLegacySelection(t *testing.T) {
 	assertLegacyVisualThemeMigrated(t, home, claudeSettings, openCodeSettings, editedLegacy)
 }
 
+// malformedVisualThemeSettings writes unparseable Claude and OpenCode settings
+// and returns their paths and bytes.
+func malformedVisualThemeSettings(t *testing.T, home string) (paths []string, broken string) {
+	t.Helper()
+	setOpenCodeTestHome(t, home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	broken = `{"theme": "gentleman", `
+	paths = []string{filepath.Join(home, ".claude", "settings.json"), filepath.Join(home, ".config", "opencode", "opencode.json")}
+	for _, path := range paths {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(broken), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return paths, broken
+}
+
+func assertVisualThemesWrittenSettingsUntouched(t *testing.T, home string, settings []string, broken string) {
+	t.Helper()
+	for _, path := range []string{filepath.Join(home, ".claude", "themes", "ordo.json"), filepath.Join(home, ".config", "opencode", "themes", "ordo.json")} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("Ordo theme %q not written: %v", path, err)
+		}
+	}
+	for _, path := range settings {
+		if got, err := os.ReadFile(path); err != nil || string(got) != broken {
+			t.Fatalf("malformed settings %q changed: %q, %v", path, got, err)
+		}
+	}
+}
+
+func TestInstallVisualThemesToleratesMalformedSettings(t *testing.T) {
+	home := t.TempDir()
+	settings, broken := malformedVisualThemeSettings(t, home)
+	step := componentApplyStep{component: model.ComponentClaudeTheme, homeDir: home, scope: ScopeGlobal, agents: []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}}
+	if err := step.Run(); err != nil {
+		t.Fatalf("visual theme install error = %v; want malformed settings tolerated", err)
+	}
+	assertVisualThemesWrittenSettingsUntouched(t, home, settings, broken)
+}
+
 func assertThemeSelectedOnly(t *testing.T, selected, decoy string) {
 	t.Helper()
 	data, err := os.ReadFile(selected)

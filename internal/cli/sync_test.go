@@ -1782,6 +1782,17 @@ func TestRunSyncMigratesLegacyVisualThemeSelection(t *testing.T) {
 	assertLegacyVisualThemeMigrated(t, home, claudeSettings, openCodeSettings, editedLegacy)
 }
 
+func TestSyncVisualThemesToleratesMalformedSettings(t *testing.T) {
+	home := t.TempDir()
+	settings, broken := malformedVisualThemeSettings(t, home)
+	changed := []string{}
+	step := componentSyncStep{id: "sync-visual-themes", component: model.ComponentClaudeTheme, homeDir: home, scope: ScopeGlobal, agents: []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}, changedFiles: &changed}
+	if err := step.Run(); err != nil {
+		t.Fatalf("visual theme sync error = %v; want malformed settings tolerated", err)
+	}
+	assertVisualThemesWrittenSettingsUntouched(t, home, settings, broken)
+}
+
 // TestRunSyncSkipsOpenCodeGentleLogoWhenOpenCodeNotSelected ensures that when
 // ComponentOpenCodeGentleLogo is in state, but OpenCode is not selected (e.g. only
 // Claude Code is selected), sync does not touch OpenCode directories or fail (issue #1212).

@@ -254,30 +254,35 @@ func VisualThemeSettingsPath(homeDir string, adapter agents.Adapter) string {
 	}
 }
 
+// visualThemeDir places theme assets under the adapter config root, like the
+// other OpenCode assets (plugins, skills, AGENTS.md), which ignore
+// OPENCODE_CONFIG_DIR. Only the theme selection follows the effective settings
+// file, as every other settings writer does (VisualThemeSettingsPath).
 func visualThemeDir(homeDir string, adapter agents.Adapter) string {
 	switch adapter.Agent() {
-	case model.AgentClaudeCode:
+	case model.AgentClaudeCode, model.AgentOpenCode:
 		return filepath.Join(adapter.GlobalConfigDir(homeDir), "themes")
-	case model.AgentOpenCode:
-		return filepath.Join(filepath.Dir(adapter.SettingsPath(homeDir)), "themes")
 	default:
 		return ""
 	}
 }
 
 // migrateLegacyThemeSetting selects the Ordo theme only when the settings file
-// currently selects one of the legacy managed names.
+// currently selects one of the legacy managed names. A settings file it cannot
+// read or parse skips the switch and is left untouched: the visual theme step
+// never depended on settings before this migration, so a broken file must not
+// abort it.
 func migrateLegacyThemeSetting(settingsPath string, agent model.AgentID, legacyNames []string) (bool, error) {
 	if settingsPath == "" {
 		return false, nil
 	}
 	raw, err := osReadFile(settingsPath)
 	if err != nil || raw == nil {
-		return false, err
+		return false, nil
 	}
 	root, err := filemerge.UnmarshalJSONObject(raw)
 	if err != nil {
-		return false, fmt.Errorf("parse settings %q: %w", settingsPath, err)
+		return false, nil
 	}
 	current, _ := root["theme"].(string)
 	if !slices.Contains(legacyNames, current) {

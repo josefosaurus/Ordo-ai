@@ -1145,6 +1145,57 @@ func TestPartialUninstallClaudeThemeClearsOnlyManagedThemeSelection(t *testing.T
 	}
 }
 
+// A settings file uninstall cannot parse skips only the managed-theme clearing;
+// the theme files are still removed and the broken file is left untouched.
+func TestPartialUninstallClaudeThemeToleratesMalformedSettings(t *testing.T) {
+	homeDir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(homeDir, ".config"))
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	svc, err := NewService(homeDir, t.TempDir(), "dev")
+	if err != nil {
+		t.Fatalf("NewService() error = %v", err)
+	}
+	svc.snapshotter = stubSnapshotter{}
+	broken := `{"theme": "ordo", `
+	settings := []string{
+		filepath.Join(homeDir, ".claude", "settings.json"),
+		filepath.Join(homeDir, ".config", "opencode", "opencode.json"),
+	}
+	themes := []string{
+		filepath.Join(homeDir, ".claude", "themes", "ordo.json"),
+		filepath.Join(homeDir, ".config", "opencode", "themes", "gentleman.json"),
+	}
+	for _, path := range append(append([]string{}, settings...), themes...) {
+		content := `{"name":"managed"}`
+		if slices.Contains(settings, path) {
+			content = broken
+		}
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if _, err := svc.PartialUninstall(
+		[]model.AgentID{model.AgentOpenCode, model.AgentClaudeCode},
+		[]model.ComponentID{model.ComponentClaudeTheme},
+	); err != nil {
+		t.Fatalf("PartialUninstall() error = %v; want malformed settings tolerated", err)
+	}
+	for _, path := range themes {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("theme %q should be removed: %v", path, err)
+		}
+	}
+	for _, path := range settings {
+		if got, err := os.ReadFile(path); err != nil || string(got) != broken {
+			t.Fatalf("malformed settings %q changed: %q, %v", path, got, err)
+		}
+	}
+}
+
 func TestPartialUninstallOpenCodeLogoScopedToOpenCodeAgent(t *testing.T) {
 	homeDir := t.TempDir()
 	workspaceDir := t.TempDir()
