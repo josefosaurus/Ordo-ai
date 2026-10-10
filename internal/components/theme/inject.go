@@ -186,13 +186,14 @@ func InjectVisualThemes(homeDir string, adapter agents.Adapter) (InjectionResult
 	result := InjectionResult{Changed: writeResult.Changed, Files: []string{paths[0]}}
 
 	settingsPath := VisualThemeSettingsPath(homeDir, adapter)
-	switched, err := migrateLegacyThemeSetting(settingsPath, adapter.Agent(), legacyNames)
-	if err != nil {
-		return InjectionResult{}, err
-	}
-	if switched {
+	migration := migrateLegacyThemeSetting(settingsPath, adapter.Agent(), legacyNames)
+	if migration == themeSettingSwitched {
 		result.Changed = true
 		result.Files = append(result.Files, settingsPath)
+	}
+	if migration == themeSettingSkipped {
+		// The selection may still name a legacy theme, so its files stay.
+		return result, nil
 	}
 
 	root := filepath.Dir(paths[0])
@@ -267,37 +268,56 @@ func visualThemeDir(homeDir string, adapter agents.Adapter) string {
 	}
 }
 
+// themeSettingMigration is the outcome of migrateLegacyThemeSetting. Owned
+// legacy theme files may be removed only when the selection no longer names
+// them: after a switch, or when the settings selected no legacy theme.
+type themeSettingMigration int
+
+const (
+	// themeSettingNotLegacy: settings are missing or readable and select no
+	// legacy managed theme.
+	themeSettingNotLegacy themeSettingMigration = iota
+	// themeSettingSwitched: a legacy selection now selects Ordo.
+	themeSettingSwitched
+	// themeSettingSkipped: the settings could not be read, parsed or written
+	// (including a refused OpenCode file), so the selection may still name a
+	// legacy theme.
+	themeSettingSkipped
+)
+
 // migrateLegacyThemeSetting selects the Ordo theme only when the settings file
-// currently selects one of the legacy managed names. A settings file it cannot
-// read or parse skips the switch and is left untouched: the visual theme step
-// never depended on settings before this migration, so a broken file must not
-// abort it.
-func migrateLegacyThemeSetting(settingsPath string, agent model.AgentID, legacyNames []string) (bool, error) {
+// currently selects one of the legacy managed names. Settings it cannot read,
+// parse or rewrite are left untouched and reported as skipped: the visual theme
+// step never depended on settings before this migration, so a broken or locked
+// file must not abort it.
+func migrateLegacyThemeSetting(settingsPath string, agent model.AgentID, legacyNames []string) themeSettingMigration {
 	if settingsPath == "" {
-		return false, nil
+		return themeSettingNotLegacy
 	}
 	raw, err := osReadFile(settingsPath)
-	if err != nil || raw == nil {
-		return false, nil
+	if err != nil {
+		return themeSettingSkipped
+	}
+	if raw == nil {
+		return themeSettingNotLegacy
 	}
 	root, err := filemerge.UnmarshalJSONObject(raw)
 	if err != nil {
-		return false, nil
+		return themeSettingSkipped
 	}
 	current, _ := root["theme"].(string)
 	if !slices.Contains(legacyNames, current) {
-		return false, nil
+		return themeSettingNotLegacy
 	}
 	if agent == model.AgentOpenCode {
 		if err := filemerge.RefuseLockedSettingsFile(settingsPath); err != nil {
-			return false, err
+			return themeSettingSkipped
 		}
 	}
-	writeResult, err := mergeJSONFile(settingsPath, themeOverlayJSON)
-	if err != nil {
-		return false, err
+	if _, err := mergeJSONFile(settingsPath, themeOverlayJSON); err != nil {
+		return themeSettingSkipped
 	}
-	return writeResult.Changed, nil
+	return themeSettingSwitched
 }
 
 // removeOwnedLegacyTheme deletes a legacy theme file only when it is a regular

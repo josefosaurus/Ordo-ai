@@ -571,11 +571,110 @@ func TestInjectVisualThemesSkipsSettingsMigrationForMalformedSettings(t *testing
 			t.Fatalf("%s malformed settings changed: %q, %v", adapter.Agent(), got, err)
 		}
 	}
+	// The broken file may still select a legacy theme, so its files stay.
 	for _, path := range legacy {
-		if _, err := os.Stat(path); !os.IsNotExist(err) {
-			t.Fatalf("owned legacy theme %q should still be removed: %v", path, err)
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("legacy theme %q must be kept while the selection cannot migrate: %v", path, err)
 		}
 	}
+}
+
+// assertLegacyKeptAfterSkippedMigration runs the visual theme step against
+// settings whose legacy selection cannot be migrated and checks the step
+// succeeds, writes the Ordo theme, leaves settings untouched and keeps the
+// owned legacy theme files the selection may still point at.
+func assertLegacyKeptAfterSkippedMigration(t *testing.T, home string, adapter agents.Adapter, settings string, legacy []string) {
+	t.Helper()
+	before, _ := os.ReadFile(settings)
+	result, err := InjectVisualThemes(home, adapter)
+	if err != nil {
+		t.Fatalf("%s InjectVisualThemes() error = %v; want skipped migration", adapter.Agent(), err)
+	}
+	if len(result.Files) != 1 || result.Files[0] != VisualThemePaths(home, adapter)[0] {
+		t.Fatalf("%s files = %#v; want only the Ordo theme", adapter.Agent(), result.Files)
+	}
+	if _, err := os.Stat(VisualThemePaths(home, adapter)[0]); err != nil {
+		t.Fatalf("%s Ordo theme missing: %v", adapter.Agent(), err)
+	}
+	if after, _ := os.ReadFile(settings); !bytes.Equal(after, before) {
+		t.Fatalf("%s settings changed: %q -> %q", adapter.Agent(), before, after)
+	}
+	for _, path := range legacy {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("%s legacy theme %q must be kept: %v", adapter.Agent(), path, err)
+		}
+	}
+}
+
+func TestInjectVisualThemesKeepsLegacyFilesWhenSettingsLocked(t *testing.T) {
+	home, xdg := t.TempDir(), t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	legacyThemeFixture(t, home)
+	for _, adapter := range []agents.Adapter{opencodeAdapter(), claudeAdapter()} {
+		// A symlinked settings file is refused for OpenCode and fails the
+		// base writer for Claude; either way the selection cannot migrate.
+		settings := VisualThemeSettingsPath(home, adapter)
+		target := filepath.Join(home, "dotfiles", string(adapter.Agent())+".json")
+		writeSettings(t, target, `{"theme":"gentleman"}`)
+		if err := os.MkdirAll(filepath.Dir(settings), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Symlink(target, settings); err != nil {
+			t.Skipf("symlinks unavailable: %v", err)
+		}
+		assertLegacyKeptAfterSkippedMigration(t, home, adapter, target, LegacyVisualThemePaths(home, adapter))
+	}
+}
+
+// With no settings file, or a readable one that selects no legacy theme,
+// nothing can point at the owned legacy files, so they are removed.
+func TestInjectVisualThemesRemovesOwnedLegacyFilesWhenSelectionNotLegacy(t *testing.T) {
+	home, xdg := t.TempDir(), t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	legacy := legacyThemeFixture(t, home)
+	writeSettings(t, claudeAdapter().SettingsPath(home), `{"theme":"dark"}`)
+	for _, adapter := range []agents.Adapter{claudeAdapter(), opencodeAdapter()} {
+		if _, err := InjectVisualThemes(home, adapter); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, path := range legacy {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("owned legacy theme %q should be removed: %v", path, err)
+		}
+	}
+	if got := settingsTheme(t, claudeAdapter().SettingsPath(home)); got != "dark" {
+		t.Fatalf("user theme = %q, want dark", got)
+	}
+}
+
+func TestInjectVisualThemesKeepsLegacyFilesWhenSettingsUnreadable(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("file permission bits are not supported on Windows")
+	}
+	home, xdg := t.TempDir(), t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	legacyThemeFixture(t, home)
+	adapter := claudeAdapter()
+	settings := VisualThemeSettingsPath(home, adapter)
+	writeSettings(t, settings, `{"theme":"gentleman"}`)
+	if err := os.Chmod(settings, 0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(settings, 0o644) })
+	if _, err := os.ReadFile(settings); err == nil {
+		t.Skip("running with privileges that ignore file mode 0000")
+	}
+	assertLegacyKeptAfterSkippedMigration(t, home, adapter, settings, LegacyVisualThemePaths(home, adapter))
 }
 
 // OpenCode theme assets live under the adapter config root, like its plugins
