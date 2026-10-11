@@ -1,6 +1,6 @@
 # Telemetry
 
-Gentle AI sends a small amount of anonymous usage telemetry so the project
+Ordo sends a small amount of anonymous usage telemetry so the project
 knows how many installs stay alive and how the review pipeline gets used,
 without collecting anything about you, your code, your machine, or your
 organization.
@@ -239,7 +239,7 @@ Missing/default-zero source tokens remain unavailable; available reasoning is
 preserved, and total tokens are not inferred. Native `build` and `plan`, plus
 `gentle-orchestrator`, map to the orchestrator class. OpenCode's managed fallback
 agents map `explore` to the built-in `explore` class and `general` to the built-in
-`worker` class. Agent names in the runtime contract's named Gentle AI allowlist
+`worker` class. Agent names in the runtime contract's named Ordo allowlist
 map to their built-in class. Other non-empty names map to `custom`/`unknown`;
 their raw names never leave native code. Missing names remain `unknown`/`unknown`.
 
@@ -276,7 +276,7 @@ uses the same 16 KiB/500 ms input bound, and sends at most once with no daemon,
 queue, persistence, retry, or filesystem mutation.
 
 For `SubagentStop`, the documented `agent_type` names the subagent frontmatter.
-Names in Gentle AI's runtime agent-class registry become `built_in` observations.
+Names in Ordo's runtime agent-class registry become `built_in` observations.
 Claude Code's own built-in subagents map by exact, case-sensitive name:
 `general-purpose` to the built-in `worker` class and `Explore` to the built-in
 `explore` class. All other names become `custom`/`unknown` without transmitting
@@ -375,7 +375,7 @@ that hook `turn_id` has matching semantics in both parent and subagent transcrip
 so sequence segmentation is the bounded fallback and private IDs stay memory-only.
 Codex's [subagent documentation](https://developers.openai.com/codex/subagents)
 describes subagent configuration. `Stop` is classified as the orchestrator.
-When response model evidence is missing, a valid persisted Gentle AI phase or
+When response model evidence is missing, a valid persisted Ordo phase or
 orchestrator model assignment is used with `selected` evidence. The transcript
 `effort` or nested `collaboration_mode.settings.reasoning_effort` is effective
 evidence only and never becomes `selected_effort`. Missing, malformed, or
@@ -535,7 +535,7 @@ A review's outcome (approved, one bounded correction, or escalated) increments i
 first, and only then opportunistically check whether a heartbeat is due —
 the same 24-hour limit and failure backoff apply, so this adds at most one
 send per day even for a host that finishes many reviews in a
-row. This is what lets a host such as Gentle Pi, which drives ordo only
+row. This is what lets a host such as the `gentle-pi` Pi package, which drives ordo only
 through `review ...` and `sdd-attempt ...` and never through
 `install`/`update`/`sync`, still send a heartbeat.
 
@@ -572,14 +572,14 @@ ordo telemetry trigger [--json]
   history, or the counters. It also reports `last_failure_at` and, while a
   failed send is still in its 6-hour backoff window, `backoff_until`.
 - `enable` / `disable` set the local opt-out persisted next to the rest of
-  gentle-ai's state.
+  Ordo's state.
 - `preview` prints the exact event that would be sent next, without sending
   it.
 - `trigger` is the host entry point: it runs exactly the same opportunistic
   check `install`/`update`/`sync` already run internally (enrollment,
   install-once, the 24-hour heartbeat limit, the failure backoff, and every
   kill switch all apply). A host that only ever drives ordo through
-  `review ...` or `sdd-attempt ...` — Gentle Pi, for example — can call this
+  `review ...` or `sdd-attempt ...` — the `gentle-pi` Pi package, for example — can call this
   once per session to still get a heartbeat instead of never sending one.
   Finishing a native review already
   triggers this internally too, so `trigger` mainly matters for a host that
@@ -594,6 +594,6 @@ nothing to look up or delete on request.
 
 ## Endpoint
 
-The default collector is `https://telemetry.gentlemanprogramming.com/v1/events`,
-overridable with `GENTLE_AI_TELEMETRY_ENDPOINT` (useful for self-hosting or
-testing against a local collector).
+Ordo ships with no default collector, so telemetry sends nothing until an
+endpoint is configured with `GENTLE_AI_TELEMETRY_ENDPOINT`, for example a
+self-hosted collector or a local one for testing.

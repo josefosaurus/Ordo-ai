@@ -1,6 +1,6 @@
 [Unit]
 Description=gentle-telemetry collector
-Documentation=https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/telemetry-collector.md
+Documentation=https://github.com/josefosaurus/Ordo-ai/blob/main/docs/telemetry-collector.md
 After=network-online.target
 Wants=network-online.target
 

@@ -12,10 +12,10 @@
 #
 # Usage:
 #   sudo ./install.sh --release-tag v0.1.0
-#   sudo ./install.sh --local-source /path/to/gentle-ai/checkout
-#   sudo ./install.sh --local-source /path/to/gentle-ai/checkout \
+#   sudo ./install.sh --local-source /path/to/ordo/checkout
+#   sudo ./install.sh --local-source /path/to/ordo/checkout \
 #       --domain telemetry.example.com --with-grafana
-#   sudo ./install.sh --local-source /path/to/gentle-ai/checkout \
+#   sudo ./install.sh --local-source /path/to/ordo/checkout \
 #       --with-victoria-metrics --with-grafana
 #
 # gentle-telemetry (cmd/gentle-telemetry) is not yet wired into

@@ -19,7 +19,7 @@ When configured, ordo installs:
 | Skills directory | `~/.kiro/skills/` |
 | MCP config | `~/.kiro/settings/mcp.json` *(separate root — see note below)* |
 
-> **Auto-install not supported.** Kiro must be installed manually before running gentle-ai.
+> **Auto-install not supported.** Kiro must be installed manually before running ordo.
 > Download from: [kiro.dev/downloads](https://kiro.dev/downloads)
 
 ---
@@ -45,7 +45,7 @@ The orchestrator stays in the steering file and coordinates phase execution, whi
 sdd-init → sdd-explore → sdd-propose → sdd-spec → sdd-design → sdd-tasks → sdd-apply → sdd-archive (sdd-verify is optional) (+ sdd-onboard)
 ```
 
-This follows the same SDD architecture used in gentle-ai: orchestrator coordinates, phase agents execute, Engram™ persists artifacts across phases.
+This follows the same SDD architecture used in Ordo: orchestrator coordinates, phase agents execute, Engram™ persists artifacts across phases.
 
 **Approval gates** remain required before `apply` and `archive`.
 

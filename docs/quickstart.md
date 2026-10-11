@@ -1,6 +1,6 @@
 # Quickstart
 
-Ordo is based on Gentle AI. It configures the AI coding agents you already have; it never installs an agent for you.
+Ordo configures the AI coding agents you already have; it never installs an agent for you.
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ git clone https://github.com/josefosaurus/Ordo-ai.git && cd Ordo-ai
 go build -o ordo ./cmd/gentle-ai     # requires Go 1.25.10+
 ```
 
-Do not use `go install github.com/gentleman-programming/gentle-ai/...`: the module path still names upstream, so it installs Gentle AI rather than Ordo.
+Do not use `go install github.com/gentleman-programming/gentle-ai/...`: the module path still names upstream, so it installs the upstream CLI rather than Ordo.
 
 ## Run
 
@@ -87,7 +87,7 @@ When checks pass, installer reports:
 
 If something looks wrong after install, run `ordo doctor` for a read-only health check. It verifies tool binaries, `state.json` validity, Engram™ MCP reachability, and disk space — each check reports pass/warn/fail with a remedy hint.
 
-Gentle Pi is not supported by Ordo yet. For reference, upstream's Pi-only flow shows the Pi package stack instead of the regular components. It installs `gentle-pi` and `gentle-engram`, runs `pi-engram init` through the pinned `gentle-engram` package, then installs `pi-web-access` and `pi-btw`. Pi's built-in MCP support (Pi >= 0.99.0) runs the Engram and CodeGraph MCP servers from `mcp.json`. It removes a previously installed `pi-mcp-adapter`, because an extension that registers `/mcp` replaces Pi's built-in MCP support.
+Pi through the `gentle-pi` package is not supported by Ordo yet. For reference, upstream's Pi-only flow shows the Pi package stack instead of the regular components. It installs `gentle-pi` and `gentle-engram`, runs `pi-engram init` through the pinned `gentle-engram` package, then installs `pi-web-access` and `pi-btw`. Pi's built-in MCP support (Pi >= 0.99.0) runs the Engram and CodeGraph MCP servers from `mcp.json`. It removes a previously installed `pi-mcp-adapter`, because an extension that registers `/mcp` replaces Pi's built-in MCP support.
 
 ## Start working with ODD
 

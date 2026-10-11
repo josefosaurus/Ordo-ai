@@ -12,10 +12,10 @@
 | SDD | `sdd` | Optional Spec-Driven Development workflow, including `sdd-onboard`; selected explicitly when its formal phase artifacts are wanted |
 | Skills | `skills` | Curated coding skill library |
 | Context7 | `context7` | MCP server for live framework/library documentation |
-| Persona | `persona` | Managed Gentleman/neutral persona injection, or unmanaged custom persona mode |
+| Persona | `persona` | Managed Mentor (`gentleman`)/neutral persona injection, or unmanaged custom persona mode |
 | Permissions | `permissions` | Security-first defaults and guardrails. Applied to Claude Code and OpenCode (the two adapters with permissions overlay support). Default sensitive-paths deny list: `~/.ssh/*`, `~/.ssh/**/*`, `**/*.pem`, `**/*.key`, `**/.env*`, `~/.credentials/*`, `~/.aws/credentials`, `~/.config/gh/hosts.yml`, `~/Library/Keychains/*`, `**/secrets/*`, `**/*.p12`, `**/*.pfx` |
 | GGA | `gga` | Gentleman Guardian Angel — AI provider switcher |
-| Theme | `theme` | Gentleman Kanagawa theme overlay |
+| Theme | `theme` | Ordo theme overlay (Rosé Pine) for Claude Code and OpenCode |
 
 ODD (Organic Driven Development) is shared routing guidance, not a separate component to install. Use it for everyday direct/delegated work; installing the SDD component does not select SDD for a task. See [ODD and recovery](usage.md#organic-driven-development-odd).
 
@@ -52,7 +52,7 @@ Community Tools are opt-in and are not included by presets or automatic detectio
 
 ## Skills
 
-### Included Skills (installed by gentle-ai)
+### Included Skills (installed by ordo)
 
 22 skill files organized by category, embedded in the binary and injected into your agent's configuration:
 
@@ -92,7 +92,7 @@ Of these, `go-testing`, `skill-creator`, `skill-improver`, `skill-registry`, `ch
 
 ### Coding Skills (separate repository)
 
-For framework-specific skills (React 19, Angular, TypeScript, Tailwind 4, Zod 4, Playwright, etc.), see [Gentleman-Programming/Gentleman-Skills](https://github.com/Gentleman-Programming/Gentleman-Skills). These are maintained by the community and installed separately by cloning the repo and copying skills to your agent's skills directory.
+Framework-specific skills (React 19, Angular, TypeScript, Tailwind 4, Zod 4, Playwright, etc.) are not bundled. Install them separately by copying their skill folders into your agent's skills directory.
 
 ---
 

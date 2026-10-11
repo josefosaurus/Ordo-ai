@@ -88,7 +88,7 @@ Why it works:
 
 ## Cloud Sync (Optional)
 
-Engram Cloud is optional replication for people who want project memories to follow them across machines they own. Local SQLite memory remains the default and authoritative source. Gentle AI ships the Engram client, but the cloud runtime and server lifecycle are owned by Engram upstream.
+Engram Cloud is optional replication for people who want project memories to follow them across machines they own. Local SQLite memory remains the default and authoritative source. Ordo ships the Engram client, but the cloud runtime and server lifecycle are owned by Engram upstream.
 
 Use this only when you already have an Engram Cloud server URL and token.
 
@@ -151,7 +151,7 @@ engram cloud upgrade repair --project <project-name> --dry-run
 engram cloud upgrade repair --project <project-name> --apply
 ```
 
-### What Gentle AI does not manage
+### What Ordo does not manage
 
 - It does not provision or operate an Engram Cloud server.
 - It does not make cloud sync mandatory; local memory is still the default.

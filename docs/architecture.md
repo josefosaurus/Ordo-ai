@@ -55,7 +55,7 @@ RUN_FULL_E2E=1 RUN_BACKUP_TESTS=1 ./e2e/docker-test.sh
 ordo install --dry-run --agent claude-code --preset minimal
 
 # Dry-run smoke test (Windows PowerShell)
-gentle-ai.exe install --dry-run --agent claude-code --preset minimal
+ordo.exe install --dry-run --agent claude-code --preset minimal
 ```
 
 Test coverage is broad and changes frequently. Keep this section qualitative unless counts are generated automatically:
@@ -65,18 +65,6 @@ Test coverage is broad and changes frequently. Keep this section qualitative unl
 - Golden fixtures snapshot generated component output under `testdata/`.
 - Full pipeline paths are tested: detection, planning, execution, backup, restore, and verification.
 - Agent adapter tests include cross-platform path validation.
-
----
-
-## Relationship to Gentleman.Dots
-
-| | Gentleman.Dots | AI Gentle Stack |
-|--|---------------|-----------------|
-| **Purpose** | Dev environment (editors, shells, terminals) | AI development layer (agents, memory, skills) |
-| **Installs** | Neovim, Fish/Zsh, Tmux/Zellij, Ghostty | Configures Claude Code, OpenCode, Gemini CLI, Cursor, VS Code Copilot, Codex, Windsurf, Antigravity |
-| **Overlap** | None — complementary | None — different layer |
-
-Install Gentleman.Dots first for your dev environment, then AI Gentle Stack for the AI layer on top.
 
 ---
 

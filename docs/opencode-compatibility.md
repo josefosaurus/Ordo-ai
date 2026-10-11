@@ -1,6 +1,6 @@
 # OpenCode compatibility
 
-Gentle AI selects integrations from the detected OpenCode major version. It does
+Ordo selects integrations from the detected OpenCode major version. It does
 not silently migrate an existing installation. Unknown, unsupported or ambiguous
 version evidence refuses incompatible writes rather than assuming V2.
 
@@ -8,7 +8,7 @@ version evidence refuses incompatible writes rather than assuming V2.
 | --- | --- | --- |
 | Config, model references and permissions | Existing behavior retained | Native config/profile/MCP handling and permission-preserving merges tested |
 | Managed plugins | Existing assets retained | Four assets: telemetry, model catalog, skill registry and review transport |
-| Gentle logo | Existing placement unchanged | Explicitly skipped; no equivalent `home_logo` slot, no relocation or config writes |
+| Ordo logo | Existing placement unchanged | Explicitly skipped; no equivalent `home_logo` slot, no relocation or config writes |
 | Community TUI plugins | Existing integration retained | Compatibility unproven; installation/update refuses, not silently omitted |
 | Native review | Existing V1 capability path retained | Admitted only for a V2 runtime whose managed plugin declares the V2 relay contract (see below) |
 
@@ -106,7 +106,7 @@ This mode checks only generic foreground dispatch, raw output, hooks, inherited
 instructions and tool inventory. It does not copy a native binary, call shell or
 review APIs, or configure a review actor; the V2 review proof above uses the
 separate `--review-scenario` mode (`--capability-gate stubbed|real`). The legacy
-`--loopback /path/to/gentle-ai` review check is mutually exclusive with this mode.
+`--loopback /path/to/ordo` review check is mutually exclusive with this mode.
 The harness has 66 fixture unit tests (`python3 -m unittest test_opencode_v2_host_test`
 from `scripts/`). An isolated OpenCode 2.0.18 run with SDK 2.0.4
 also passed in both global and project scopes: four managed plugins activated,
