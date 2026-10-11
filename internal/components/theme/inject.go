@@ -94,23 +94,11 @@ var ordoOpenCodeTheme = openCodeTheme{
 	),
 }
 
-// legacyTheme is a theme asset that earlier releases installed under an
-// upstream name. Ordo proves it wrote a file only when its bytes still hash to
-// the digest of the exact content it shipped.
-type legacyTheme struct {
-	file   string
-	sha256 string
-}
-
+// Theme files earlier releases installed under upstream names, per agent.
+// Install and sync leave them in place; uninstall removes them.
 var (
-	legacyClaudeThemes = []legacyTheme{
-		{file: "gentleman.json", sha256: "d4053c31da27ea340a48dde843b9ad8914acea557b13ff375ecbd8fc09c1f5fc"},
-		{file: "gentleman-cute.json", sha256: "88b8ed78227fa1541a3cd48b121116a08bee4a5e5bbe78d321b65846d57de0e9"},
-	}
-	legacyOpenCodeThemes = []legacyTheme{
-		{file: "gentleman.json", sha256: "1f09532ac91b066ad71d5940bce65ce58a134266ef010971d5f597e5d4891f52"},
-		{file: "gentleman-cute.json", sha256: "b681e9860137bb481870d0b82d138f0cb95a52241424ea2f07e187e69f93c2c7"},
-	}
+	legacyClaudeThemeFiles   = []string{"gentleman.json", "gentleman-cute.json"}
+	legacyOpenCodeThemeFiles = []string{"gentleman.json", "gentleman-cute.json"}
 	// Settings values earlier releases selected, per agent.
 	legacyClaudeThemeNames   = []string{"gentleman", "Gentleman Cute"}
 	legacyOpenCodeThemeNames = []string{"gentleman", "gentleman-cute"}
@@ -154,10 +142,10 @@ func injectSettings(settingsPath string) (InjectionResult, error) {
 }
 
 // InjectVisualThemes writes the managed Ordo theme asset without selecting it
-// in an agent's active settings. It also migrates the upstream theme state that
-// earlier releases installed: a settings theme value naming a legacy managed
-// theme switches to Ordo, and a legacy theme file is removed only while its
-// bytes still match what Ordo wrote. Any other user choice is left alone.
+// in an agent's active settings. It also migrates a settings theme value that
+// names a legacy managed theme to Ordo; any other user choice is left alone.
+// Legacy theme files stay in place until uninstall, so a selection this step
+// cannot migrate (or a project-scoped one it never reads) never dangles.
 func InjectVisualThemes(homeDir string, adapter agents.Adapter) (InjectionResult, error) {
 	paths := VisualThemePaths(homeDir, adapter)
 	if len(paths) == 0 {
@@ -165,13 +153,12 @@ func InjectVisualThemes(homeDir string, adapter agents.Adapter) (InjectionResult
 	}
 
 	var value any
-	var legacy []legacyTheme
 	var legacyNames []string
 	switch adapter.Agent() {
 	case model.AgentClaudeCode:
-		value, legacy, legacyNames = ordoClaudeTheme, legacyClaudeThemes, legacyClaudeThemeNames
+		value, legacyNames = ordoClaudeTheme, legacyClaudeThemeNames
 	case model.AgentOpenCode:
-		value, legacy, legacyNames = ordoOpenCodeTheme, legacyOpenCodeThemes, legacyOpenCodeThemeNames
+		value, legacyNames = ordoOpenCodeTheme, legacyOpenCodeThemeNames
 	}
 
 	content, err := json.MarshalIndent(value, "", "  ")
@@ -191,23 +178,6 @@ func InjectVisualThemes(homeDir string, adapter agents.Adapter) (InjectionResult
 		result.Changed = true
 		result.Files = append(result.Files, settingsPath)
 	}
-	if migration == themeSettingSkipped {
-		// The selection may still name a legacy theme, so its files stay.
-		return result, nil
-	}
-
-	root := filepath.Dir(paths[0])
-	for _, old := range legacy {
-		path := filepath.Join(root, old.file)
-		removed, err := removeOwnedLegacyTheme(path, old.sha256)
-		if err != nil {
-			return InjectionResult{}, err
-		}
-		if removed {
-			result.Changed = true
-			result.Files = append(result.Files, path)
-		}
-	}
 	return result, nil
 }
 
@@ -221,23 +191,23 @@ func VisualThemePaths(homeDir string, adapter agents.Adapter) []string {
 }
 
 // LegacyVisualThemePaths returns the upstream theme assets earlier releases
-// installed for an adapter. Install removes them only when it can prove Ordo
-// wrote them; uninstall removes them like the current asset.
+// installed for an adapter. Install and sync leave them in place; uninstall
+// removes them like the current asset.
 func LegacyVisualThemePaths(homeDir string, adapter agents.Adapter) []string {
 	root := visualThemeDir(homeDir, adapter)
 	if root == "" {
 		return nil
 	}
-	var legacy []legacyTheme
+	var legacy []string
 	switch adapter.Agent() {
 	case model.AgentClaudeCode:
-		legacy = legacyClaudeThemes
+		legacy = legacyClaudeThemeFiles
 	case model.AgentOpenCode:
-		legacy = legacyOpenCodeThemes
+		legacy = legacyOpenCodeThemeFiles
 	}
 	paths := make([]string, 0, len(legacy))
-	for _, old := range legacy {
-		paths = append(paths, filepath.Join(root, old.file))
+	for _, file := range legacy {
+		paths = append(paths, filepath.Join(root, file))
 	}
 	return paths
 }
@@ -268,9 +238,7 @@ func visualThemeDir(homeDir string, adapter agents.Adapter) string {
 	}
 }
 
-// themeSettingMigration is the outcome of migrateLegacyThemeSetting. Owned
-// legacy theme files may be removed only when the selection no longer names
-// them: after a switch, or when the settings selected no legacy theme.
+// themeSettingMigration is the outcome of migrateLegacyThemeSetting.
 type themeSettingMigration int
 
 const (
@@ -280,8 +248,7 @@ const (
 	// themeSettingSwitched: a legacy selection now selects Ordo.
 	themeSettingSwitched
 	// themeSettingSkipped: the settings could not be read, parsed or written
-	// (including a refused OpenCode file), so the selection may still name a
-	// legacy theme.
+	// (including a refused OpenCode file) and were left untouched.
 	themeSettingSkipped
 )
 
@@ -318,32 +285,6 @@ func migrateLegacyThemeSetting(settingsPath string, agent model.AgentID, legacyN
 		return themeSettingSkipped
 	}
 	return themeSettingSwitched
-}
-
-// removeOwnedLegacyTheme deletes a legacy theme file only when it is a regular
-// file whose bytes match the digest of the content Ordo shipped.
-func removeOwnedLegacyTheme(path, wantSHA256 string) (bool, error) {
-	info, err := os.Lstat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		}
-		return false, fmt.Errorf("stat legacy theme %q: %w", path, err)
-	}
-	if !info.Mode().IsRegular() {
-		return false, nil
-	}
-	digest, _, err := filemerge.FileDigest(path)
-	if err != nil {
-		return false, fmt.Errorf("hash legacy theme %q: %w", path, err)
-	}
-	if digest != wantSHA256 {
-		return false, nil
-	}
-	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
-		return false, fmt.Errorf("remove legacy theme %q: %w", path, err)
-	}
-	return true, nil
 }
 
 func mergeJSONFile(path string, overlay []byte) (filemerge.WriteResult, error) {

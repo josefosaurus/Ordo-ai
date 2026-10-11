@@ -3231,14 +3231,11 @@ func backupTargets(homeDir, workspaceDir string, scope InstallScope, selection m
 				}
 			}
 		}
-		// Visual theme backup also captures the legacy upstream theme files and
-		// the settings file, which the step may remove or switch to Ordo.
-		// Backup-only: verification stays on the Ordo theme asset.
+		// Visual theme backup also captures the settings file, whose legacy
+		// theme selection the step may switch to Ordo. Backup-only:
+		// verification stays on the Ordo theme asset.
 		if component == model.ComponentClaudeTheme {
 			for _, adapter := range adapters {
-				for _, path := range theme.LegacyVisualThemePaths(homeDir, adapter) {
-					paths[path] = struct{}{}
-				}
 				if path := theme.VisualThemeSettingsPath(homeDir, adapter); path != "" {
 					paths[path] = struct{}{}
 				}

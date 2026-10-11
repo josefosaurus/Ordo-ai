@@ -474,9 +474,10 @@ func TestInjectVisualThemesMigratesOwnedLegacyThemes(t *testing.T) {
 					t.Fatalf("%s Ordo theme missing: %v", adapter.Agent(), err)
 				}
 			}
+			// Install and sync keep legacy theme files; only uninstall removes them.
 			for _, path := range legacy {
-				if _, err := os.Stat(path); !os.IsNotExist(err) {
-					t.Fatalf("owned legacy theme %q should be removed: %v", path, err)
+				if _, err := os.Stat(path); err != nil {
+					t.Fatalf("legacy theme %q must be kept after a switch: %v", path, err)
 				}
 			}
 			for _, path := range []string{claudeSettings, ocSettings} {
@@ -491,7 +492,7 @@ func TestInjectVisualThemesMigratesOwnedLegacyThemes(t *testing.T) {
 	}
 }
 
-func TestInjectVisualThemesKeepsUnprovenLegacyFilesButSwitchesSetting(t *testing.T) {
+func TestInjectVisualThemesKeepsEditedLegacyFilesButSwitchesSetting(t *testing.T) {
 	home, xdg := t.TempDir(), t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
@@ -511,8 +512,8 @@ func TestInjectVisualThemesKeepsUnprovenLegacyFilesButSwitchesSetting(t *testing
 	if got, err := os.ReadFile(legacy[0]); err != nil || !bytes.Equal(got, edited) {
 		t.Fatalf("user-edited legacy theme changed: %q, %v", got, err)
 	}
-	if _, err := os.Stat(legacy[1]); !os.IsNotExist(err) {
-		t.Fatalf("unchanged legacy theme %q should be removed: %v", legacy[1], err)
+	if _, err := os.Stat(legacy[1]); err != nil {
+		t.Fatalf("unchanged legacy theme %q must be kept: %v", legacy[1], err)
 	}
 	if got := settingsTheme(t, settings); got != "ordo" {
 		t.Fatalf("theme = %q, want ordo", got)
@@ -629,9 +630,10 @@ func TestInjectVisualThemesKeepsLegacyFilesWhenSettingsLocked(t *testing.T) {
 	}
 }
 
-// With no settings file, or a readable one that selects no legacy theme,
-// nothing can point at the owned legacy files, so they are removed.
-func TestInjectVisualThemesRemovesOwnedLegacyFilesWhenSelectionNotLegacy(t *testing.T) {
+// With no settings file, or a readable one that selects no legacy theme, the
+// legacy files are still kept: a project-scoped selection the step never reads
+// may point at them. Only uninstall removes them.
+func TestInjectVisualThemesKeepsLegacyFilesWhenSelectionNotLegacy(t *testing.T) {
 	home, xdg := t.TempDir(), t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
@@ -645,8 +647,8 @@ func TestInjectVisualThemesRemovesOwnedLegacyFilesWhenSelectionNotLegacy(t *test
 		}
 	}
 	for _, path := range legacy {
-		if _, err := os.Stat(path); !os.IsNotExist(err) {
-			t.Fatalf("owned legacy theme %q should be removed: %v", path, err)
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("legacy theme %q must be kept: %v", path, err)
 		}
 	}
 	if got := settingsTheme(t, claudeAdapter().SettingsPath(home)); got != "dark" {

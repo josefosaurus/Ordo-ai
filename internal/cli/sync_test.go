@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -1763,18 +1762,14 @@ func TestRunSyncMigratesLegacyVisualThemeSelection(t *testing.T) {
 		backup.UserHomeDirFn = restoreBackupHome
 	})
 
-	// Sync snapshots what the migration may remove or switch, backup-only.
+	// Sync snapshots the settings the migration may switch, backup-only.
 	agentIDs := []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}
 	selection := model.Selection{Agents: agentIDs, Components: []model.ComponentID{model.ComponentClaudeTheme}}
 	targets, err := syncBackupTargetsScoped(home, workspace, ScopeGlobal, selection, resolveAdapters(agentIDs))
 	if err != nil {
 		t.Fatalf("syncBackupTargetsScoped() error = %v", err)
 	}
-	for _, want := range []string{claudeSettings, openCodeSettings, editedLegacy, filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json")} {
-		if !slices.Contains(targets, want) {
-			t.Fatalf("sync backup targets = %v; missing %q", targets, want)
-		}
-	}
+	assertVisualThemeBackupTargets(t, targets, claudeSettings, openCodeSettings, editedLegacy, home)
 
 	if _, err := RunSync([]string{"--agents", "claude-code,opencode"}); err != nil {
 		t.Fatalf("RunSync() error = %v", err)

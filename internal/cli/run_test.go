@@ -318,8 +318,8 @@ func TestInstallThemeRollbackRestoresSelectedJSONCBytesAndMode(t *testing.T) {
 }
 
 // legacyVisualThemeFixture seeds the upstream theme state an earlier release
-// left behind: legacy settings selections and a legacy theme file whose bytes
-// Ordo cannot prove it wrote.
+// left behind: legacy settings selections, a user-edited legacy theme file and
+// an unedited one.
 func legacyVisualThemeFixture(t *testing.T, home string) (claudeSettings, openCodeSettings, editedLegacy string) {
 	t.Helper()
 	setOpenCodeTestHome(t, home)
@@ -329,9 +329,10 @@ func legacyVisualThemeFixture(t *testing.T, home string) (claudeSettings, openCo
 	openCodeSettings = filepath.Join(home, ".config", "opencode", "opencode.json")
 	editedLegacy = filepath.Join(home, ".claude", "themes", "gentleman.json")
 	for path, content := range map[string]string{
-		claudeSettings:   `{"theme":"Gentleman Cute","keep":true}`,
-		openCodeSettings: `{"theme":"gentleman","keep":true}`,
-		editedLegacy:     `{"name":"gentleman","edited":true}`,
+		claudeSettings:                  `{"theme":"Gentleman Cute","keep":true}`,
+		openCodeSettings:                `{"theme":"gentleman","keep":true}`,
+		editedLegacy:                    `{"name":"gentleman","edited":true}`,
+		uneditedLegacyVisualTheme(home): `{"theme":{}}`,
 	} {
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			t.Fatal(err)
@@ -356,8 +357,32 @@ func assertLegacyVisualThemeMigrated(t *testing.T, home, claudeSettings, openCod
 			t.Fatalf("Ordo theme %q not written: %v", path, err)
 		}
 	}
+	// Install and sync keep legacy theme files; only uninstall removes them.
 	if data, err := os.ReadFile(editedLegacy); err != nil || string(data) != `{"name":"gentleman","edited":true}` {
-		t.Fatalf("unproven legacy theme changed: %s, %v", data, err)
+		t.Fatalf("edited legacy theme changed: %s, %v", data, err)
+	}
+	if data, err := os.ReadFile(uneditedLegacyVisualTheme(home)); err != nil || string(data) != `{"theme":{}}` {
+		t.Fatalf("unedited legacy theme changed: %s, %v", data, err)
+	}
+}
+
+func uneditedLegacyVisualTheme(home string) string {
+	return filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json")
+}
+
+// assertVisualThemeBackupTargets checks the backup set covers the settings the
+// migration may switch and leaves out the legacy theme files it never touches.
+func assertVisualThemeBackupTargets(t *testing.T, targets []string, claudeSettings, openCodeSettings, editedLegacy, home string) {
+	t.Helper()
+	for _, want := range []string{claudeSettings, openCodeSettings} {
+		if !slices.Contains(targets, want) {
+			t.Fatalf("backup targets = %v; missing %q", targets, want)
+		}
+	}
+	for _, legacy := range []string{editedLegacy, uneditedLegacyVisualTheme(home)} {
+		if slices.Contains(targets, legacy) {
+			t.Fatalf("backup targets = %v; legacy theme %q is no longer touched", targets, legacy)
+		}
 	}
 }
 
@@ -371,11 +396,7 @@ func TestInstallVisualThemesMigratesLegacySelection(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{claudeSettings, openCodeSettings, editedLegacy, filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json")} {
-		if !slices.Contains(targets, want) {
-			t.Fatalf("backup targets = %v; missing %q", targets, want)
-		}
-	}
+	assertVisualThemeBackupTargets(t, targets, claudeSettings, openCodeSettings, editedLegacy, home)
 
 	step := componentApplyStep{component: model.ComponentClaudeTheme, homeDir: home, scope: ScopeGlobal, agents: agents}
 	if err := step.Run(); err != nil {
