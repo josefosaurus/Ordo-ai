@@ -418,9 +418,8 @@ releases of the collector, build it directly:
 go build ./cmd/gentle-telemetry
 ```
 
-`deploy/telemetry/install.sh` supports both this local-build path
-(`--local-source`) and, for when a release pipeline exists,
-`--release-tag`.
+`deploy/telemetry/install.sh` builds it the same way from a local checkout
+(`--local-source`).
 
 ## Deploying (`deploy/telemetry/`)
 
