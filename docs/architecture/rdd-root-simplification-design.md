@@ -58,7 +58,7 @@ This design is based on read-only evidence. Values below are snapshot-specific a
 
 | Evidence | Value |
 |---|---|
-| Prior system audit | `docs/audits/2026-07-21-rdd-system-audit.md` (in-repo path; corrected from an external path at landing) |
+| Prior system audit | 2026-07-21 RDD system audit (upstream history; not kept in this repository) |
 | Prior audit SHA-256 | `4b41d15aa6c7959628cdd01ef7f759466fc96038948b4ee12c628972441fd923` — recomputed against the in-repo file at landing via `sha256sum`; the measured digest matches |
 | Prior audit baseline | `51a5d9e20706b05718b1f2b7fcafda45bab21802` |
 | Design snapshot | `origin/main` at `ece470dacd0041f394e7f6f3877a6a9fcb3482af` |

@@ -69,7 +69,7 @@ Therefore “green,” “mergeable,” or a stale review is never authority. Th
 
 This design was synthesized from:
 
-- the complete [2026-07-21 Receipt-Driven Development audit](./2026-07-21-rdd-system-audit.md);
+- the complete 2026-07-21 Receipt-Driven Development audit (not kept in this repository);
 - four complete backlog reports and their machine-readable ledgers;
 - the completeness validator, used as authority for taxonomy, totals, live drift, linkage caveats, and decomposition;
 - the 2026-07-23 issue, PR, enriched-PR, linkage, and collision snapshots;
@@ -95,7 +95,7 @@ No issue state was treated as proof of a defect. No CI state was treated as appr
 
 ## 3. What the prior RDD audit proved
 
-The [prior audit](./2026-07-21-rdd-system-audit.md) proved that Gentle AI's review core is not the problem to rewrite. It also proved that the orchestration around that core had become distributed and operation-specific.
+The prior audit proved that Gentle AI's review core is not the problem to rewrite. It also proved that the orchestration around that core had become distributed and operation-specific.
 
 ### 3.1 Trust kernel to preserve
 
