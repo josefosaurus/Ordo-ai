@@ -81,7 +81,7 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
   - Comment-only rewrite through a `go/parser` comment-node tool: 62 files, 100 lines changed. "Gentle AI" prose became "Ordo" or "older releases"; `review_assess.go` comment now says `"ordo "`.
   - Kept: comment references to real identifiers (`restartAfterGentleAIUpgrade` and others), persona IDs, third-party names, upstream issue citations, `<!-- gentle-ai: -->` markers, quoted literals that tests match, and two trailing `// refusal:by-design` comments on code lines in `internal/cli/telemetry.go`.
   - Checks: `go build ./... && go vet ./...` pass; gofmtcheck pass; comment-only diff gate prints nothing; `internal/cli -run 'Guard|Ratchet|Refusal'` ok; components/agents/app/assets ok; deadcode ratchet: no new unreachable functions.
-- [ ] T6 — Follow-ups. Branch `chore/rebrand-follow-ups`. Route: direct inline (mechanical edits).
+- [x] T6 — Follow-ups. Branch `chore/rebrand-follow-ups`. Route: direct inline (mechanical edits).
   - Done: Grafana dashboard title, section and panel text say Ordo, with `runtime_dashboard_test.go` updated in step; `restartAfterGentleAIUpgrade`, `gentleAIUpgradeSucceeded` and their tests renamed to `Ordo` in `internal/app` (the `tui.Model.GentleAIUpgradeVersion` field is unchanged); `review_assess.go` comment describes the real command shape; `docs/telemetry.md` says sends go to the configured collector; `docs/pi.md` grammar.
   - Checks: `go build ./...`, `go vet` (app, cli, telemetrycollector), gofmtcheck pass; `internal/app` and `internal/telemetrycollector` ok.
 
@@ -162,4 +162,5 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
 - T1–T5 merged (PRs #8–#16). T6 follow-ups on `chore/rebrand-follow-ups`.
 - Decided (2026-10-12): `deploy/telemetry/install.sh` drops `--release-tag` and `REPO`; it only builds from `--local-source`.
 - Decided (2026-10-12): `docs/community-roadmap.md` deleted (its issue links are dead; issues are disabled); its `CONTRIBUTING.md` link removed.
-- Open decisions: `docs/architecture/the-organic-rdd-story.md`; `docs/architecture/rdd-shadow-evaluation.md`; `docs/assets/features/gentle-shell.png`.
+- Decided (2026-10-12): `docs/architecture/the-organic-rdd-story.md` (upstream narrative) and `docs/architecture/rdd-shadow-evaluation.md` (documents `GENTLE_AI_RDD_SHADOW`, absent from the code) deleted with their links; unreferenced `docs/assets/features/gentle-shell.png` deleted.
+- No open decisions remain. Next: PR for `chore/rebrand-follow-ups`.
