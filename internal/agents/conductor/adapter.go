@@ -1,7 +1,7 @@
 // Package conductor provides Conductor workspace-orchestrator integration.
 //
 // Conductor is a desktop workspace orchestrator that inherits Claude Code
-// configuration for the workspaces it manages. Gentle AI therefore treats it
+// configuration for the workspaces it manages. Ordo therefore treats it
 // as a detection/catalog-only integration: it never writes Conductor-specific
 // skills, MCP configuration, or system prompt files. All write-capability
 // claims are false by construction and projected from the canonical
@@ -82,7 +82,7 @@ func (a *Adapter) GlobalConfigDir(homeDir string) string {
 	return ConfigPath(homeDir)
 }
 
-// The remaining path methods stay empty: Gentle AI performs no writes for
+// The remaining path methods stay empty: Ordo performs no writes for
 // Conductor, so no write target is advertised and no caller can resolve one.
 
 func (a *Adapter) SystemPromptDir(_ string) string {

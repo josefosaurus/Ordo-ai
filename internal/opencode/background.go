@@ -22,7 +22,7 @@ const (
 	// launcher only supplies the value when this variable is absent.
 	BackgroundSubagentsEnv = "OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS"
 
-	// OwnershipMarker is embedded in every launcher written by Gentle AI.
+	// OwnershipMarker is embedded in every launcher written by Ordo.
 	// It is intentionally stable so deactivation can refuse to remove user files.
 	OwnershipMarker = "gentle-ai:managed-opencode-launcher/v1"
 

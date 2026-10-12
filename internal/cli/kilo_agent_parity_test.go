@@ -25,7 +25,7 @@ var kiloParityAgentNames = []string{
 }
 
 // kiloRetiredReviewAgentNames are the RDD agents earlier releases installed on
-// Kilo; upgrades remove the entries Gentle AI owns.
+// Kilo; upgrades remove the entries Ordo owns.
 var kiloRetiredReviewAgentNames = []string{
 	"review-risk", "review-readability", "review-reliability", "review-resilience",
 	"review-refuter", "review-validator",
@@ -210,7 +210,7 @@ func TestKiloUpgradeRetiresOwnedAgents(t *testing.T) {
 // TestKiloUpgradeRemovesOwnedReviewAgentsAndKeepsUserOnes seeds the review
 // agents an earlier release wrote to Kilo in the managed shape, next to a
 // user's own review agent under an RDD name, and proves install and sync
-// remove only Gentle AI's entries and their orchestrator task permissions.
+// remove only Ordo's entries and their orchestrator task permissions.
 func TestKiloUpgradeRemovesOwnedReviewAgentsAndKeepsUserOnes(t *testing.T) {
 	for _, tc := range []struct {
 		name string
@@ -345,7 +345,7 @@ func TestRetireKiloReviewAgentsPreservesSettingsMode(t *testing.T) {
 
 // TestKiloReviewTaskPermissionCleanupRequiresOwnershipProof proves install and
 // sync drop an orchestrator task permission for a review agent only when this
-// run removed that agent as Gentle AI's: in the managed shape, or under the
+// run removed that agent as Ordo's: in the managed shape, or under the
 // v3.7.0 __managed_by marker. A permission whose agent was already absent is the
 // user's and survives.
 func TestKiloReviewTaskPermissionCleanupRequiresOwnershipProof(t *testing.T) {

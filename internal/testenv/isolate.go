@@ -6,7 +6,7 @@ package testenv
 import "os"
 
 // overrideEnvVars lists the runtime-dir override environment variables that
-// gentle-ai's own agent-path resolution honors unconditionally when set to
+// Ordo's own agent-path resolution honors unconditionally when set to
 // an absolute value, bypassing whatever homeDir a caller passes in:
 //   - PI_CODING_AGENT_DIR (internal/agents/pi.AgentConfigPath)
 //   - OPENCODE_CONFIG_DIR (internal/opencode.ResolveRuntimeConfigForHome)

@@ -56,14 +56,14 @@ type cacheFile struct {
 // Keep these source roots in sync with the gentle-pi skill-registry extension.
 func UserSkillDirs(home string) []string {
 	return []string{
-		// Gentle AI/Pi and generic Agent Skills locations.
+		// Ordo/Pi and generic Agent Skills locations.
 		filepath.Join(home, ".pi", "agent", "skills"),
 		filepath.Join(home, ".config", "agents", "skills"),
 		filepath.Join(home, ".agents", "skills"),
 		filepath.Join(home, ".kimi-code", "skills"),
 		filepath.Join(home, ".kimi", "skills"),
 
-		// Agent-specific global skill locations supported by Gentle AI adapters.
+		// Agent-specific global skill locations supported by Ordo adapters.
 		filepath.Join(home, ".config", "opencode", "skills"),
 		filepath.Join(home, ".config", "kilo", "skills"),
 		filepath.Join(home, ".claude", "skills"),
@@ -99,7 +99,7 @@ func ProjectSkillDirs(cwd string) []string {
 		filepath.Join(cwd, ".kiro", "skills"),
 		filepath.Join(cwd, ".openclaw", "skills"),
 
-		// Gentle AI/Pi and generic Agent Skills workspace locations.
+		// Ordo/Pi and generic Agent Skills workspace locations.
 		filepath.Join(cwd, ".pi", "skills"),
 		filepath.Join(cwd, ".agent", "skills"),
 		filepath.Join(cwd, ".agents", "skills"),

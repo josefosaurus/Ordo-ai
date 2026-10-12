@@ -133,7 +133,7 @@ func TestWritePathsAreEmpty(t *testing.T) {
 	a := NewAdapter()
 	homeDir := filepath.Join(string(filepath.Separator), "home", "test")
 
-	// Gentle AI performs no writes for Conductor, so every write-target path
+	// Ordo performs no writes for Conductor, so every write-target path
 	// must stay empty and fail closed.
 	tests := []struct {
 		name string

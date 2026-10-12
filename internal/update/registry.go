@@ -26,7 +26,7 @@ var Tools = []ToolInfo{
 		// The Ordo binary itself. Releases are published by the Ordo
 		// repository as signed ordo_* archives for Linux and macOS. There is
 		// deliberately no GoImportPath: the Go module path still names
-		// upstream, so `go install` would fetch Gentle AI instead of Ordo.
+		// upstream, so `go install` would fetch the upstream module instead of Ordo.
 		// Windows has no signed binary and gets a manual-update hint.
 		Name:          SelfToolName,
 		Owner:         brand.ReleaseOwner,

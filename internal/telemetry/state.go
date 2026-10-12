@@ -12,7 +12,7 @@ import (
 )
 
 // stateDir matches internal/state's own stateDir: telemetry state lives next
-// to the rest of Gentle AI's uncommitted user state, under the same home
+// to the rest of Ordo's uncommitted user state, under the same home
 // directory resolution so tests can point both at one temp dir.
 const stateDir = ".gentle-ai"
 const stateFile = "telemetry.json"

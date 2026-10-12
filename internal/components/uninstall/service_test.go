@@ -689,7 +689,7 @@ func TestBuildPlanSnapshotsPiManifestAndOwnedOverlay(t *testing.T) {
 }
 
 // TestExecutePlanRetiresStalePiSystemPromptBlocks covers issue #4057: a Pi
-// install made before SupportsSystemPrompt()==false for Pi left gentle-ai
+// install made before SupportsSystemPrompt()==false for Pi left Ordo
 // managed blocks in ~/.pi/agent/APPEND_SYSTEM.md. Since adapter.SupportsSystemPrompt()
 // is false, componentOperations() never queues a rewrite op for that file, so
 // uninstall must retire the stale blocks directly.

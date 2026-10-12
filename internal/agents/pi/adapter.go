@@ -21,7 +21,7 @@ import (
 
 // pi-mcp-adapter is retired: Pi >= 0.99.0 ships built-in MCP support that
 // reads mcp.json, and any installed extension registering /mcp (such as
-// pi-mcp-adapter) replaces that built-in support. Gentle AI therefore never
+// pi-mcp-adapter) replaces that built-in support. Ordo therefore never
 // installs the adapter and removes it wherever it finds it.
 const (
 	retiredPiMCPAdapterPackage    = "npm:pi-mcp-adapter"
@@ -77,7 +77,7 @@ func ManagedPackageSources() []string {
 
 // UninstallPackageSources returns every Pi package source an uninstall should
 // remove: the managed sources plus the retired pi-mcp-adapter, which older
-// Gentle AI releases installed and which may still be present.
+// releases installed and which may still be present.
 func UninstallPackageSources() []string {
 	return append(ManagedPackageSources(), retiredPiMCPAdapterPackage)
 }
@@ -95,7 +95,7 @@ type Adapter struct {
 	statPath func(string) statResult
 }
 
-// CodeGraphPathSet declares the Pi paths owned or inspected by Gentle AI's
+// CodeGraphPathSet declares the Pi paths owned or inspected by Ordo's
 // optional CodeGraph integration. It intentionally contains no gentle-pi path.
 type CodeGraphPathSet struct {
 	AgentDir  string
@@ -366,7 +366,7 @@ func ConfigPath(homeDir string) string { return filepath.Join(homeDir, ".pi") }
 
 // AgentConfigPath returns Pi's current agent-owned config directory path. It
 // honors PI_CODING_AGENT_DIR when set and non-blank, matching Pi's own
-// runtime override, so gentle-ai's install and sync operations target the
+// runtime override, so Ordo's install and sync operations target the
 // same directory Pi itself reads and writes (for example gentle-shell's
 // isolated `~/.gentle-shell/agent` home). A "~" or "~/..." form always
 // expands against homeDir and stays contained there; an absolute or
@@ -605,7 +605,7 @@ func readPiJSONObject(path string) (map[string]any, error) {
 	return object, nil
 }
 
-// retainPiPackages returns the packages Gentle AI keeps in Pi's settings:
+// retainPiPackages returns the packages Ordo keeps in Pi's settings:
 // everything except the retired pi-mcp-adapter, the legacy subagent packages,
 // and the retired companion packages.
 func retainPiPackages(existing any) []any {

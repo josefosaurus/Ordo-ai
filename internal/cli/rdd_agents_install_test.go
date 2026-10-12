@@ -95,7 +95,7 @@ func TestFreshInstallShipsOpenCodeReviewAgents(t *testing.T) {
 
 // TestUpgradeRemovesOwnedReviewAgentsFromNonRDDRuntimes seeds review agents an
 // earlier release installed and recorded in the ownership ledger, plus a user's
-// own review agent, and proves install and sync remove only Gentle AI's files.
+// own review agent, and proves install and sync remove only Ordo's files.
 func TestUpgradeRemovesOwnedReviewAgentsFromNonRDDRuntimes(t *testing.T) {
 	for _, flow := range []string{"install", "sync"} {
 		for _, agent := range []model.AgentID{model.AgentCursor, model.AgentKiroIDE, model.AgentKimi} {

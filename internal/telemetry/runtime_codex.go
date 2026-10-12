@@ -23,7 +23,7 @@ type CodexHook struct {
 	TranscriptPath string `json:"-"`
 }
 
-// CodexAssignment is a previously persisted Gentle AI selection. Missing or
+// CodexAssignment is a previously persisted Ordo selection. Missing or
 // invalid fields remain unavailable; runtime evidence never invents defaults.
 type CodexAssignment struct {
 	Model  string

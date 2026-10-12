@@ -12,7 +12,7 @@ import (
 )
 
 // Rollup metrics for external, public download counts — not telemetry:
-// these come from npmjs.org and the GitHub API, not from any gentle-ai
+// these come from npmjs.org and the GitHub API, not from any Ordo
 // install. They live in rollups_daily purely so the dashboard and
 // /v1/summary can read them alongside the collector's own metrics without
 // a second store.

@@ -54,8 +54,8 @@ func (profileResolver) ResolveAgentInstall(profile system.PlatformProfile, agent
 	}
 }
 
-// resolveClaudeCodeInstall returns the npm install command sequence gentle-ai
-// shows for Claude Code — display text only, never executed by gentle-ai
+// resolveClaudeCodeInstall returns the npm install command sequence Ordo
+// shows for Claude Code — display text only, never executed by Ordo
 // (see agentInstallStep in internal/cli/run.go). On Linux with system npm,
 // sudo is required. With nvm/fnm/volta, it is not. On Windows and macOS,
 // sudo is never needed.
@@ -74,8 +74,8 @@ func resolveClaudeCodeInstall(profile system.PlatformProfile) CommandSequence {
 	return CommandSequence{{"npm", "install", "-g", "--ignore-scripts", pkg}}
 }
 
-// resolveKilocodeInstall returns the npm install command sequence gentle-ai
-// shows for Kilocode — display text only, never executed by gentle-ai. On
+// resolveKilocodeInstall returns the npm install command sequence Ordo
+// shows for Kilocode — display text only, never executed by Ordo. On
 // Linux with system npm, sudo is required. With nvm/fnm/volta, it is not.
 // On Windows and macOS, sudo is never needed.
 func resolveKilocodeInstall(profile system.PlatformProfile) CommandSequence {

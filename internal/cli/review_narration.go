@@ -202,7 +202,7 @@ var reviewNarrationCodeSpanRegexp = regexp.MustCompile("`[^`]*`")
 // reviewNarrationStripCodeSpans removes every backtick-quoted command/flag
 // literal before the vocabulary ban runs. A flag like `--lineage <id>` is an
 // unavoidable, literal public CLI contract token a caller must type; the ban
-// exists so narration never asks a human to understand gentle-ai's internal
+// exists so narration never asks a human to understand Ordo's internal
 // architecture in prose, not so a copy-pasteable command can never contain
 // one of those words as its flag name.
 func reviewNarrationStripCodeSpans(text string) string {

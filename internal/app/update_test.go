@@ -381,7 +381,7 @@ func TestRunUpgrade_DryRunDoesNotPrintDoctorAdvisory(t *testing.T) {
 }
 
 // TestRunUpgrade_NonGentleAIUpgradeDoesNotPrintDoctorAdvisory verifies that
-// upgrading a tool other than gentle-ai (e.g. engram, gga) does NOT trigger
+// upgrading a tool other than Ordo (e.g. engram, gga) does NOT trigger
 // the doctor advisory. The advisory is gated on ordo specifically.
 func TestRunUpgrade_NonGentleAIUpgradeDoesNotPrintDoctorAdvisory(t *testing.T) {
 	origCheckFiltered := updateCheckFiltered

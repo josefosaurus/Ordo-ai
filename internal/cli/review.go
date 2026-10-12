@@ -275,7 +275,7 @@ func (err ReviewGateDeniedError) Error() string {
 	// the operator supplied. When the gate froze both sides of the comparison,
 	// the terminal states both. No command is named because none is derivable
 	// here -- what unblocks this is rebuilding the publication on the reviewed
-	// base, and that is a fact about the repository, not a gentle-ai
+	// base, and that is a fact about the repository, not an Ordo
 	// invocation.
 	if mismatch := err.Context.BaseMismatch; mismatch != nil && strings.TrimSpace(err.Reason) != "" {
 		return fmt.Sprintf("%s: %s: the reviewed base is %s, but this target was derived from %s",

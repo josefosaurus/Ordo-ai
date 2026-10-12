@@ -362,7 +362,7 @@ func TestManagedAssetsStopTransitionCarriesExactlyOneSignal(t *testing.T) {
 }
 
 // TestManagedAssetsContinuationUsesInvokingExecutable is the RED-first proof
-// for #4434: a STATUS or START refusal produced by one Gentle AI binary must
+// for #4434: a STATUS or START refusal produced by one Ordo binary must
 // offer a continuation that runs THAT binary, not whatever `ordo` happens
 // to resolve to on PATH. The continuation used to hard-code the unqualified
 // executable name while describing itself as the exact runnable recovery, so

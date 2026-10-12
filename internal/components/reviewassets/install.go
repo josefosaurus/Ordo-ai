@@ -30,7 +30,7 @@ var NativeAgentManifest = map[model.AgentID][]string{
 
 // RetiredNativeAgentManifest lists the review agents earlier releases installed
 // on runtimes without receipt-driven development. The installer removes a
-// retired file only when Gentle AI owns it: the ownership ledger records its
+// retired file only when Ordo owns it: the ownership ledger records its
 // exact bytes, or the bytes equal the managed render. Anything else, including
 // a user's own agent under the same name, is preserved.
 var RetiredNativeAgentManifest = map[model.AgentID][]string{
@@ -77,7 +77,7 @@ type claudeModelResolver interface {
 
 // InstallNativeAgents installs only retained review, Judgment Day, and Kimi native agents.
 // It never removes legacy SDD files or user-owned agents; it removes only the
-// retired review agents Gentle AI owns (see RetiredNativeAgentManifest).
+// retired review agents Ordo owns (see RetiredNativeAgentManifest).
 func InstallNativeAgents(home string, adapter agents.Adapter, opts InstallOptions) (InstallResult, error) {
 	if !NativeAgentsSupported(adapter.Agent()) {
 		return InstallResult{}, fmt.Errorf("unsupported native agent runtime: %s", adapter.Agent())
@@ -271,7 +271,7 @@ func renderNativeAgent(adapter agents.Adapter, name string, opts InstallOptions)
 	return content, nil
 }
 
-// removeRetiredNativeAgent removes one retired agent file when Gentle AI owns
+// removeRetiredNativeAgent removes one retired agent file when Ordo owns
 // it and drops its ledger entry either way, since the runtime no longer
 // manages that name. It returns the removed path and whether the ledger
 // changed. A symlink or other non-regular file is never ours to delete.

@@ -99,7 +99,7 @@ func TestFreshInstallOnNonRDDRuntimesInstallsNoReviewAgents(t *testing.T) {
 
 // TestUpgradeRemovesOwnedRetiredReviewAgents seeds what an earlier release
 // installed on runtimes without receipt-driven development and proves the
-// upgrade removes only what Gentle AI owns.
+// upgrade removes only what Ordo owns.
 func TestUpgradeRemovesOwnedRetiredReviewAgents(t *testing.T) {
 	t.Parallel()
 
@@ -134,13 +134,13 @@ func TestUpgradeRemovesOwnedRetiredReviewAgents(t *testing.T) {
 				return content
 			}
 
-			// Recorded in the ledger with the bytes Gentle AI installed.
+			// Recorded in the ledger with the bytes Ordo installed.
 			ledgerOwned := write("review-risk.md", "review-risk as an earlier release rendered it\n")
 			// Unrecorded, but byte-identical to the managed asset.
 			assetOwned := write("review-refuter.md", managed("review-refuter.md"))
 			// Recorded, then edited by the user.
 			userEdited := write("review-reliability.md", "user edited review-reliability\n")
-			// Never installed by Gentle AI.
+			// Never installed by Ordo.
 			userOwned := write("review-readability.md", "my own review-readability agent\n")
 
 			ledger := ownershipLedger{Version: ownershipVersion, Files: map[string]string{

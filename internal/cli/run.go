@@ -1512,7 +1512,7 @@ func (s agentRoutingGuidanceStep) Run() error {
 	}
 
 	// Pi owns its prompt delivery, but old installs left only allowlisted
-	// Gentle AI sections in APPEND_SYSTEM.md. Retire those before skipping prompt
+	// Ordo sections in APPEND_SYSTEM.md. Retire those before skipping prompt
 	// injection so install and every sync path converge without recreating routing.
 	if adapter.Agent() == model.AgentPi {
 		result, err := agentguidance.RetirePiSystemPromptBlocks(s.homeDir, adapter)
@@ -1741,7 +1741,7 @@ func migrateLegacyOpenCodeAgents(settingsPath string, agent model.AgentID) (bool
 // user's and is preserved together with its orchestrator task permission.
 //
 // A task permission is dropped only for a review agent this run removed as
-// Gentle AI's: here in the managed shape, or earlier in the same run under the
+// Ordo's: here in the managed shape, or earlier in the same run under the
 // v3.7.0 marker (legacyRemoved). A permission whose agent was already absent
 // carries no ownership proof and is the user's.
 func retireOpenCodeFamilyReviewAgents(settingsPath string, agent model.AgentID, legacyRemoved []string) (bool, error) {
@@ -2294,9 +2294,9 @@ func (s agentInstallStep) ID() string {
 // Run executes Pi's package installation commands only. Other selected
 // agents remain config targets regardless of whether their runtime is present.
 //
-// The `pi` binary itself is never installed by gentle-ai
+// The `pi` binary itself is never installed by Ordo
 // (validatePiInstallPreflight refuses if it is not already on PATH), but once
-// it is present, its own `pi install ...` subcommands install gentle-ai's Pi
+// it is present, its own `pi install ...` subcommands install Ordo's Pi
 // package stack through that already-present tool.
 func (s agentInstallStep) Run() error {
 	if s.agent != model.AgentPi {
@@ -3126,7 +3126,7 @@ func runCommandSequenceWithProgress(commands [][]string, progress pipeline.Progr
 }
 
 // homebrewNoSideEffectEnv are the environment variables executeCommand adds
-// to a brew invocation so gentle-ai's own tap/install/reinstall steps never
+// to a brew invocation so Ordo's own tap/install/reinstall steps never
 // trigger Homebrew's slow, network-dependent auto-update or its
 // post-install cache cleanup as a side effect of an unrelated install.
 var homebrewNoSideEffectEnv = []string{
@@ -4142,7 +4142,7 @@ func claudeAliasesToStrings(m map[string]model.ClaudeModelAlias) map[string]stri
 	out := make(map[string]string, len(m))
 	for k, v := range m {
 		// Claude Code owns the main session/orchestrator model; do not persist it
-		// as a Gentle AI model assignment.
+		// as an Ordo model assignment.
 		if k == "orchestrator" {
 			continue
 		}
