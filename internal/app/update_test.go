@@ -106,10 +106,10 @@ func TestRunUpgrade_ReturnsErrorBeforeExecutingWhenChecksFail(t *testing.T) {
 	}
 }
 
-// TestRunUpgrade_RestartsAfterGentleAIUpgrade verifies that `ordo upgrade`
+// TestRunUpgrade_RestartsAfterOrdoUpgrade verifies that `ordo upgrade`
 // prints the restart guidance message after a successful ordo upgrade.
 // After task 4.6, no re-exec occurs on any OS — the message is always printed.
-func TestRunUpgrade_RestartsAfterGentleAIUpgrade(t *testing.T) {
+func TestRunUpgrade_RestartsAfterOrdoUpgrade(t *testing.T) {
 	unsetEnv(t, envSelfUpdateDone)
 
 	origCheckFiltered := updateCheckFiltered
@@ -147,16 +147,16 @@ func TestRunUpgrade_RestartsAfterGentleAIUpgrade(t *testing.T) {
 	}
 }
 
-// TestRestartAfterGentleAIUpgrade_PrintsRestartGuidance verifies that
-// restartAfterGentleAIUpgrade (converged in task 4.6) always prints
+// TestRestartAfterOrdoUpgrade_PrintsRestartGuidance verifies that
+// restartAfterOrdoUpgrade (converged in task 4.6) always prints
 // the restart guidance message and never re-execs, on any OS.
-func TestRestartAfterGentleAIUpgrade_PrintsRestartGuidance(t *testing.T) {
+func TestRestartAfterOrdoUpgrade_PrintsRestartGuidance(t *testing.T) {
 	unsetEnv(t, envSelfUpdateDone)
 
 	var buf bytes.Buffer
-	err := restartAfterGentleAIUpgrade("1.36.2", &buf)
+	err := restartAfterOrdoUpgrade("1.36.2", &buf)
 	if err != nil {
-		t.Fatalf("restartAfterGentleAIUpgrade() error = %v", err)
+		t.Fatalf("restartAfterOrdoUpgrade() error = %v", err)
 	}
 	out := buf.String()
 	// Must contain version and "restart" guidance.
@@ -177,11 +177,11 @@ func envContains(values []string, needle string) bool {
 	return false
 }
 
-// TestRunUpgrade_DryRunDoesNotRestartAfterGentleAIUpgrade verifies that a dry-run
+// TestRunUpgrade_DryRunDoesNotRestartAfterOrdoUpgrade verifies that a dry-run
 // upgrade does not trigger the restart-guidance message (no actual upgrade occurred).
-// reExec was removed in task 4.6; restartAfterGentleAIUpgrade now prints+returns.
+// reExec was removed in task 4.6; restartAfterOrdoUpgrade now prints+returns.
 // Dry-run skips that path entirely, so no restart message should appear.
-func TestRunUpgrade_DryRunDoesNotRestartAfterGentleAIUpgrade(t *testing.T) {
+func TestRunUpgrade_DryRunDoesNotRestartAfterOrdoUpgrade(t *testing.T) {
 	origCheckFiltered := updateCheckFiltered
 	origUpgradeExecuteWithOptions := upgradeExecuteWithOptions
 	t.Cleanup(func() {
@@ -301,11 +301,11 @@ func TestPrintPostUpgradeDoctorAdvisory_OutputFormat(t *testing.T) {
 	}
 }
 
-// TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade verifies that a
+// TestRunUpgrade_PrintsDoctorAdvisoryAfterOrdoUpgrade verifies that a
 // successful `ordo upgrade` of the ordo binary prints the doctor
 // advisory (per #1901). The advisory must appear AFTER the restart message
 // and must NOT appear in dry-run mode.
-func TestRunUpgrade_PrintsDoctorAdvisoryAfterGentleAIUpgrade(t *testing.T) {
+func TestRunUpgrade_PrintsDoctorAdvisoryAfterOrdoUpgrade(t *testing.T) {
 	unsetEnv(t, envSelfUpdateDone)
 
 	origCheckFiltered := updateCheckFiltered
@@ -380,10 +380,10 @@ func TestRunUpgrade_DryRunDoesNotPrintDoctorAdvisory(t *testing.T) {
 	}
 }
 
-// TestRunUpgrade_NonGentleAIUpgradeDoesNotPrintDoctorAdvisory verifies that
+// TestRunUpgrade_NonOrdoUpgradeDoesNotPrintDoctorAdvisory verifies that
 // upgrading a tool other than Ordo (e.g. engram, gga) does NOT trigger
 // the doctor advisory. The advisory is gated on ordo specifically.
-func TestRunUpgrade_NonGentleAIUpgradeDoesNotPrintDoctorAdvisory(t *testing.T) {
+func TestRunUpgrade_NonOrdoUpgradeDoesNotPrintDoctorAdvisory(t *testing.T) {
 	origCheckFiltered := updateCheckFiltered
 	origUpgradeExecuteWithOptions := upgradeExecuteWithOptions
 	t.Cleanup(func() {

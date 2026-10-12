@@ -51,7 +51,7 @@ func unsetEnv(t *testing.T, key string) {
 
 // swapSelfUpdateDeps replaces all package-level dependency vars used by selfUpdate
 // and registers cleanup to restore them. Returns pointers to track call counts.
-// Note: reExec and goOS were removed in task 4.6 — restartAfterGentleAIUpgrade
+// Note: reExec and goOS were removed in task 4.6 — restartAfterOrdoUpgrade
 // now always prints the restart message and returns; no re-exec on any OS.
 type selfUpdateStubs struct {
 	checkCalled   int
@@ -283,7 +283,7 @@ func TestSelfUpdate_UpgradeError_ReturnsNil(t *testing.T) {
 }
 
 // TestSelfUpdate_PrintsRestartMessage verifies that after a successful upgrade
-// on any OS, restartAfterGentleAIUpgrade prints a restart-guidance message and
+// on any OS, restartAfterOrdoUpgrade prints a restart-guidance message and
 // does NOT re-exec (converged behavior — task 4.6).
 func TestSelfUpdate_PrintsRestartMessage(t *testing.T) {
 	unsetEnv(t, envNoSelfUpdate)
@@ -303,7 +303,7 @@ func TestSelfUpdate_PrintsRestartMessage(t *testing.T) {
 		},
 	}
 
-	// restartAfterGentleAIUpgrade is OS-agnostic after task 4.6 — prints and returns.
+	// restartAfterOrdoUpgrade is OS-agnostic after task 4.6 — prints and returns.
 	// No goOS swap needed; the behavior is identical on all platforms.
 	for _, osName := range []string{"darwin", "windows", "linux"} {
 		t.Run("os="+osName, func(t *testing.T) {
@@ -550,7 +550,7 @@ func TestSelfUpdate_ConfirmUpdateTable(t *testing.T) {
 		},
 	}
 
-	// wantReExec removed: restartAfterGentleAIUpgrade always prints and returns (task 4.6).
+	// wantReExec removed: restartAfterOrdoUpgrade always prints and returns (task 4.6).
 	tests := []struct {
 		name            string
 		promptReply     bool

@@ -11,17 +11,14 @@
 # steps at the end and docs/telemetry-collector.md.
 #
 # Usage:
-#   sudo ./install.sh --release-tag v0.1.0
 #   sudo ./install.sh --local-source /path/to/ordo/checkout
 #   sudo ./install.sh --local-source /path/to/ordo/checkout \
 #       --domain telemetry.example.com --with-grafana
 #   sudo ./install.sh --local-source /path/to/ordo/checkout \
 #       --with-victoria-metrics --with-grafana
 #
-# gentle-telemetry (cmd/gentle-telemetry) is not yet wired into
-# .goreleaser.yaml — see docs/telemetry-collector.md for why — so there is
-# no published release asset today. Use --local-source to build from a
-# checkout until that changes; --release-tag is kept for when it does.
+# gentle-telemetry (cmd/gentle-telemetry) has no published release asset,
+# so this script always builds it from a local checkout (--local-source).
 #
 # This script never touches the live Apache configuration beyond rendering
 # the vhost template to a file under /root: it does not append to
@@ -34,8 +31,6 @@
 # see docs/telemetry-collector.md#grafana-dashboards.
 set -euo pipefail
 
-REPO="Gentleman-Programming/gentle-ai"
-RELEASE_TAG=""
 LOCAL_SOURCE=""
 WITH_GRAFANA="false"
 WITH_VICTORIA_METRICS="false"
@@ -61,7 +56,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
 	cat >&2 <<EOF
-Usage: $0 (--release-tag <tag> | --local-source <path>)
+Usage: $0 --local-source <path>
           [--domain <fqdn>] [--with-grafana]
           [--with-victoria-metrics] [--victoria-metrics-version <tag>]
           [--address <ipv4|*>]
@@ -87,10 +82,6 @@ EOF
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-	--release-tag)
-		RELEASE_TAG="$2"
-		shift 2
-		;;
 	--local-source)
 		LOCAL_SOURCE="$2"
 		shift 2
@@ -125,7 +116,7 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
-if [[ -z "${RELEASE_TAG}" && -z "${LOCAL_SOURCE}" ]]; then
+if [[ -z "${LOCAL_SOURCE}" ]]; then
 	usage
 fi
 
@@ -172,24 +163,10 @@ arm64 | aarch64) goarch="arm64" ;;
 	;;
 esac
 
-install_from_release() {
-	local tag="$1"
-	local asset="gentle-telemetry_${tag#v}_linux_${goarch}.tar.gz"
-	local url="https://github.com/${REPO}/releases/download/${tag}/${asset}"
-	local tmp
-	tmp="$(mktemp -d)"
-	trap 'rm -rf "${tmp}"' RETURN
-
-	printf 'downloading %s\n' "${url}"
-	curl -fsSL "${url}" -o "${tmp}/${asset}"
-	tar -xzf "${tmp}/${asset}" -C "${tmp}"
-	install -m 0755 "${tmp}/gentle-telemetry" "${BIN_DEST}"
-}
-
 install_from_source() {
 	local src="$1"
 	if ! command -v go >/dev/null 2>&1; then
-		printf 'go toolchain not found; install Go or use --release-tag instead\n' >&2
+		printf 'go toolchain not found; install Go to build gentle-telemetry\n' >&2
 		exit 1
 	fi
 	printf 'building gentle-telemetry from %s\n' "${src}"
@@ -198,11 +175,7 @@ install_from_source() {
 	chmod 0755 "${BIN_DEST}"
 }
 
-if [[ -n "${RELEASE_TAG}" ]]; then
-	install_from_release "${RELEASE_TAG}"
-else
-	install_from_source "${LOCAL_SOURCE}"
-fi
+install_from_source "${LOCAL_SOURCE}"
 
 # sqlite3 (the CLI, not a Go dependency: the binary itself is cgo-free and
 # self-contained) is required by gentle-telemetry-backup.service's

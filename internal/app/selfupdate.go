@@ -187,10 +187,10 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 		_ = markPendingSyncAfterSelfUpdate(homeDir)
 	}
 
-	return restartAfterGentleAIUpgrade(target.LatestVersion, stdout)
+	return restartAfterOrdoUpgrade(target.LatestVersion, stdout)
 }
 
-func gentleAIUpgradeSucceeded(report upgrade.UpgradeReport) (string, bool) {
+func ordoUpgradeSucceeded(report upgrade.UpgradeReport) (string, bool) {
 	for _, r := range report.Results {
 		if r.ToolName == update.SelfToolName && r.Status == upgrade.UpgradeSucceeded {
 			return strings.TrimPrefix(r.NewVersion, "v"), true
@@ -215,7 +215,7 @@ func markPendingSyncAfterSelfUpdate(homeDir string) error {
 	})
 }
 
-func restartAfterGentleAIUpgrade(latestVersion string, stdout io.Writer) error {
+func restartAfterOrdoUpgrade(latestVersion string, stdout io.Writer) error {
 	latestVersion = strings.TrimPrefix(latestVersion, "v")
 	// Converged behavior (task 4.6): always print the restart message on every OS
 	// and return. The new binary runs automatically on next launch, picking up

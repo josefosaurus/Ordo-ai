@@ -335,7 +335,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 			return err
 		}
 		if latestVersion, ok := gentleAIUpgradeVersionFromTUI(finalModel); ok {
-			return restartAfterGentleAIUpgrade(latestVersion, stdout)
+			return restartAfterOrdoUpgrade(latestVersion, stdout)
 		}
 		return nil
 	}
@@ -627,8 +627,8 @@ func runUpgrade(ctx context.Context, args upgradeArgs, detection system.Detectio
 		return err
 	}
 	if !dryRun {
-		if latestVersion, ok := gentleAIUpgradeSucceeded(report); ok {
-			if err := restartAfterGentleAIUpgrade(latestVersion, stdout); err != nil {
+		if latestVersion, ok := ordoUpgradeSucceeded(report); ok {
+			if err := restartAfterOrdoUpgrade(latestVersion, stdout); err != nil {
 				return err
 			}
 			// CLI upgrade path: print the doctor advisory so the user can verify

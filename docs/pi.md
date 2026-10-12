@@ -42,7 +42,7 @@ CodeGraph is an optional Ordo integration. When selected, Ordo merges its MCP en
 
 ## Review and checks
 
-Strict TDD follows the resolved configuration and exact test runner: observe RED, GREEN and REFACTOR when enabled; otherwise run applicable functional checks. RDD is separate and controlled by the user's `ordo review mode status`, `ordo review mode enable`, and `ordo review mode disable` choices. Candidate consent and native authority do not authorize commits or releases. The review execution contract is provided to Pi through the provider bundle and mirrored by Gentle Shell, not by writing a Ordo system prompt block. See [Review](review-integration.md).
+Strict TDD follows the resolved configuration and exact test runner: observe RED, GREEN and REFACTOR when enabled; otherwise run applicable functional checks. RDD is separate and controlled by the user's `ordo review mode status`, `ordo review mode enable`, and `ordo review mode disable` choices. Candidate consent and native authority do not authorize commits or releases. The review execution contract is provided to Pi through the provider bundle and mirrored by Gentle Shell, not by writing an Ordo system prompt block. See [Review](review-integration.md).
 
 ## Gentle Shell and its own home
 

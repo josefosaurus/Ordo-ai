@@ -4,8 +4,6 @@
 
 Receipt-Driven Development (RDD) reviews a finished candidate without taking ownership of delivery. It is deliberately small: native code freezes one worktree candidate, coordinates bounded review, burns completed authority, and returns control to the human.
 
-> For why this architecture exists at all — and what it cost to arrive at it — read [The story of fixing RDD](the-organic-rdd-story.md) first. This page is the technical half of that story.
-
 ## The model
 
 - **Review follows work.** A candidate exists before review begins; the parent asks native STATUS to preflight that current worktree only.

@@ -2105,10 +2105,10 @@ func writeAppSDDStatusFile(t *testing.T, path string, content string) {
 	}
 }
 
-// TestRunArgs_TUIRestartsAfterGentleAIUpgradeResult verifies that when the TUI
-// reports a successful ordo upgrade, RunArgs calls restartAfterGentleAIUpgrade
+// TestRunArgs_TUIRestartsAfterOrdoUpgradeResult verifies that when the TUI
+// reports a successful ordo upgrade, RunArgs calls restartAfterOrdoUpgrade
 // which (after task 4.6) prints the restart guidance message instead of re-execing.
-func TestRunArgs_TUIRestartsAfterGentleAIUpgradeResult(t *testing.T) {
+func TestRunArgs_TUIRestartsAfterOrdoUpgradeResult(t *testing.T) {
 	assumeInteractiveTTY(t)
 	origDetect := detectSystem
 	origEnsure := ensureCurrentOSSupported
