@@ -338,7 +338,7 @@ func SetCloneLocalRDDMode(
 		return currentStatus, &RDDDisabledError{Operation: RDDOperationStart, Source: RDDModeSourceGlobal}
 	}
 	// A request that matches the mode this clone already carries publishes no
-	// new generation of its own -- but it is not finished until every gentle-ai
+	// new generation of its own -- but it is not finished until every Ordo
 	// on this machine carries it too, so it goes on to the mirror below rather
 	// than returning here.
 	alreadyDecided := currentErr == nil && ((mode == RDDModeOff && currentStatus.CloneLocal == RDDModeOff) ||

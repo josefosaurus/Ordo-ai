@@ -145,7 +145,7 @@ type manifest struct {
 // orchestrationRuntimeIdentities is deliberately closed, the same discipline
 // reviewerprovider applies to registeredRuntimeIdentities: a runtime is added
 // here only once it has no other delivery channel for the review execution
-// contract inside Gentle AI's own installer (no system prompt, skill, or
+// contract inside Ordo's own installer (no system prompt, skill, or
 // file-subagent surface to splice generic SDD composition into), so this
 // bundle becomes that runtime's sole channel. Pi is first: its capability
 // manifest advertises MCP only, so its contract does not reach gentle-pi

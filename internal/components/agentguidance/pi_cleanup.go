@@ -11,7 +11,7 @@ import (
 
 // legacyPiSystemPromptSectionIDs are the only marker pairs this cleanup owns.
 // Pi's package owns APPEND_SYSTEM.md, so unmarked and non-allowlisted content
-// must never be interpreted as Gentle AI content.
+// must never be interpreted as Ordo content.
 var legacyPiSystemPromptSectionIDs = []string{
 	"persona", "engram-protocol", "sdd-orchestrator", "strict-tdd-mode",
 	"agent-routing", "trigger-rules", "codegraph-guidance",

@@ -30,7 +30,7 @@ const (
 	// Used for tools that distribute via shell scripts rather than pre-built binaries
 	// (e.g., GGA which has no release binary assets).
 	InstallScript InstallMethod = "script"
-	// InstallOpenCodePlugin is a manual upgrade method: Gentle AI registers the
+	// InstallOpenCodePlugin is a manual upgrade method: Ordo registers the
 	// package in tui.json, and OpenCode owns package resolution on restart/reload.
 	InstallOpenCodePlugin InstallMethod = "opencode-plugin"
 )

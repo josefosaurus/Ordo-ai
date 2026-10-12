@@ -839,7 +839,7 @@ func orchestratorPrompt(t *testing.T, path string) string {
 	return settings.Agent[opencodedefault.ManagedAgent].Prompt
 }
 
-// managedRoutingBlock returns only the content Gentle AI owns, so assertions
+// managedRoutingBlock returns only the content Ordo owns, so assertions
 // about the block never accidentally inspect surrounding user content.
 func managedRoutingBlock(content string) string {
 	open := "<!-- gentle-ai:" + RoutingSectionID + " -->"

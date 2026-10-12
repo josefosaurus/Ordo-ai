@@ -125,11 +125,11 @@ var backupExcludeSubdirs = map[string]bool{
 	"tmp":                         true, // Antigravity temporary runtime artifacts
 }
 
-// configPathsForBackup returns the explicit Gentle AI-managed file paths that
+// configPathsForBackup returns the explicit Ordo-managed file paths that
 // the backup snapshot must include before any upgrade execution.
 //
 // This is intentionally NOT a recursive backup of agent config directories.
-// Upgrade backups are rollback artifacts for files Gentle AI may create or
+// Upgrade backups are rollback artifacts for files Ordo may create or
 // modify, not general-purpose backups of conversations, sessions, caches,
 // sockets, package installs, or other runtime state.
 //
@@ -137,7 +137,7 @@ var backupExcludeSubdirs = map[string]bool{
 // deliberately configured empty selection. Filesystem detection is used only for
 // missing or incidental pre-install state; unreadable state contributes no agent
 // paths. This prevents snapshot bloat from agent config dirs that the user never
-// actually installed via gentle-ai (issue #354: snapshots could reach ~25 GiB
+// actually installed via Ordo (issue #354: snapshots could reach ~25 GiB
 // from unmanaged config dirs).
 func configPathsForBackup(homeDir string, diagnostics ...io.Writer) []string {
 	dw := firstWriter(diagnostics...)
@@ -688,7 +688,7 @@ func executeOne(ctx context.Context, r update.UpdateResult, profile system.Platf
 //
 //  1. OpenCode plugins are always handled by their own method — never overridden.
 //  2. Homebrew is used only when Homebrew confirms it owns this specific tool.
-//  3. gentle-ai's own upgrade never falls through to the generic rules below; it
+//  3. Ordo's own upgrade never falls through to the generic rules below; it
 //     is resolved entirely by gentleAISelfUpgradeMethod, which is what keeps
 //     Linux and macOS on the signed release download.
 //  4. For every other tool: when Go is available on PATH and the tool declares a
@@ -718,7 +718,7 @@ func effectiveMethod(tool update.ToolInfo, profile system.PlatformProfile) updat
 //
 //   - Linux and macOS publish signed release binaries. Those are downloaded over
 //     an authenticated connection and verified with minisign, so they always
-//     return InstallBinary. This function is the ONLY place gentle-ai's method is
+//     return InstallBinary. This function is the ONLY place Ordo's method is
 //     decided, which is what makes that guarantee structural rather than
 //     incidental: ordo never reaches the generic
 //     `GoAvailable && GoImportPath != ""` rule, so declaring a GoImportPath for

@@ -116,7 +116,7 @@ const (
 	// because a running process cannot change its own inherited Git trust
 	// configuration.
 	reviewGitTrustRefusalCode = "git_repository_untrusted"
-	// reviewGitTrustRefusalAction is the instruction for that code. gentle-ai
+	// reviewGitTrustRefusalAction is the instruction for that code. Ordo
 	// never provisions safe.directory and never bypasses Git's ownership
 	// protection, so the only thing the caller can actually do is relaunch
 	// the host process under a Git context that already trusts the

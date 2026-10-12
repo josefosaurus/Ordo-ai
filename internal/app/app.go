@@ -289,7 +289,7 @@ func RunArgs(args []string, stdout io.Writer) error {
 					_, _ = fmt.Fprintf(stdout, "Warning: failed to clear PendingSync flag: %v\n", writeErr)
 				}
 			}
-			// TUI self-update path: the previous launch completed a gentle-ai
+			// TUI self-update path: the previous launch completed an Ordo
 			// self-upgrade under the old binary and set PendingSync=true. We are
 			// now running under the new binary; print the doctor advisory so the
 			// user can verify ecosystem health against the post-upgrade state.
@@ -573,7 +573,7 @@ func runUpdate(ctx context.Context, currentVersion string, profile system.Platfo
 // runUpgrade handles the `ordo upgrade [--dry-run] [tool...]` command.
 //
 // This command:
-//   - Checks for available updates for managed tools (gentle-ai, engram, gga)
+//   - Checks for available updates for managed tools (Ordo, engram, gga)
 //   - Snapshots agent config paths before execution (config preservation by design)
 //   - Executes binary-only upgrades; does NOT invoke install or sync pipelines
 //   - Skips ordo itself when running as a dev build (version="dev")
@@ -1130,7 +1130,7 @@ func claudeAliasesToStrings(m map[string]model.ClaudeModelAlias) map[string]stri
 	out := make(map[string]string, len(m))
 	for k, v := range m {
 		// Claude Code owns the main session/orchestrator model; do not persist it
-		// as a Gentle AI model assignment.
+		// as an Ordo model assignment.
 		if k == "orchestrator" {
 			continue
 		}

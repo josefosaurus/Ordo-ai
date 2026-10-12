@@ -699,7 +699,7 @@ func inspectPiCodeGraph(homeDir, workspaceDir string) (bool, string, []PiCodeGra
 	return true, "verified Pi MCP transport and every effective child", reports
 }
 
-// PiCodeGraphPaths returns only files Gentle AI may reconcile or remove.
+// PiCodeGraphPaths returns only files Ordo may reconcile or remove.
 func PiCodeGraphPaths(homeDir, workspaceDir string) []string {
 	paths := piagent.CodeGraphPaths(homeDir)
 	result := []string{paths.MCPConfig, paths.Manifest}

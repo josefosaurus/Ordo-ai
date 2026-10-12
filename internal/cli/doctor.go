@@ -477,7 +477,7 @@ func checkStateJSON(homeDir string) CheckResult {
 // is missing. It returns "" when every existing ancestor resolves (the path is
 // then genuinely missing) and an error when an ancestor exists but cannot be
 // inspected, mirroring the unreadable treatment of the final path. Ancestors
-// at or above homeDir are never inspected: they are not managed by gentle-ai,
+// at or above homeDir are never inspected: they are not managed by Ordo,
 // and a broken home directory would have failed the state read already.
 func danglingAncestor(homeDir, path string) (string, error) {
 	home := filepath.Clean(homeDir)

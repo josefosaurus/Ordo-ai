@@ -50,7 +50,7 @@ type InstallState struct {
 	Preset                 model.PresetID      `json:"preset,omitempty"`
 	SDDMode                model.SDDModeID     `json:"sdd_mode,omitempty"`
 	StrictTDD              bool                `json:"-"` // decoded only for legacy compatibility; never persisted or used for routing
-	// CommunityTools records optional tools explicitly selected in the Gentle AI
+	// CommunityTools records optional tools explicitly selected in the Ordo
 	// installer. Configured distinguishes a completed empty selection from legacy
 	// state files that predate persistence of this choice.
 	CommunityTools           []string `json:"community_tools,omitempty"`

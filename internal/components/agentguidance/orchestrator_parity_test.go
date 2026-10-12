@@ -21,7 +21,7 @@ import (
 //
 // Deliberately absent: Organic feature continuity and the memory lifecycle
 // rule (owned by the routing block's ODD protocol and the Engram protocol),
-// Gentle AI RDD ownership (RDD-specific), Judgment Day dispatch (owned by the
+// Ordo RDD ownership (RDD-specific), Judgment Day dispatch (owned by the
 // judgment-day skill), and every Pi-only binding (phase signaling, subagent
 // model routing, background policy, and runtime overlays).
 var gentleShellParityHeadings = []string{

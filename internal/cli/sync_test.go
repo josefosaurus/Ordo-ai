@@ -5137,7 +5137,7 @@ func TestRunSyncRegeneratesPersonaBlockBetweenMarkers(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(home, ".claude"), 0o755); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
 	}
-	// Write a stale managed persona block — what an older version of gentle-ai
+	// Write a stale managed persona block — what an older version of Ordo
 	// would have emitted. The sync must replace this with the v1.26 directive.
 	stalePersona := "# pre-existing notes by user\n\n" +
 		"<!-- gentle-ai:persona -->\n" +
@@ -5442,7 +5442,7 @@ func TestRunSyncWithSelectionPiRetirementDoesNotTouchOtherAgents(t *testing.T) {
 	mustWriteFile(t, appendSystemPath, []byte(
 		"<!-- gentle-ai:sdd-orchestrator -->\nSDD body\n<!-- /gentle-ai:sdd-orchestrator -->\n"))
 
-	// The legacy Claude block is Gentle AI-owned and is converted to the
+	// The legacy Claude block is Ordo-owned and is converted to the
 	// current orchestrator; the Pi cleanup must leave user text alone.
 	claudePath := systemPromptFileFor(t, home, model.AgentClaudeCode)
 	claudeContent := "KEEP-CLAUDE-USER preamble\n\n" +

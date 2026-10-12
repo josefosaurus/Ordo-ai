@@ -109,7 +109,7 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 		homeDir = "" // fall back to always-check on home dir failure
 	}
 
-	// Check for updates (only gentle-ai), gated by the 6h cooldown.
+	// Check for updates (only Ordo), gated by the 6h cooldown.
 	// When the cache is fresh (elapsed < UpdateCheckTTL), this returns nil
 	// and no network request is made. The underlying check is always
 	// updateCheckFiltered, kept as a package-level var for other tests.

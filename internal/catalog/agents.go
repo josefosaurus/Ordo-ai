@@ -33,7 +33,7 @@ var allAgents = []Agent{
 	{ID: model.AgentTrae, Name: "Trae IDE", Tier: model.TierFull, ConfigPath: "~/.trae"},
 	{ID: model.AgentHermes, Name: "Hermes", Tier: model.TierFull, ConfigPath: "~/.hermes"},
 	// Conductor is detection/catalog-only: its workspaces inherit Claude Code
-	// configuration, and Gentle AI writes no Conductor-specific files. The note
+	// configuration, and Ordo writes no Conductor-specific files. The note
 	// sets that expectation before the user confirms the install.
 	{ID: model.AgentConductor, Name: "Conductor", Tier: model.TierFull, ConfigPath: "~/.conductor",
 		ReviewNote: "Conductor workspaces inherit Claude Code configuration; Ordo writes no Conductor-specific files."},

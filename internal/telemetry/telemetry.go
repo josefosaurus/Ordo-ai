@@ -1,4 +1,4 @@
-// Package telemetry implements Gentle AI's anonymous, opt-out usage
+// Package telemetry implements Ordo's anonymous, opt-out usage
 // telemetry (issue #4309). It knows how many installs stay alive and how
 // they use the review pipeline, without collecting anything about the user,
 // their code, or their machine identity.

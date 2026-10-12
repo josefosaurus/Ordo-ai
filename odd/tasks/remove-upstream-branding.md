@@ -66,7 +66,7 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
     - Decision: no Ordo `TRADEMARKS.md`; the user chose to delete the upstream one and keep attribution in `NOTICE` only.
   - [x] T3c — Skills and install scripts. Route: delegated direct (writer trigger: 2+ non-trivial files across 17 files). Repo-root `skills/` and the three parity-pinned embedded copies now use `author: ordo`, "Ordo" prose and `josefosaurus/Ordo-ai` repository references (commit `a43e693e`). `install.sh`/`install.ps1` drop "based on Gentle AI" and point at the Ordo raw URL, and `gentle-telemetry` defaults `--github-repo` to `josefosaurus/Ordo-ai` (commit `91524f45`). The unreachable Homebrew branch was removed from `install.sh`, because `detect_install_method` always returns `binary` before reaching any brew path.
   - [x] T3d — Ordo theme replacing the upstream themes (user choice 2026-10-08). Route: delegated direct (writer trigger: 2+ non-trivial files). Commits `4c149602`, `e36c4545`, `5af580d5`, `47bc45b3`, plus the keep-legacy-files commit. One `ordo` theme (Rosé Pine) for Claude Code and OpenCode, overlay `{"theme":"ordo"}`. Install and sync write `ordo.json` and migrate a legacy `gentleman`/`Gentleman Cute`/`gentleman-cute` settings selection to `ordo`; they never delete legacy `gentleman*.json` files (user decision 2026-10-11). `claude-theme` uninstall removes `ordo.json` and the legacy files and clears only managed theme values, resolving settings through `settingsTargets`. The user approved the extra surfaces `internal/cli/run.go`, `run_test.go`, `sync_test.go`, `run_component_paths_test.go` and `internal/update/upgrade/executor.go`/`executor_test.go`.
-- [ ] T4 — Slice 4: docs. Branch `docs/rebrand-docs`, stacked on `feat/ordo-theme` (PR #14).
+- [x] T4 — Slice 4: docs. Branch `docs/rebrand-docs`, stacked on `feat/ordo-theme` (PR #14). Commits `ea28d335`, `8cf2080c`, `dcf0f5b0`; PR #15 merged.
   - [x] T4a — User docs and brand assets. Route: delegated direct (writer trigger: 2+ non-trivial files). Rewrite visible upstream brand text in user docs (`docs/*.md`, not audits/history), remove unused upstream logo images in `docs/assets/brand`, fix `docs/goals.md` `TRADEMARKS.md` citation, rename visible upstream text in `deploy/telemetry` (file names and metric names stay).
     - Done: 22 user docs say Ordo/`ordo`, with factual fixes (no `ordo` Homebrew formula, no Windows `go install` self-upgrade, no default telemetry collector, signed comment `repo=josefosaurus/Ordo-ai`). 5 unreferenced upstream images deleted. `deploy/telemetry` visible text and Documentation URLs say Ordo. `docs/goals.md` is gitignored, so its local fix is not committed.
     - Kept: technical IDs, third-party names (Engram, GGA, `gentle-pi` "Gentle Shell"), the module path, `deploy/telemetry/install.sh` `REPO` (functional `--release-tag` download), and 3 dashboard strings pinned by `internal/telemetrycollector/runtime_dashboard_test.go`.
@@ -77,7 +77,10 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
     - Kept (read by code): `docs/audits/data/organic-rdd-recovery/**` and `docs/audits/2026-07-23-systemic-remediation-architecture.md` (`internal/recoverytrace`); `docs/audits/2026-07-27-detection-gap-audit.md` and `docs/architecture/rdd-root-simplification-design.md` (cited in Go comments).
     - Open decisions: `docs/architecture/rdd-shadow-evaluation.md` (looks stale), `docs/architecture/the-organic-rdd-story.md` (upstream narrative), `docs/community-roadmap.md`.
     - Checks: `go build ./... && go vet ./...` pass; `internal/recoverytrace`, `internal/app`, `internal/assets` ok; `internal/cli -run 'Ratchet|Refusal|Guard|Doc'` ok; no remaining references to deleted paths outside `odd/`.
-- [ ] T5 — Optional: code comments.
+- [ ] T5 — Optional: code comments. Branch `chore/rebrand-go-comments`. Route: delegated direct (writer trigger: 62 files).
+  - Comment-only rewrite through a `go/parser` comment-node tool: 62 files, 100 lines changed. "Gentle AI" prose became "Ordo" or "older releases"; `review_assess.go` comment now says `"ordo "`.
+  - Kept: comment references to real identifiers (`restartAfterGentleAIUpgrade` and others), persona IDs, third-party names, upstream issue citations, `<!-- gentle-ai: -->` markers, quoted literals that tests match, and two trailing `// refusal:by-design` comments on code lines in `internal/cli/telemetry.go`.
+  - Checks: `go build ./... && go vet ./...` pass; gofmtcheck pass; comment-only diff gate prints nothing; `internal/cli -run 'Guard|Ratchet|Refusal'` ok; components/agents/app/assets ok; deadcode ratchet: no new unreachable functions.
 
 ## Acceptance Criteria
 
@@ -153,11 +156,5 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
 
 ## Next Step
 
-- **Finish T3d on `feat/ordo-theme` (resume here).** User decision (2026-10-11): install and sync no longer delete legacy `gentleman*.json` files. They only write `ordo.json` and migrate a legacy *selection* (outcomes switched / not-legacy / skipped). Legacy files are removed only by `claude-theme` uninstall.
-  - An interrupted agent left uncommitted, untested edits in `internal/components/theme/inject.go` (deletion path removed, about −80 lines), `internal/cli/run.go` and `internal/cli/sync.go` (backup sets).
-  - Backups: keep the settings path, which the migration still rewrites. Drop the legacy files from the install and sync backup-only sets, because they are no longer deleted there. Keep them where uninstall or upgrade can remove them.
-  - Tests: remove the install/sync legacy-deletion assertions. Add a test that install and sync keep owned legacy files after a successful switch. Keep the uninstall deletion tests.
-  - Rewrite the T3d bullets above once, consistently. Fix the contradiction around the "owned legacy files are still removed" bullet, and state that uninstall resolves settings through `settingsTargets`.
-  - Commit as `refactor(theme): keep legacy theme files until uninstall` (no AI trailer). Verify `go build/vet`, `go test ./internal/components/... ./internal/update/...`, `go test ./internal/cli/ -timeout 60m` (about 21 min), `gofmtcheck` and `deadcode-ratchet`.
-  - Then: one native review of the branch, then a PR with `type:chore` + `size:exception` (user-approved).
-- Then T4: docs, including `docs/assets/brand`. Rename the visible upstream text in `deploy/telemetry` (user decision); file names and metrics stay.
+- T1–T4 merged (PRs #8–#15). T5 (Go comments) on `chore/rebrand-go-comments`: commit, then PR.
+- Optional follow-ups: `docs/telemetry.md` endpoint wording; Grafana dashboard strings pinned by `internal/telemetrycollector/runtime_dashboard_test.go`; `deploy/telemetry/install.sh` `REPO`; decide on `docs/community-roadmap.md`, `docs/architecture/the-organic-rdd-story.md`, `docs/architecture/rdd-shadow-evaluation.md`, `docs/assets/features/gentle-shell.png`.

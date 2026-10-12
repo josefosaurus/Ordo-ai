@@ -18,7 +18,7 @@ import (
 // classify one, and a user whose work is blocked answers yes.
 //
 // The discriminator is what PRODUCED the failure, not what the user happened to
-// be doing when it happened. A Gentle AI workflow merely HOSTING a failure is
+// be doing when it happened. An Ordo workflow merely HOSTING a failure is
 // not enough: an SDD phase is carried out by the client runtime, so that
 // runtime failing mid-phase is that runtime's defect even though our contract
 // prescribed the phase.

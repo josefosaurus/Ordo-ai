@@ -721,7 +721,7 @@ func injectWithOptions(configHomeDir, promptDir string, adapter agents.Adapter, 
 			break
 		}
 		// Engram v1.10.3+ writes an absolute path for the command field when
-		// `engram setup <agent>` is invoked. gentle-ai's Inject() runs after
+		// `engram setup <agent>` is invoked. Ordo's Inject() runs after
 		// engram setup, so we must preserve any absolute command path already
 		// present instead of silently overwriting it with the relative "engram".
 		// See: https://github.com/Gentleman-Programming/gentle-ai/issues (engram absolute path regression)
@@ -1325,14 +1325,14 @@ func managedLegacyClaudeEngramCommand(content []byte) (string, bool) {
 }
 
 // IsManagedLegacyClaudeConfig reports whether content has the exact legacy
-// standalone Engram server shape emitted by Gentle AI.
+// standalone Engram server shape emitted by Ordo.
 func IsManagedLegacyClaudeConfig(content []byte) bool {
 	_, ok := managedLegacyClaudeEngramCommand(content)
 	return ok
 }
 
 // RemoveManagedLegacyClaudeConfig removes only the exact standalone shape
-// emitted by Gentle AI. Its parent is removed only when the same real directory
+// emitted by Ordo. Its parent is removed only when the same real directory
 // remains empty after that managed file is deleted; symlinks are never unlinked.
 func RemoveManagedLegacyClaudeConfig(path string) (bool, error) {
 	info, err := os.Lstat(path)

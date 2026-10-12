@@ -48,7 +48,7 @@ type ReviewAssessmentCandidate struct {
 // `ordo review status ... --next-transition` preflight continuation for
 // a review_due=true candidate, rendered with the same ReviewTransitionArgument
 // rows and builder conventions review_next_transition.go uses for every other
-// negotiated continuation this product emits. Command is "gentle-ai " plus
+// negotiated continuation this product emits. Command is "ordo " plus
 // every argument's token joined by single spaces, so a caller never
 // hand-assembles the invocation from prose (issue: orchestrators skipped the
 // RDD preflight after a slice closed because the ODD rule was prose only).

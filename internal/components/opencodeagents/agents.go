@@ -1,4 +1,4 @@
-// Package opencodeagents defines the OpenCode-compatible agents owned by gentle-ai.
+// Package opencodeagents defines the OpenCode-compatible agents owned by Ordo.
 package opencodeagents
 
 import (

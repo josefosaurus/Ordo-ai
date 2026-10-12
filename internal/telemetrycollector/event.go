@@ -1,5 +1,5 @@
 // Package telemetrycollector implements the self-hosted collector for
-// gentle-ai's anonymous telemetry events: HTTP handlers, SQLite storage,
+// Ordo's anonymous telemetry events: HTTP handlers, SQLite storage,
 // daily rollups, retention, and the summary endpoint.
 //
 // The wire contract is gentle-ai.telemetry-event/v1, defined by the client

@@ -21,7 +21,7 @@ var updateChannelEnv = os.Getenv
 var SelfUpdateEnabled = true
 
 // CheckAll runs update checks for all registered tools concurrently.
-// currentVersion is the build-time version of gentle-ai (from app.Version).
+// currentVersion is the build-time version of Ordo (from app.Version).
 // profile determines platform-specific update instructions.
 func CheckAll(ctx context.Context, currentVersion string, profile system.PlatformProfile) []UpdateResult {
 	return CheckFiltered(ctx, currentVersion, profile, nil)

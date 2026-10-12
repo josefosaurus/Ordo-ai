@@ -1,5 +1,5 @@
 // Package capabilitymanifest owns the canonical, provider-neutral capability
-// facts advertised by Gentle AI agent adapters.
+// facts advertised by Ordo agent adapters.
 package capabilitymanifest
 
 import (
@@ -58,7 +58,7 @@ type AgentCapabilityManifest struct {
 }
 
 // AgentFeatureClaims describes adapter integration mechanisms. FileSubAgents
-// means the adapter consumes Gentle AI's file-based subagent projection; it
+// means the adapter consumes Ordo's file-based subagent projection; it
 // does not infer whether the runtime can perform some other form of delegation.
 type AgentFeatureClaims struct {
 	OutputStyles  bool `json:"outputStyles"`
@@ -292,7 +292,7 @@ var featureClaimsByAgent = map[model.AgentID]AgentFeatureClaims{
 		Skills: true, SystemPrompt: true, MCP: true,
 	},
 	// Conductor inherits Claude Code configuration and is managed through Claude
-	// Code's own adapter surface, so Gentle AI claims no write capabilities for
+	// Code's own adapter surface, so Ordo claims no write capabilities for
 	// it: no skills, MCP, system prompt, or other managed file writes.
 	model.AgentConductor: {},
 	model.AgentClaudeCode: {

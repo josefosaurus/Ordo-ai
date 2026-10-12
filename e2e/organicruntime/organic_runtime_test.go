@@ -1,6 +1,6 @@
 // Package organicruntime_test proves the journeys a configured agent actually
-// performs once Gentle AI stopped owning implementation: the agent implements
-// organically, and Gentle AI's authority begins only after a candidate exists.
+// performs once Ordo stopped owning implementation: the agent implements
+// organically, and Ordo's authority begins only after a candidate exists.
 //
 // Every assertion here is driven through the real ordo binary and the real
 // `review` command surface against real Git repositories and a real bare remote.
