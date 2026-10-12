@@ -627,7 +627,7 @@ func runUpgrade(ctx context.Context, args upgradeArgs, detection system.Detectio
 		return err
 	}
 	if !dryRun {
-		if latestVersion, ok := gentleAIUpgradeSucceeded(report); ok {
+		if latestVersion, ok := ordoUpgradeSucceeded(report); ok {
 			if err := restartAfterOrdoUpgrade(latestVersion, stdout); err != nil {
 				return err
 			}

@@ -190,7 +190,7 @@ func selfUpdate(ctx context.Context, version string, profile system.PlatformProf
 	return restartAfterOrdoUpgrade(target.LatestVersion, stdout)
 }
 
-func gentleAIUpgradeSucceeded(report upgrade.UpgradeReport) (string, bool) {
+func ordoUpgradeSucceeded(report upgrade.UpgradeReport) (string, bool) {
 	for _, r := range report.Results {
 		if r.ToolName == update.SelfToolName && r.Status == upgrade.UpgradeSucceeded {
 			return strings.TrimPrefix(r.NewVersion, "v"), true

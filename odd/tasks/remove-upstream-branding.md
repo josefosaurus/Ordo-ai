@@ -78,12 +78,12 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
     - Open decisions: `docs/architecture/rdd-shadow-evaluation.md` (looks stale), `docs/architecture/the-organic-rdd-story.md` (upstream narrative), `docs/community-roadmap.md`.
     - Checks: `go build ./... && go vet ./...` pass; `internal/recoverytrace`, `internal/app`, `internal/assets` ok; `internal/cli -run 'Ratchet|Refusal|Guard|Doc'` ok; no remaining references to deleted paths outside `odd/`.
 - [x] T5 — Optional: code comments. Branch `chore/rebrand-go-comments`. Route: delegated direct (writer trigger: 62 files). Commit `4a05d97b`; native review approved; PR #16 merged.
-- [ ] T6 — Follow-ups. Branch `chore/rebrand-follow-ups`. Route: direct inline (mechanical edits).
-  - Done: Grafana dashboard title, section and panel text say Ordo, with `runtime_dashboard_test.go` updated in step; `restartAfterGentleAIUpgrade` and its tests renamed to `OrdoUpgrade` in `internal/app` (the `tui.Model.GentleAIUpgradeVersion` field is unchanged); `review_assess.go` comment describes the real command shape; `docs/telemetry.md` says sends go to the configured collector; `docs/pi.md` grammar.
-  - Checks: `go build ./...`, `go vet` (app, cli, telemetrycollector), gofmtcheck pass; `internal/app` and `internal/telemetrycollector` ok.
   - Comment-only rewrite through a `go/parser` comment-node tool: 62 files, 100 lines changed. "Gentle AI" prose became "Ordo" or "older releases"; `review_assess.go` comment now says `"ordo "`.
   - Kept: comment references to real identifiers (`restartAfterGentleAIUpgrade` and others), persona IDs, third-party names, upstream issue citations, `<!-- gentle-ai: -->` markers, quoted literals that tests match, and two trailing `// refusal:by-design` comments on code lines in `internal/cli/telemetry.go`.
   - Checks: `go build ./... && go vet ./...` pass; gofmtcheck pass; comment-only diff gate prints nothing; `internal/cli -run 'Guard|Ratchet|Refusal'` ok; components/agents/app/assets ok; deadcode ratchet: no new unreachable functions.
+- [ ] T6 — Follow-ups. Branch `chore/rebrand-follow-ups`. Route: direct inline (mechanical edits).
+  - Done: Grafana dashboard title, section and panel text say Ordo, with `runtime_dashboard_test.go` updated in step; `restartAfterGentleAIUpgrade`, `gentleAIUpgradeSucceeded` and their tests renamed to `Ordo` in `internal/app` (the `tui.Model.GentleAIUpgradeVersion` field is unchanged); `review_assess.go` comment describes the real command shape; `docs/telemetry.md` says sends go to the configured collector; `docs/pi.md` grammar.
+  - Checks: `go build ./...`, `go vet` (app, cli, telemetrycollector), gofmtcheck pass; `internal/app` and `internal/telemetrycollector` ok.
 
 ## Acceptance Criteria
 
