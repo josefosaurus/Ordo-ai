@@ -260,7 +260,7 @@ type failAfterThemeStep struct {
 func (s failAfterThemeStep) ID() string { return "test:fail-after-theme" }
 func (s failAfterThemeStep) Run() error {
 	data, err := os.ReadFile(s.selected)
-	if err != nil || !bytes.Contains(data, []byte(`"theme":"gentleman"`)) {
+	if err != nil || !bytes.Contains(data, []byte(`"theme":"ordo"`)) {
 		return errors.New("theme write was not observed before failure")
 	}
 	*s.observed = true
@@ -317,10 +317,142 @@ func TestInstallThemeRollbackRestoresSelectedJSONCBytesAndMode(t *testing.T) {
 	}
 }
 
+// legacyVisualThemeFixture seeds the upstream theme state an earlier release
+// left behind: legacy settings selections, a user-edited legacy theme file and
+// an unedited one.
+func legacyVisualThemeFixture(t *testing.T, home string) (claudeSettings, openCodeSettings, editedLegacy string) {
+	t.Helper()
+	setOpenCodeTestHome(t, home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	claudeSettings = filepath.Join(home, ".claude", "settings.json")
+	openCodeSettings = filepath.Join(home, ".config", "opencode", "opencode.json")
+	editedLegacy = filepath.Join(home, ".claude", "themes", "gentleman.json")
+	for path, content := range map[string]string{
+		claudeSettings:                  `{"theme":"Gentleman Cute","keep":true}`,
+		openCodeSettings:                `{"theme":"gentleman","keep":true}`,
+		editedLegacy:                    `{"name":"gentleman","edited":true}`,
+		uneditedLegacyVisualTheme(home): `{"theme":{}}`,
+	} {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return claudeSettings, openCodeSettings, editedLegacy
+}
+
+func assertLegacyVisualThemeMigrated(t *testing.T, home, claudeSettings, openCodeSettings, editedLegacy string) {
+	t.Helper()
+	for _, path := range []string{claudeSettings, openCodeSettings} {
+		data, err := os.ReadFile(path)
+		if err != nil || !bytes.Contains(data, []byte(`"theme": "ordo"`)) || !bytes.Contains(data, []byte(`"keep": true`)) {
+			t.Fatalf("%s = %s, %v; want theme switched to ordo with other keys kept", path, data, err)
+		}
+	}
+	for _, path := range []string{filepath.Join(home, ".claude", "themes", "ordo.json"), filepath.Join(home, ".config", "opencode", "themes", "ordo.json")} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("Ordo theme %q not written: %v", path, err)
+		}
+	}
+	// Install and sync keep legacy theme files; only uninstall removes them.
+	if data, err := os.ReadFile(editedLegacy); err != nil || string(data) != `{"name":"gentleman","edited":true}` {
+		t.Fatalf("edited legacy theme changed: %s, %v", data, err)
+	}
+	if data, err := os.ReadFile(uneditedLegacyVisualTheme(home)); err != nil || string(data) != `{"theme":{}}` {
+		t.Fatalf("unedited legacy theme changed: %s, %v", data, err)
+	}
+}
+
+func uneditedLegacyVisualTheme(home string) string {
+	return filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json")
+}
+
+// assertVisualThemeBackupTargets checks the backup set covers the settings the
+// migration may switch and leaves out the legacy theme files it never touches.
+func assertVisualThemeBackupTargets(t *testing.T, targets []string, claudeSettings, openCodeSettings, editedLegacy, home string) {
+	t.Helper()
+	for _, want := range []string{claudeSettings, openCodeSettings} {
+		if !slices.Contains(targets, want) {
+			t.Fatalf("backup targets = %v; missing %q", targets, want)
+		}
+	}
+	for _, legacy := range []string{editedLegacy, uneditedLegacyVisualTheme(home)} {
+		if slices.Contains(targets, legacy) {
+			t.Fatalf("backup targets = %v; legacy theme %q is no longer touched", targets, legacy)
+		}
+	}
+}
+
+func TestInstallVisualThemesMigratesLegacySelection(t *testing.T) {
+	home := t.TempDir()
+	claudeSettings, openCodeSettings, editedLegacy := legacyVisualThemeFixture(t, home)
+	agents := []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}
+	selection := model.Selection{Agents: agents, Components: []model.ComponentID{model.ComponentClaudeTheme}}
+	resolved := planner.ResolvedPlan{Agents: agents, OrderedComponents: selection.Components}
+	targets, err := backupTargets(home, "", ScopeGlobal, selection, resolved)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertVisualThemeBackupTargets(t, targets, claudeSettings, openCodeSettings, editedLegacy, home)
+
+	step := componentApplyStep{component: model.ComponentClaudeTheme, homeDir: home, scope: ScopeGlobal, agents: agents}
+	if err := step.Run(); err != nil {
+		t.Fatalf("visual theme install error = %v", err)
+	}
+	assertLegacyVisualThemeMigrated(t, home, claudeSettings, openCodeSettings, editedLegacy)
+}
+
+// malformedVisualThemeSettings writes unparseable Claude and OpenCode settings
+// and returns their paths and bytes.
+func malformedVisualThemeSettings(t *testing.T, home string) (paths []string, broken string) {
+	t.Helper()
+	setOpenCodeTestHome(t, home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	broken = `{"theme": "gentleman", `
+	paths = []string{filepath.Join(home, ".claude", "settings.json"), filepath.Join(home, ".config", "opencode", "opencode.json")}
+	for _, path := range paths {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(broken), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return paths, broken
+}
+
+func assertVisualThemesWrittenSettingsUntouched(t *testing.T, home string, settings []string, broken string) {
+	t.Helper()
+	for _, path := range []string{filepath.Join(home, ".claude", "themes", "ordo.json"), filepath.Join(home, ".config", "opencode", "themes", "ordo.json")} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("Ordo theme %q not written: %v", path, err)
+		}
+	}
+	for _, path := range settings {
+		if got, err := os.ReadFile(path); err != nil || string(got) != broken {
+			t.Fatalf("malformed settings %q changed: %q, %v", path, got, err)
+		}
+	}
+}
+
+func TestInstallVisualThemesToleratesMalformedSettings(t *testing.T) {
+	home := t.TempDir()
+	settings, broken := malformedVisualThemeSettings(t, home)
+	step := componentApplyStep{component: model.ComponentClaudeTheme, homeDir: home, scope: ScopeGlobal, agents: []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}}
+	if err := step.Run(); err != nil {
+		t.Fatalf("visual theme install error = %v; want malformed settings tolerated", err)
+	}
+	assertVisualThemesWrittenSettingsUntouched(t, home, settings, broken)
+}
+
 func assertThemeSelectedOnly(t *testing.T, selected, decoy string) {
 	t.Helper()
 	data, err := os.ReadFile(selected)
-	if err != nil || !bytes.Contains(data, []byte(`"theme":"gentleman"`)) || !bytes.Contains(data, []byte(`"user":true`)) || !bytes.Contains(data, []byte("// project settings")) {
+	if err != nil || !bytes.Contains(data, []byte(`"theme":"ordo"`)) || !bytes.Contains(data, []byte(`"user":true`)) || !bytes.Contains(data, []byte("// project settings")) {
 		t.Fatalf("selected JSONC theme not installed: %s, %v", data, err)
 	}
 	data, err = os.ReadFile(decoy)

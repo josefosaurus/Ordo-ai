@@ -256,8 +256,12 @@ func managedAgentBackupPaths(homeDir string, adapter agents.Adapter, diagnostics
 	case model.AgentClaudeCode:
 		add(claude.UserConfigPath(homeDir))
 		add(theme.VisualThemePaths(homeDir, adapter)...)
+		add(theme.LegacyVisualThemePaths(homeDir, adapter)...)
+		add(theme.VisualThemeSettingsPath(homeDir, adapter))
 	case model.AgentOpenCode:
 		add(theme.VisualThemePaths(homeDir, adapter)...)
+		add(theme.LegacyVisualThemePaths(homeDir, adapter)...)
+		add(theme.VisualThemeSettingsPath(homeDir, adapter))
 		// The routing step records default-agent ownership beside the effective
 		// settings path, which honors an absolute OPENCODE_CONFIG_DIR; the
 		// snapshot must resolve it the same way.

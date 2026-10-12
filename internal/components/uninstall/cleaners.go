@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/components/theme"
 )
 
 type jsonPath []string
@@ -79,6 +80,20 @@ func looksLikeManagedPersonaPrefix(prefix string) bool {
 	}
 
 	return true
+}
+
+// removeManagedThemeSetting removes the top-level theme selection only when it
+// names the Ordo theme or a legacy theme Ordo used to select. Settings it
+// cannot parse are left untouched so the theme-file cleanup still completes.
+func removeManagedThemeSetting(raw []byte) ([]byte, bool, error) {
+	root, err := unmarshalJSONObject(raw)
+	if err != nil {
+		return raw, false, nil
+	}
+	if current, _ := root["theme"].(string); !theme.IsManagedThemeName(current) {
+		return raw, false, nil
+	}
+	return removeJSONPaths(raw, jsonPath{"theme"})
 }
 
 func removeJSONPaths(raw []byte, paths ...jsonPath) ([]byte, bool, error) {

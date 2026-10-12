@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -1609,17 +1610,12 @@ func TestComponentPathsVisualThemesMatchSelectedAdapter(t *testing.T) {
 		agent model.AgentID
 		want  []string
 	}{
-		{model.AgentClaudeCode, []string{filepath.Join(home, ".claude", "themes", "gentleman.json"), filepath.Join(home, ".claude", "themes", "gentleman-cute.json")}},
-		{model.AgentOpenCode, []string{filepath.Join(home, ".config", "opencode", "themes", "gentleman.json"), filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json")}},
+		{model.AgentClaudeCode, []string{filepath.Join(home, ".claude", "themes", "ordo.json")}},
+		{model.AgentOpenCode, []string{filepath.Join(home, ".config", "opencode", "themes", "ordo.json")}},
 	} {
 		paths := componentPathsWithWorkspaceScoped(home, "", ScopeGlobal, model.Selection{}, resolveAdapters([]model.AgentID{tt.agent}), model.ComponentClaudeTheme)
-		if len(paths) != len(tt.want) {
+		if !slices.Equal(paths, tt.want) {
 			t.Fatalf("%q paths = %v, want %v", tt.agent, paths, tt.want)
-		}
-		for i := range tt.want {
-			if paths[i] != tt.want[i] {
-				t.Fatalf("%q paths = %v, want %v", tt.agent, paths, tt.want)
-			}
 		}
 	}
 }

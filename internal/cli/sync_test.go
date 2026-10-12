@@ -1693,10 +1693,8 @@ func TestRunSyncRefreshesPersistedVisualComponents(t *testing.T) {
 	wantFiles := []string{
 		filepath.Join(home, ".config", "opencode", "plugins", "telemetry-runtime.ts"),
 		filepath.Join(home, ".config", "opencode", ".gentle-ai-telemetry-runtime.json"),
-		filepath.Join(home, ".claude", "themes", "gentleman.json"),
-		filepath.Join(home, ".claude", "themes", "gentleman-cute.json"),
-		filepath.Join(home, ".config", "opencode", "themes", "gentleman.json"),
-		filepath.Join(home, ".config", "opencode", "themes", "gentleman-cute.json"),
+		filepath.Join(home, ".claude", "themes", "ordo.json"),
+		filepath.Join(home, ".config", "opencode", "themes", "ordo.json"),
 		filepath.Join(home, ".config", "opencode", "tui-plugins", "gentle-logo.tsx"),
 		filepath.Join(home, ".config", "opencode", "tui.json"),
 		filepath.Join(home, ".claude", "agents", "jd-fix-agent.md"),
@@ -1734,6 +1732,60 @@ func TestRunSyncRefreshesPersistedVisualComponents(t *testing.T) {
 	if !second.NoOp || second.FilesChanged != 0 || len(second.ChangedFiles) != 0 {
 		t.Fatalf("second sync = NoOp %v, FilesChanged %d, ChangedFiles %#v; want idempotent no-op", second.NoOp, second.FilesChanged, second.ChangedFiles)
 	}
+}
+
+func TestRunSyncMigratesLegacyVisualThemeSelection(t *testing.T) {
+	workspace, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("EvalSymlinks(workspace) error = %v", err)
+	}
+	t.Chdir(workspace)
+	home, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("EvalSymlinks(home) error = %v", err)
+	}
+	claudeSettings, openCodeSettings, editedLegacy := legacyVisualThemeFixture(t, home)
+	if err := state.Write(home, state.InstallState{
+		InstalledAgents:     []string{"claude-code", "opencode"},
+		SelectionConfigured: true,
+		Components:          []model.ComponentID{model.ComponentClaudeTheme},
+		Persona:             "neutral",
+	}); err != nil {
+		t.Fatalf("state.Write() error = %v", err)
+	}
+	restoreHome := osUserHomeDir
+	restoreBackupHome := backup.UserHomeDirFn
+	osUserHomeDir = func() (string, error) { return home, nil }
+	backup.UserHomeDirFn = func() (string, error) { return home, nil }
+	t.Cleanup(func() {
+		osUserHomeDir = restoreHome
+		backup.UserHomeDirFn = restoreBackupHome
+	})
+
+	// Sync snapshots the settings the migration may switch, backup-only.
+	agentIDs := []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}
+	selection := model.Selection{Agents: agentIDs, Components: []model.ComponentID{model.ComponentClaudeTheme}}
+	targets, err := syncBackupTargetsScoped(home, workspace, ScopeGlobal, selection, resolveAdapters(agentIDs))
+	if err != nil {
+		t.Fatalf("syncBackupTargetsScoped() error = %v", err)
+	}
+	assertVisualThemeBackupTargets(t, targets, claudeSettings, openCodeSettings, editedLegacy, home)
+
+	if _, err := RunSync([]string{"--agents", "claude-code,opencode"}); err != nil {
+		t.Fatalf("RunSync() error = %v", err)
+	}
+	assertLegacyVisualThemeMigrated(t, home, claudeSettings, openCodeSettings, editedLegacy)
+}
+
+func TestSyncVisualThemesToleratesMalformedSettings(t *testing.T) {
+	home := t.TempDir()
+	settings, broken := malformedVisualThemeSettings(t, home)
+	changed := []string{}
+	step := componentSyncStep{id: "sync-visual-themes", component: model.ComponentClaudeTheme, homeDir: home, scope: ScopeGlobal, agents: []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode}, changedFiles: &changed}
+	if err := step.Run(); err != nil {
+		t.Fatalf("visual theme sync error = %v; want malformed settings tolerated", err)
+	}
+	assertVisualThemesWrittenSettingsUntouched(t, home, settings, broken)
 }
 
 // TestRunSyncSkipsOpenCodeGentleLogoWhenOpenCodeNotSelected ensures that when

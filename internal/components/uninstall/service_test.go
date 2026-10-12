@@ -1030,6 +1030,8 @@ func TestPartialUninstallClaudeThemeRemovesOnlyThemeAssets(t *testing.T) {
 	}
 
 	managed := []string{
+		filepath.Join(homeDir, ".claude", "themes", "ordo.json"),
+		filepath.Join(homeDir, ".config", "opencode", "themes", "ordo.json"),
 		filepath.Join(homeDir, ".claude", "themes", "gentleman.json"),
 		filepath.Join(homeDir, ".claude", "themes", "gentleman-cute.json"),
 		filepath.Join(homeDir, ".config", "opencode", "themes", "gentleman.json"),
@@ -1082,6 +1084,115 @@ func TestPartialUninstallClaudeThemeRemovesOnlyThemeAssets(t *testing.T) {
 	}
 	if got, err := os.ReadFile(logoPath); err != nil || string(got) != "// managed logo" {
 		t.Fatalf("OpenCode logo = %q, %v", got, err)
+	}
+}
+
+func TestPartialUninstallClaudeThemeClearsOnlyManagedThemeSelection(t *testing.T) {
+	for _, tt := range []struct {
+		name, claudeValue, openCodeValue string
+		cleared                          bool
+	}{
+		{name: "ordo", claudeValue: "ordo", openCodeValue: "ordo", cleared: true},
+		{name: "legacy gentleman", claudeValue: "gentleman", openCodeValue: "gentleman", cleared: true},
+		{name: "legacy cute", claudeValue: "Gentleman Cute", openCodeValue: "gentleman-cute", cleared: true},
+		{name: "user theme", claudeValue: "dark", openCodeValue: "tokyonight", cleared: false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			homeDir := t.TempDir()
+			t.Setenv("XDG_CONFIG_HOME", filepath.Join(homeDir, ".config"))
+			t.Setenv("OPENCODE_CONFIG_DIR", "")
+			svc, err := NewService(homeDir, t.TempDir(), "dev")
+			if err != nil {
+				t.Fatalf("NewService() error = %v", err)
+			}
+			svc.snapshotter = stubSnapshotter{}
+			settings := map[string]string{
+				filepath.Join(homeDir, ".claude", "settings.json"):             `{"theme":"` + tt.claudeValue + `","keep":true}`,
+				filepath.Join(homeDir, ".config", "opencode", "opencode.json"): `{"theme":"` + tt.openCodeValue + `","keep":true}`,
+			}
+			for path, content := range settings {
+				if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			if _, err := svc.PartialUninstall(
+				[]model.AgentID{model.AgentOpenCode, model.AgentClaudeCode},
+				[]model.ComponentID{model.ComponentClaudeTheme},
+			); err != nil {
+				t.Fatalf("PartialUninstall() error = %v", err)
+			}
+
+			for path, before := range settings {
+				got, err := os.ReadFile(path)
+				if err != nil {
+					t.Fatalf("ReadFile(%s) error = %v", path, err)
+				}
+				if !tt.cleared {
+					if string(got) != before {
+						t.Fatalf("user theme in %s changed: %q, want %q", path, got, before)
+					}
+					continue
+				}
+				if strings.Contains(string(got), `"theme"`) || !strings.Contains(string(got), `"keep"`) {
+					t.Fatalf("%s = %s; want managed theme cleared and other keys kept", path, got)
+				}
+			}
+		})
+	}
+}
+
+// A settings file uninstall cannot parse skips only the managed-theme clearing;
+// the theme files are still removed and the broken file is left untouched.
+func TestPartialUninstallClaudeThemeToleratesMalformedSettings(t *testing.T) {
+	homeDir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(homeDir, ".config"))
+	t.Setenv("OPENCODE_CONFIG_DIR", "")
+	svc, err := NewService(homeDir, t.TempDir(), "dev")
+	if err != nil {
+		t.Fatalf("NewService() error = %v", err)
+	}
+	svc.snapshotter = stubSnapshotter{}
+	broken := `{"theme": "ordo", `
+	settings := []string{
+		filepath.Join(homeDir, ".claude", "settings.json"),
+		filepath.Join(homeDir, ".config", "opencode", "opencode.json"),
+	}
+	themes := []string{
+		filepath.Join(homeDir, ".claude", "themes", "ordo.json"),
+		filepath.Join(homeDir, ".config", "opencode", "themes", "gentleman.json"),
+	}
+	for _, path := range append(append([]string{}, settings...), themes...) {
+		content := `{"name":"managed"}`
+		if slices.Contains(settings, path) {
+			content = broken
+		}
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if _, err := svc.PartialUninstall(
+		[]model.AgentID{model.AgentOpenCode, model.AgentClaudeCode},
+		[]model.ComponentID{model.ComponentClaudeTheme},
+	); err != nil {
+		t.Fatalf("PartialUninstall() error = %v; want malformed settings tolerated", err)
+	}
+	for _, path := range themes {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("theme %q should be removed: %v", path, err)
+		}
+	}
+	for _, path := range settings {
+		if got, err := os.ReadFile(path); err != nil || string(got) != broken {
+			t.Fatalf("malformed settings %q changed: %q, %v", path, got, err)
+		}
 	}
 }
 

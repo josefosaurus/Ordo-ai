@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
+	opencodeconfig "github.com/gentleman-programming/gentle-ai/v4/internal/opencode"
 )
 
 type InjectionResult struct {
@@ -16,7 +18,11 @@ type InjectionResult struct {
 	Files   []string
 }
 
-var themeOverlayJSON = []byte("{\n  \"theme\": \"gentleman\"\n}\n")
+// OrdoThemeName is the theme ID Ordo selects and the base name of the theme
+// files it installs.
+const OrdoThemeName = "ordo"
+
+var themeOverlayJSON = []byte("{\n  \"theme\": \"" + OrdoThemeName + "\"\n}\n")
 
 type claudeTheme struct {
 	Name      string            `json:"name"`
@@ -39,51 +45,69 @@ func palette(pairs ...string) map[string]string {
 	return colors
 }
 
-var gentlemanClaudeTheme = claudeTheme{
-	Name: "gentleman", Base: "dark",
+// Rosé Pine (main, dark), matching internal/brand/default.yaml. The diff
+// backgrounds are derived tints of pine and love over base, because the
+// palette defines no diff colors of its own.
+const (
+	rpSurface = "#1f1d2e"
+	rpOverlay = "#26233a"
+	rpMuted   = "#6e6a86"
+	rpSubtle  = "#908caa"
+	rpText    = "#e0def4"
+	rpLove    = "#eb6f92"
+	rpGold    = "#f6c177"
+	rpRose    = "#ebbcba"
+	rpPine    = "#31748f"
+	rpFoam    = "#9ccfd8"
+	rpIris    = "#c4a7e7"
+	rpHLLow   = "#21202e"
+	rpHLMed   = "#403d52"
+
+	rpAddedBg       = "#1f2e3f" // pine at 25% over base
+	rpRemovedBg     = "#43293a" // love at 20% over base
+	rpAddedWordBg   = "#274f64" // pine at 60% over base
+	rpRemovedWordBg = "#773f55" // love at 45% over base
+)
+
+var ordoClaudeTheme = claudeTheme{
+	Name: OrdoThemeName, Base: "dark",
 	Overrides: palette(
-		"diffAdded", "#3F4A2D", "diffRemoved", "#5C3838", "diffAddedWord", "#76946A", "diffRemovedWord", "#C34043",
-		"chromeYellow", "#DCA561", "briefLabelYou", "#DCA561", "rainbow_yellow", "#DCA561", "yellow_FOR_SUBAGENTS_ONLY", "#DCA561",
+		"claude", rpIris, "claudeShimmer", rpRose, "text", rpText, "inactive", rpSubtle, "subtle", rpMuted, "suggestion", rpRose,
+		"permission", rpIris, "promptBorder", rpIris, "planMode", rpFoam, "autoAccept", rpRose, "bashBorder", rpGold,
+		"remember", rpGold, "success", rpFoam, "merged", rpIris, "error", rpLove, "warning", rpGold,
+		"diffAdded", rpAddedBg, "diffRemoved", rpRemovedBg, "diffAddedWord", rpAddedWordBg, "diffRemovedWord", rpRemovedWordBg,
+		"userMessageBackground", rpSurface, "userMessageBackgroundHover", rpOverlay, "selectionBg", rpHLMed, "memoryBackgroundColor", rpHLLow, "bashMessageBackgroundColor", rpSurface,
 	),
 }
 
-var gentlemanCuteClaudeTheme = claudeTheme{
-	Name: "Gentleman Cute", Base: "dark",
-	Overrides: palette(
-		"claude", "#F095C8", "claudeShimmer", "#FFB1DD", "text", "#F6EFF3", "inactive", "#A78E9B", "subtle", "#76616B", "suggestion", "#FFB1DD",
-		"permission", "#F095C8", "promptBorder", "#F095C8", "planMode", "#A9C7EE", "autoAccept", "#FF81CC", "bashBorder", "#E0C27A",
-		"remember", "#E0C27A", "success", "#B4E7C7", "merged", "#B4E7C7", "error", "#FF718F", "warning", "#F2B86D",
-		"diffAdded", "#1A2420", "diffRemoved", "#2D151F", "diffAddedWord", "#2D5A45", "diffRemovedWord", "#7A2948",
-		"userMessageBackground", "#241822", "userMessageBackgroundHover", "#342230", "selectionBg", "#563040", "memoryBackgroundColor", "#1A1218", "bashMessageBackgroundColor", "#151316",
-	),
-}
-
-var gentlemanOpenCodeTheme = openCodeTheme{
+var ordoOpenCodeTheme = openCodeTheme{
 	Schema: openCodeThemeSchema,
 	Theme: palette(
-		"background", "none", "backgroundPanel", "#06080f", "backgroundElement", "#06080f", "text", "#F3F6F9", "textMuted", "#5C6170",
-		"primary", "#7FB4CA", "secondary", "#A3B5D6", "accent", "#E0C15A", "error", "#CB7C94", "warning", "#DEBA87", "success", "#B7CC85", "info", "#7FB4CA",
-		"border", "#313342", "borderActive", "#7FB4CA", "borderSubtle", "#232A40", "diffAdded", "#B7CC85", "diffRemoved", "#CB7C94", "diffContext", "#5C6170",
-		"diffHunkHeader", "#8394A3", "diffHighlightAdded", "#D1E8A9", "diffHighlightRemoved", "#DE8FA8", "diffAddedBg", "#1a2e1a", "diffRemovedBg", "#2e1a1a", "diffContextBg", "#0d0f14",
-		"diffLineNumber", "#8394A3", "diffAddedLineNumberBg", "#1a2e1a", "diffRemovedLineNumberBg", "#2e1a1a", "markdownText", "#F3F6F9", "markdownHeading", "#B5B2D0",
-		"markdownLink", "#7FB4CA", "markdownLinkText", "#79B8EA", "markdownCode", "#B7CC85", "markdownBlockQuote", "#DEBA87", "markdownEmph", "#7CB9DD", "markdownStrong", "#DEBA87",
-		"markdownHorizontalRule", "#5C6170", "markdownListItem", "#7FB4CA", "markdownListEnumeration", "#A3B5D6", "markdownImage", "#7FB4CA", "markdownImageText", "#79B8EA", "markdownCodeBlock", "#F3F6F9",
-		"syntaxComment", "#8394A3", "syntaxKeyword", "#C99AD6", "syntaxFunction", "#B99BF2", "syntaxVariable", "#F3F6F9", "syntaxString", "#DFBD76", "syntaxNumber", "#A4DAA7", "syntaxType", "#8FB8DD", "syntaxOperator", "#DEBA87", "syntaxPunctuation", "#96A2B0",
+		"background", "none", "backgroundPanel", rpSurface, "backgroundElement", rpOverlay, "text", rpText, "textMuted", rpSubtle,
+		"primary", rpIris, "secondary", rpRose, "accent", rpGold, "error", rpLove, "warning", rpGold, "success", rpFoam, "info", rpFoam,
+		"border", rpHLMed, "borderActive", rpIris, "borderSubtle", rpOverlay, "diffAdded", rpFoam, "diffRemoved", rpLove, "diffContext", rpMuted,
+		"diffHunkHeader", rpSubtle, "diffHighlightAdded", rpFoam, "diffHighlightRemoved", rpLove, "diffAddedBg", rpAddedBg, "diffRemovedBg", rpRemovedBg, "diffContextBg", rpSurface,
+		"diffLineNumber", rpMuted, "diffAddedLineNumberBg", rpAddedBg, "diffRemovedLineNumberBg", rpRemovedBg, "markdownText", rpText, "markdownHeading", rpIris,
+		"markdownLink", rpFoam, "markdownLinkText", rpRose, "markdownCode", rpGold, "markdownBlockQuote", rpSubtle, "markdownEmph", rpRose, "markdownStrong", rpGold,
+		"markdownHorizontalRule", rpMuted, "markdownListItem", rpIris, "markdownListEnumeration", rpFoam, "markdownImage", rpFoam, "markdownImageText", rpRose, "markdownCodeBlock", rpText,
+		"syntaxComment", rpMuted, "syntaxKeyword", rpPine, "syntaxFunction", rpRose, "syntaxVariable", rpText, "syntaxString", rpGold, "syntaxNumber", rpGold, "syntaxType", rpFoam, "syntaxOperator", rpSubtle, "syntaxPunctuation", rpSubtle,
 	),
 }
 
-var gentlemanCuteOpenCodeTheme = openCodeTheme{
-	Schema: openCodeThemeSchema,
-	Theme: palette(
-		"background", "none", "backgroundPanel", "#1A1218", "backgroundElement", "#241822", "text", "#F6EFF3", "textMuted", "#A78E9B",
-		"primary", "#F095C8", "secondary", "#D7A0B8", "accent", "#F095C8", "error", "#FF718F", "warning", "#F2B86D", "success", "#B4E7C7", "info", "#D7A0B8",
-		"border", "#342230", "borderActive", "#FFB1DD", "borderSubtle", "#241822", "diffAdded", "#B4E7C7", "diffRemoved", "#FF718F", "diffContext", "#A78E9B",
-		"diffHunkHeader", "#D7A0B8", "diffHighlightAdded", "#B4E7C7", "diffHighlightRemoved", "#FF718F", "diffAddedBg", "#1A2420", "diffRemovedBg", "#261019", "diffContextBg", "#1A1218",
-		"diffLineNumber", "#76616B", "diffAddedLineNumberBg", "#1A2420", "diffRemovedLineNumberBg", "#261019", "markdownText", "#F6EFF3", "markdownHeading", "#E0C27A",
-		"markdownLink", "#F095C8", "markdownLinkText", "#F095C8", "markdownCode", "#E0C27A", "markdownBlockQuote", "#A78E9B", "markdownEmph", "#D7A0B8", "markdownStrong", "#E0C27A",
-		"markdownHorizontalRule", "#A78E9B", "markdownListItem", "#F095C8", "markdownListEnumeration", "#D7A0B8", "markdownImage", "#F095C8", "markdownImageText", "#F095C8", "markdownCodeBlock", "#F6EFF3",
-		"syntaxComment", "#A78E9B", "syntaxKeyword", "#F095C8", "syntaxFunction", "#A9C7EE", "syntaxVariable", "#F6EFF3", "syntaxString", "#B4E7C7", "syntaxNumber", "#F2B86D", "syntaxType", "#E0C27A", "syntaxOperator", "#C4DAF6", "syntaxPunctuation", "#A78E9B",
-	),
+// Theme files earlier releases installed under upstream names, per agent.
+// Install and sync leave them in place; uninstall removes them.
+var (
+	legacyClaudeThemeFiles   = []string{"gentleman.json", "gentleman-cute.json"}
+	legacyOpenCodeThemeFiles = []string{"gentleman.json", "gentleman-cute.json"}
+	// Settings values earlier releases selected, per agent.
+	legacyClaudeThemeNames   = []string{"gentleman", "Gentleman Cute"}
+	legacyOpenCodeThemeNames = []string{"gentleman", "gentleman-cute"}
+)
+
+// IsManagedThemeName reports whether a settings theme value is one Ordo
+// selects or selected in an earlier release, as opposed to a user choice.
+func IsManagedThemeName(name string) bool {
+	return name == OrdoThemeName || slices.Contains(legacyClaudeThemeNames, name) || slices.Contains(legacyOpenCodeThemeNames, name)
 }
 
 func Inject(homeDir string, adapter agents.Adapter) (InjectionResult, error) {
@@ -117,51 +141,150 @@ func injectSettings(settingsPath string) (InjectionResult, error) {
 	return InjectionResult{Changed: writeResult.Changed, Files: []string{settingsPath}}, nil
 }
 
-// InjectVisualThemes writes the managed visual theme assets without selecting one
-// in an agent's active settings.
+// InjectVisualThemes writes the managed Ordo theme asset without selecting it
+// in an agent's active settings. It also migrates a settings theme value that
+// names a legacy managed theme to Ordo; any other user choice is left alone.
+// Legacy theme files stay in place until uninstall, so a selection this step
+// cannot migrate (or a project-scoped one it never reads) never dangles.
 func InjectVisualThemes(homeDir string, adapter agents.Adapter) (InjectionResult, error) {
 	paths := VisualThemePaths(homeDir, adapter)
 	if len(paths) == 0 {
 		return InjectionResult{}, nil
 	}
 
-	var values []any
+	var value any
+	var legacyNames []string
 	switch adapter.Agent() {
 	case model.AgentClaudeCode:
-		values = []any{gentlemanClaudeTheme, gentlemanCuteClaudeTheme}
+		value, legacyNames = ordoClaudeTheme, legacyClaudeThemeNames
 	case model.AgentOpenCode:
-		values = []any{gentlemanOpenCodeTheme, gentlemanCuteOpenCodeTheme}
+		value, legacyNames = ordoOpenCodeTheme, legacyOpenCodeThemeNames
 	}
 
-	result := InjectionResult{Files: make([]string, 0, len(paths))}
-	for i, path := range paths {
-		content, err := json.MarshalIndent(values[i], "", "  ")
-		if err != nil {
-			return InjectionResult{}, fmt.Errorf("marshal visual theme %q: %w", filepath.Base(path), err)
-		}
-		content = append(content, '\n')
-		writeResult, err := filemerge.WriteFileAtomic(path, content, 0o644)
-		if err != nil {
-			return InjectionResult{}, err
-		}
-		result.Changed = result.Changed || writeResult.Changed
-		result.Files = append(result.Files, path)
+	content, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		return InjectionResult{}, fmt.Errorf("marshal visual theme %q: %w", filepath.Base(paths[0]), err)
+	}
+	content = append(content, '\n')
+	writeResult, err := filemerge.WriteFileAtomic(paths[0], content, 0o644)
+	if err != nil {
+		return InjectionResult{}, err
+	}
+	result := InjectionResult{Changed: writeResult.Changed, Files: []string{paths[0]}}
+
+	settingsPath := VisualThemeSettingsPath(homeDir, adapter)
+	migration := migrateLegacyThemeSetting(settingsPath, adapter.Agent(), legacyNames)
+	if migration == themeSettingSwitched {
+		result.Changed = true
+		result.Files = append(result.Files, settingsPath)
 	}
 	return result, nil
 }
 
 // VisualThemePaths returns the installer-owned visual theme assets for an adapter.
 func VisualThemePaths(homeDir string, adapter agents.Adapter) []string {
-	var root string
-	switch adapter.Agent() {
-	case model.AgentClaudeCode:
-		root = filepath.Join(adapter.GlobalConfigDir(homeDir), "themes")
-	case model.AgentOpenCode:
-		root = filepath.Join(filepath.Dir(adapter.SettingsPath(homeDir)), "themes")
-	default:
+	root := visualThemeDir(homeDir, adapter)
+	if root == "" {
 		return nil
 	}
-	return []string{filepath.Join(root, "gentleman.json"), filepath.Join(root, "gentleman-cute.json")}
+	return []string{filepath.Join(root, OrdoThemeName+".json")}
+}
+
+// LegacyVisualThemePaths returns the upstream theme assets earlier releases
+// installed for an adapter. Install and sync leave them in place; uninstall
+// removes them like the current asset.
+func LegacyVisualThemePaths(homeDir string, adapter agents.Adapter) []string {
+	root := visualThemeDir(homeDir, adapter)
+	if root == "" {
+		return nil
+	}
+	var legacy []string
+	switch adapter.Agent() {
+	case model.AgentClaudeCode:
+		legacy = legacyClaudeThemeFiles
+	case model.AgentOpenCode:
+		legacy = legacyOpenCodeThemeFiles
+	}
+	paths := make([]string, 0, len(legacy))
+	for _, file := range legacy {
+		paths = append(paths, filepath.Join(root, file))
+	}
+	return paths
+}
+
+// VisualThemeSettingsPath returns the settings file whose legacy theme value
+// InjectVisualThemes migrates, so callers can back it up first.
+func VisualThemeSettingsPath(homeDir string, adapter agents.Adapter) string {
+	switch adapter.Agent() {
+	case model.AgentClaudeCode:
+		return adapter.SettingsPath(homeDir)
+	case model.AgentOpenCode:
+		return opencodeconfig.EffectiveSettingsPath(homeDir, "")
+	default:
+		return ""
+	}
+}
+
+// visualThemeDir places theme assets under the adapter config root, like the
+// other OpenCode assets (plugins, skills, AGENTS.md), which ignore
+// OPENCODE_CONFIG_DIR. Only the theme selection follows the effective settings
+// file, as every other settings writer does (VisualThemeSettingsPath).
+func visualThemeDir(homeDir string, adapter agents.Adapter) string {
+	switch adapter.Agent() {
+	case model.AgentClaudeCode, model.AgentOpenCode:
+		return filepath.Join(adapter.GlobalConfigDir(homeDir), "themes")
+	default:
+		return ""
+	}
+}
+
+// themeSettingMigration is the outcome of migrateLegacyThemeSetting.
+type themeSettingMigration int
+
+const (
+	// themeSettingNotLegacy: settings are missing or readable and select no
+	// legacy managed theme.
+	themeSettingNotLegacy themeSettingMigration = iota
+	// themeSettingSwitched: a legacy selection now selects Ordo.
+	themeSettingSwitched
+	// themeSettingSkipped: the settings could not be read, parsed or written
+	// (including a refused OpenCode file) and were left untouched.
+	themeSettingSkipped
+)
+
+// migrateLegacyThemeSetting selects the Ordo theme only when the settings file
+// currently selects one of the legacy managed names. Settings it cannot read,
+// parse or rewrite are left untouched and reported as skipped: the visual theme
+// step never depended on settings before this migration, so a broken or locked
+// file must not abort it.
+func migrateLegacyThemeSetting(settingsPath string, agent model.AgentID, legacyNames []string) themeSettingMigration {
+	if settingsPath == "" {
+		return themeSettingNotLegacy
+	}
+	raw, err := osReadFile(settingsPath)
+	if err != nil {
+		return themeSettingSkipped
+	}
+	if raw == nil {
+		return themeSettingNotLegacy
+	}
+	root, err := filemerge.UnmarshalJSONObject(raw)
+	if err != nil {
+		return themeSettingSkipped
+	}
+	current, _ := root["theme"].(string)
+	if !slices.Contains(legacyNames, current) {
+		return themeSettingNotLegacy
+	}
+	if agent == model.AgentOpenCode {
+		if err := filemerge.RefuseLockedSettingsFile(settingsPath); err != nil {
+			return themeSettingSkipped
+		}
+	}
+	if _, err := mergeJSONFile(settingsPath, themeOverlayJSON); err != nil {
+		return themeSettingSkipped
+	}
+	return themeSettingSwitched
 }
 
 func mergeJSONFile(path string, overlay []byte) (filemerge.WriteResult, error) {

@@ -3231,6 +3231,16 @@ func backupTargets(homeDir, workspaceDir string, scope InstallScope, selection m
 				}
 			}
 		}
+		// Visual theme backup also captures the settings file, whose legacy
+		// theme selection the step may switch to Ordo. Backup-only:
+		// verification stays on the Ordo theme asset.
+		if component == model.ComponentClaudeTheme {
+			for _, adapter := range adapters {
+				if path := theme.VisualThemeSettingsPath(homeDir, adapter); path != "" {
+					paths[path] = struct{}{}
+				}
+			}
+		}
 		// Persona backup captures every managed output-style file, not just the
 		// selected one, so a failed persona switch can restore the file its
 		// cleanup removed. Backup-only: verification stays on the selected file.
