@@ -1,6 +1,6 @@
 # Release signing and key rotation
 
-Gentle AI™ releases only when the protected `release` environment provides a real Minisign credential whose public key matches the trust anchors embedded in the binary. An unset, malformed, placeholder, or isolated test key stops both the updater and release workflow.
+Ordo releases only when the protected `release` environment provides a real Minisign credential whose public key matches the trust anchors embedded in the binary. An unset, malformed, placeholder, or isolated test key stops both the updater and release workflow.
 
 ## User verification
 
@@ -13,7 +13,7 @@ Gentle AI™ releases only when the protected `release` environment provides a r
      -x checksums.txt.minisig \
      -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
    # Must print exactly:
-   # repo=Gentleman-Programming/gentle-ai;tag=vMAJOR.MINOR.PATCH
+   # repo=josefosaurus/Ordo-ai;tag=vMAJOR.MINOR.PATCH
 
    sha256sum --check --strict --ignore-missing checksums.txt
    ```
@@ -87,18 +87,13 @@ Windows executable/archive assets and Scoop publication are temporarily omitted.
 Because there is no signed Windows asset to download, Windows never downloads an
 unsigned executable and never executes a remote update script. Instead:
 
-- With Go 1.25.10+ on `PATH`, the built-in upgrader runs
-  `go install github.com/gentleman-programming/gentle-ai/v4/cmd/gentle-ai@vX.Y.Z`,
-  pinned to the exact release tag. This is verified — just against a different
-  trust anchor: the module is checked against the Go checksum database
-  (`sum.golang.org`) rather than our minisign release signature. The upgrader
-  does not disable the checksum database on this path.
-- Without Go on `PATH`, the upgrader fails closed to `go install` guidance and
-  performs no download or execution at all.
+- The built-in upgrader fails closed: it performs no download or execution and
+  prints build-from-source guidance (`go build -o ordo.exe ./cmd/gentle-ai`).
+- There is no `go install` path, because the Go module path still names
+  upstream and `go install` would fetch the upstream CLI instead of Ordo.
 
 Linux and macOS are unaffected by this: they continue to download the signed
-release archive and verify it with minisign, and they never route through
-`go install`.
+release archive and verify it with minisign.
 
 Restore Windows distribution only after all of these conditions are enforced:
 

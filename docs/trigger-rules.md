@@ -2,7 +2,7 @@
 
 <- [Back to README](../README.md)
 
-Ask for the outcome. Gentle AI™ keeps already-understood work inline, delegates only
+Ask for the outcome. Ordo keeps already-understood work inline, delegates only
 the actions that benefit from fresh context, and uses [Organic Driven Development
 (ODD)](usage.md#organic-driven-development-odd) for everyday work. SDD is an explicit
 choice when its separate planning artifacts are wanted, not an ambiguity resolver.
@@ -11,7 +11,7 @@ Native providers own verification, review mechanics, and lifecycle authority; or
 ## Quick path
 
 1. Describe the outcome in natural language.
-2. Gentle AI uses the smallest useful implementation route: direct inline,
+2. Ordo uses the smallest useful implementation route: direct inline,
    delegated direct ODD, or explicitly selected SDD.
 3. The normal interaction reports only **Working**, **Checking**, **Ready**, or
    **Needs your decision**.
@@ -48,9 +48,9 @@ for substantial work. No silent SDD enrollment.
 | Public state | Meaning |
 |---|---|
 | **Working** | The implementation can still change. |
-| **Checking** | Gentle AI is performing the applicable functional proof and bounded review. |
+| **Checking** | Ordo is performing the applicable functional proof and bounded review. |
 | **Ready** | The exact candidate has sufficient evidence for the selected delivery route. |
-| **Needs your decision** | Safe automatic convergence is impossible; Gentle AI presents the cause, impact, and concrete choices. |
+| **Needs your decision** | Safe automatic convergence is impossible; Ordo presents the cause, impact, and concrete choices. |
 
 The user still asks only for the outcome. Repository identity, route, policy,
 candidate, delivery mechanism, and authority references remain owner-derived.
@@ -86,7 +86,7 @@ user's behalf. Review context may remain visible when available, but it never
 authorizes or blocks commit, push, PR, release, or archive. Native delivery gates
 report `disabled/unmanaged` when no exact receipt applies and never fabricate approval.
 
-In stable [`v2.6.0`](https://github.com/Gentleman-Programming/gentle-ai/releases/tag/v2.6.0) and unreleased `main`, disabled SDD status skips review authority and leaves `reviewGate` structurally absent. Pre-verify continues without routing to review. When visible, `reviewGate` is informational only; SDD archive preserves actual task and diagnostic history without requiring a verification certificate, while ordinary repository policy owns delivery. Native compatibility commands may report `disabled/unmanaged` review context, but no receipt state or validation result governs delivery. See the [SDD status contract](../internal/assets/skills/_shared/sdd-status-contract.md).
+In upstream stable `v2.6.0` and unreleased `main`, disabled SDD status skips review authority and leaves `reviewGate` structurally absent. Pre-verify continues without routing to review. When visible, `reviewGate` is informational only; SDD archive preserves actual task and diagnostic history without requiring a verification certificate, while ordinary repository policy owns delivery. Native compatibility commands may report `disabled/unmanaged` review context, but no receipt state or validation result governs delivery. See the [SDD status contract](../internal/assets/skills/_shared/sdd-status-contract.md).
 
 ## Review store reset
 

@@ -1,6 +1,6 @@
 [Unit]
 Description=VictoriaMetrics (single node) for gentle-telemetry runtime metrics
-Documentation=https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/telemetry-collector.md
+Documentation=https://github.com/josefosaurus/Ordo-ai/blob/main/docs/telemetry-collector.md
 After=network-online.target gentle-telemetry.service
 Wants=network-online.target
 

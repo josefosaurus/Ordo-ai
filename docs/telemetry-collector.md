@@ -2,8 +2,8 @@
 
 ← [Back to README](../README.md)
 
-`cmd/gentle-telemetry` is the self-hosted collector for gentle-ai's anonymous
-telemetry (issue [#4310](https://github.com/Gentleman-Programming/gentle-ai/issues/4310)).
+`cmd/gentle-telemetry` is the self-hosted collector for Ordo's anonymous
+telemetry.
 It answers one question — "how many people use this, and how" — from events
 the client sends opportunistically, without ever learning who they are or
 where they run.
@@ -335,7 +335,7 @@ once, under its newest version/agents/RDD state); *any* event makes it
 - **`downloads`**: public download counts, fetched daily from the npm
   registry (`--npm-package`, repeatable, default `gentle-pi`,
   `gentle-engram`) and the GitHub API (`--github-repo`, repeatable, default
-  `Gentleman-Programming/gentle-ai`) — see
+  `josefosaurus/Ordo-ai`) — see
   [External download counts](#external-download-counts). Nothing here
   comes from a ordo install; it is a public count of who downloaded
   the tools, not telemetry about how they are used.
@@ -391,7 +391,7 @@ address"`, with the header's value itself never logged.
 --runtime-store sqlite                                      # sqlite (default) | metrics | both — see Runtime metrics for VictoriaMetrics
 --trusted-proxy-cidr 127.0.0.0/8 --trusted-proxy-cidr ::1/128  # peers allowed to set X-Forwarded-For (repeatable; this is the default)
 --npm-package gentle-pi --npm-package gentle-engram        # npm packages to fetch daily downloads for (repeatable; this is the default)
---github-repo Gentleman-Programming/gentle-ai              # GitHub repo to fetch release downloads for (repeatable; this is the default)
+--github-repo josefosaurus/Ordo-ai                         # GitHub repo to fetch release downloads for (repeatable; this is the default)
 --github-token-file <path>                                  # optional: raises the GitHub API rate limit
 ```
 
@@ -448,7 +448,7 @@ domain configured this way, so this kit does not use one.
 | `install.sh` | Creates the static `gentle-telemetry` system user (migrating an older `DynamicUser`-layout install in place if found), installs the binary, `sqlite3` and `rclone` (via `dnf`), the systemd units, and a generated summary token; with `--domain`, renders the vhost template to `/root/telemetry-vhost.conf.rendered`; with `--with-grafana`, installs Grafana OSS from its official rpm repo; with `--with-victoria-metrics`, installs single-node VictoriaMetrics (see [VictoriaMetrics](#victoriametrics)). It never edits `post_virtualhost_global.conf`, runs `apachectl configtest`, or reloads `httpd` — those, plus DNS and the certificate, are printed at the end as operator steps, in the order they must run. |
 
 ```
-sudo ./deploy/telemetry/install.sh --local-source /path/to/gentle-ai/checkout \
+sudo ./deploy/telemetry/install.sh --local-source /path/to/ordo/checkout \
   --domain telemetry.example.com --with-grafana
 ```
 
@@ -792,7 +792,7 @@ A few things follow from that setup, worth knowing before relying on it:
 
 **Dashboard**: `deploy/telemetry/grafana/dashboards/gentle-ai-usage.json`,
 provisioned via `deploy/telemetry/grafana/provisioning/dashboards/telemetry.yaml`
-into the "Gentle AI" folder. Its panels:
+into the "Ordo" folder. Its panels:
 
 | Panel | What it shows |
 |---|---|
@@ -852,7 +852,7 @@ Alongside the collector's own telemetry, the daily job also fetches two
   it reports (npm's "last-day" is always the day *before* the request,
   since today's count is still incomplete).
 - **GitHub release downloads** (`--github-repo`, repeatable, default
-  `Gentleman-Programming/gentle-ai`; optional `--github-token-file` to
+  `josefosaurus/Ordo-ai`; optional `--github-token-file` to
   raise the rate limit — the token is never logged): `GET
   https://api.github.com/repos/<owner>/<repo>/releases?per_page=100`,
   following the response's `Link: rel="next"` header for up to 10 pages

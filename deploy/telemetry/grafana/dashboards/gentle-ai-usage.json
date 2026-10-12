@@ -840,7 +840,7 @@
     {
       "id": 302,
       "title": "Component adoption",
-      "description": "Install counts by enabled Gentle AI component on the latest completed rollup day.",
+      "description": "Install counts by enabled Ordo component on the latest completed rollup day.",
       "type": "barchart",
       "gridPos": {
         "x": 6,
@@ -928,7 +928,7 @@
     {
       "id": 304,
       "title": "Version adoption",
-      "description": "Top ten reported Gentle AI versions on the latest completed rollup day.",
+      "description": "Top ten reported Ordo versions on the latest completed rollup day.",
       "type": "barchart",
       "gridPos": {
         "x": 18,

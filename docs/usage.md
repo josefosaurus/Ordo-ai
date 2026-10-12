@@ -90,7 +90,7 @@ flowchart TD
 
 ODD adds shared agent guidance, not a new CLI, state engine, or mandatory planning phase. Instruction tests establish delivery, not autonomous compliance with every create/update/resume step. Existing risk-based functional checks and the user-owned RDD switch are unchanged; ODD never enables RDD.
 
-Gentle Shell (the `gentle-pi` package) owns its separate ODD prompt delivery. Updating Gentle AI's shared renderer does **not** establish Pi parity; parity requires observing the same file, memory, update, and resume behavior in Pi, not merely matching prompt text.
+Gentle Shell (the `gentle-pi` package) owns its separate ODD prompt delivery. Updating Ordo's shared renderer does **not** establish Pi parity; parity requires observing the same file, memory, update, and resume behavior in Pi, not merely matching prompt text.
 
 ---
 
@@ -98,7 +98,7 @@ Gentle Shell (the `gentle-pi` package) owns its separate ODD prompt delivery. Up
 
 | Persona   | ID          | Description                                                                       |
 | --------- | ----------- | --------------------------------------------------------------------------------- |
-| Gentleman | `gentleman` | Teaching-oriented mentor persona — pushes back on bad practices, explains the why |
+| Mentor    | `gentleman` | Teaching-oriented mentor persona — pushes back on bad practices, explains the why |
 | Neutral   | `neutral`   | Same teacher, same philosophy, no regional language — warm and professional       |
 | Custom    | `custom`    | Keep your existing persona/config unmanaged — ordo does not inject a persona |
 
@@ -137,7 +137,7 @@ Esc goes back one step. The TUI always uses each record's own type and never for
 
 Before the final installation confirmation, the customizable installer explains Receipt-Driven Development (RDD) and asks you to choose **RDD ON** or **RDD OFF**. RDD records bounded, independent review evidence for a frozen change candidate and supports a bounded correction process. It can add review time and model cost.
 
-The selection defaults to ON when no global preference exists; choose **Disable RDD** to opt out. An existing explicit global OFF remains selected. You can return from the confirmation screen to revise it. Gentle AI saves the selected global setting only after installation succeeds; an interrupted or failed installation leaves it unchanged. Existing clone-local overrides remain unchanged, so a clone's effective mode can differ from the global setting. RDD evidence does not authorize commits, pushes, pull requests, or releases; ordinary repository policy still governs delivery.
+The selection defaults to ON when no global preference exists; choose **Disable RDD** to opt out. An existing explicit global OFF remains selected. You can return from the confirmation screen to revise it. Ordo saves the selected global setting only after installation succeeds; an interrupted or failed installation leaves it unchanged. Existing clone-local overrides remain unchanged, so a clone's effective mode can differ from the global setting. RDD evidence does not authorize commits, pushes, pull requests, or releases; ordinary repository policy still governs delivery.
 
 ### Disable TUI spinner animation
 
@@ -155,7 +155,7 @@ This disables only spinner animation; install, update, sync, and uninstall opera
 
 ### install
 
-First-time setup — detects your tools, configures agents, injects all components. When installing a single agent with `--agent X`, gentle-ai **merges** the new agent into the existing `installed_agents` list in `state.json` and **preserves** any existing `model_assignments` — it does not overwrite the full state.
+First-time setup — detects your tools, configures agents, injects all components. When installing a single agent with `--agent X`, ordo **merges** the new agent into the existing `installed_agents` list in `state.json` and **preserves** any existing `model_assignments` — it does not overwrite the full state.
 
 ```bash
 # Full ecosystem for multiple agents
@@ -244,9 +244,9 @@ Refresh managed assets to the current version. Run it after replacing or upgradi
 
 Managed reviewer and runtime assets are version-bound to the binary. Until sync succeeds, review lifecycle operations fail closed when managed writer provenance is missing or mismatched.
 
-> **Important:** `ordo sync` updates the agents recorded as installed by Gentle AI™, not every AI agent config directory on your machine.
+> **Important:** `ordo sync` updates the agents recorded as installed by Ordo, not every AI agent config directory on your machine.
 >
-> Gentle AI stores your selected install targets in `~/.gentle-ai/state.json`. Future `sync` runs use that stored selection so Gentle AI does not accidentally write into tools you did not choose to manage. If you rerun install and select only one agent, that new selection becomes the default sync scope.
+> Ordo stores your selected install targets in `~/.gentle-ai/state.json`. Future `sync` runs use that stored selection so Ordo does not accidentally write into tools you did not choose to manage. If you rerun install and select only one agent, that new selection becomes the default sync scope.
 >
 > Before syncing, you can preview the active scope with `ordo sync --dry-run`. If you want to sync agents outside the stored selection, pass them explicitly with `--agent`.
 
@@ -325,9 +325,9 @@ If GitHub rate-limits update checks, export `GITHUB_TOKEN` or `GH_TOKEN` before 
 If Homebrew refuses an upgrade from an untrusted tap, trust only the artifact Homebrew names and retry the upgrade:
 
 ```bash
-# Formula tools, for example ordo
-brew trust --formula gentleman-programming/tap/ordo
-brew upgrade ordo
+# Formula tools, for example gga
+brew trust --formula gentleman-programming/tap/gga
+brew upgrade gga
 
 # Cask tools, for example engram
 brew trust --cask gentleman-programming/tap/engram
@@ -342,7 +342,7 @@ If you choose to install several tools from this tap, run `brew trust gentleman-
 |-----------|----------|
 | Interactive terminal (TTY) | Always prompts `Apply now? [Y/n]`. Empty Enter accepts. |
 | Non-TTY (CI, pipe, script) | Auto-declines — never hangs. |
-| `GENTLE_AI_YES=1` | Auto-accepts without prompting (for scripted upgrades). This variable is inherited by subprocesses, so scope it to a single invocation when needed (e.g. `GENTLE_AI_YES=1 gentle-ai …`). |
+| `GENTLE_AI_YES=1` | Auto-accepts without prompting (for scripted upgrades). This variable is inherited by subprocesses, so scope it to a single invocation when needed (e.g. `GENTLE_AI_YES=1 ordo …`). |
 | `GENTLE_AI_NO_SELF_UPDATE=1` | Skips the self-update check entirely. |
 
 `GENTLE_AI_CONFIRM_UPDATE` was removed in slice 5. It is now ignored if set.
@@ -422,11 +422,11 @@ For OpenCode background execution, see [Native OpenCode background subagents](op
 
 ```bash
 # First time: install everything
-brew install gentleman-programming/tap/ordo
+curl -fsSL https://raw.githubusercontent.com/josefosaurus/Ordo-ai/main/scripts/install.sh | bash
 ordo install --agent claude-code,cursor --preset full-gentleman
 
 # After a new release: upgrade + sync
-brew upgrade ordo
+ordo upgrade
 ordo sync
 
 # Remove only managed persona config from one agent
@@ -439,18 +439,18 @@ ordo install --agent windsurf --preset full-gentleman
 ### Homebrew upgrade troubleshooting
 
 Homebrew 6 can require explicit trust for non-official taps and, on Linux, can
-sandbox builds with Bubblewrap. `ordo upgrade` and `scripts/install.sh`
-auto-trust only the Gentle AI formula. For the broader tap-wide trust option,
+sandbox builds with Bubblewrap. `ordo install` and `ordo upgrade`
+auto-trust only the tap formula they install (for example `gga`). For the broader tap-wide trust option,
 see the [update and upgrade guidance](#update--upgrade). Manual upgrades may
 still need this one-time command:
 
 ```bash
-brew trust --formula gentleman-programming/tap/ordo
-brew upgrade ordo
+brew trust --formula gentleman-programming/tap/gga
+brew upgrade gga
 ```
 
 On Linux, if Homebrew reports that Bubblewrap cannot create a rootless sandbox,
-there is nothing for Gentle AI to install: Bubblewrap is already present, but the
+there is nothing for Ordo to install: Bubblewrap is already present, but the
 host blocks the rootless namespace primitives it needs. This is a security
 tradeoff and should be an explicit admin decision. If your policy allows it,
 fix the host namespace policy first:

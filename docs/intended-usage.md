@@ -2,7 +2,7 @@
 
 ← [Back to README](../README.md)
 
-Gentle AI configures the AI agent you already use. After installation, open a project and describe the outcome; you do not need to invoke a planning command or hand-edit generated configuration.
+Ordo configures the AI agent you already use. After installation, open a project and describe the outcome; you do not need to invoke a planning command or hand-edit generated configuration.
 
 ## Everyday work: ODD
 
