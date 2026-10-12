@@ -1,6 +1,6 @@
 {
   "uid": "gentle-ai-usage",
-  "title": "Gentle AI — Usage",
+  "title": "Ordo — Usage",
   "tags": [
     "gentle-ai",
     "telemetry"
@@ -31,7 +31,7 @@
     {
       "id": 551,
       "title": "Active users, last 24h",
-      "description": "Installs that opened a Gentle AI session in the last 24 hours; each install reports at most once per day, so shorter windows undercount.",
+      "description": "Installs that opened an Ordo session in the last 24 hours; each install reports at most once per day, so shorter windows undercount.",
       "type": "stat",
       "gridPos": {
         "x": 0,
@@ -782,7 +782,7 @@
     },
     {
       "id": 300,
-      "title": "Where Gentle AI runs",
+      "title": "Where Ordo runs",
       "type": "row",
       "collapsed": false,
       "panels": [],

@@ -7,7 +7,8 @@ organization.
 
 ## Runtime metrics: one attempt, no client storage
 
-A tool event makes one best-effort send attempt to the collector. Failure silently
+A tool event makes one best-effort send attempt to the configured collector (none by
+default; see [Endpoint](#endpoint)). Failure silently
 loses that observation. Runtime metrics never enter a local queue, outbox, file,
 lock, cooldown, daemon, or retry scheduler. Existing telemetry opt-out policy is
 read-only; this path never enrolls, repairs policy, or generates an install ID.
