@@ -72,7 +72,11 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
     - Kept: technical IDs, third-party names (Engram, GGA, `gentle-pi` "Gentle Shell"), the module path, `deploy/telemetry/install.sh` `REPO` (functional `--release-tag` download), and 3 dashboard strings pinned by `internal/telemetrycollector/runtime_dashboard_test.go`.
     - Open decisions: `docs/consulting.md` (upstream consulting pitch, unchanged), `docs/community-roadmap.md` (neutralized only), `docs/assets/features/gentle-shell.png`, pinned dashboard strings, telemetry `REPO`.
     - Checks: `go build ./... && go vet ./...` pass; doc-reading tests in `internal/assets`, `internal/app` (incl. `TestDocumentedInvocationsRunAsDocumented`), `internal/cli`, `internal/telemetry*`, `internal/recoverytrace`, `internal/update` ok.
-  - [ ] T4b — Delete upstream-history documents (audits, backlog dispositions, release ledgers) that no code, test or script reads. Route: delegated direct. Documents read by code (for example `internal/recoverytrace`, `refusal_resolution_ratchet_test.go`) stay.
+  - [x] T4b — Delete upstream-history documents (audits, backlog dispositions, release ledgers) that no code, test or script reads. Route: delegated direct. Documents read by code (for example `internal/recoverytrace`, `refusal_resolution_ratchet_test.go`) stay.
+    - Done: 13 docs deleted (4,564 lines): `docs/consulting.md` (user-approved 2026-10-11), `docs/release-v0.1.0-checklist.md`, `docs/releases/v2.2.0-closure-ledger.md`, four `docs/architecture/rdd-*` history docs (backlog disposition, wave7 deletion tracker, freeze expansion policy, ownership inventory) and six `docs/audits/*.md` audits. Links to them fixed in 3 kept docs.
+    - Kept (read by code): `docs/audits/data/organic-rdd-recovery/**` and `docs/audits/2026-07-23-systemic-remediation-architecture.md` (`internal/recoverytrace`); `docs/audits/2026-07-27-detection-gap-audit.md` and `docs/architecture/rdd-root-simplification-design.md` (cited in Go comments).
+    - Open decisions: `docs/architecture/rdd-shadow-evaluation.md` (looks stale), `docs/architecture/the-organic-rdd-story.md` (upstream narrative), `docs/community-roadmap.md`.
+    - Checks: `go build ./... && go vet ./...` pass; `internal/recoverytrace`, `internal/app`, `internal/assets` ok; `internal/cli -run 'Ratchet|Refusal|Guard|Doc'` ok; no remaining references to deleted paths outside `odd/`.
 - [ ] T5 — Optional: code comments.
 
 ## Acceptance Criteria
