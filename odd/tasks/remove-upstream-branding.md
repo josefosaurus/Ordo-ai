@@ -161,4 +161,5 @@ The upstream trademark policy (`TRADEMARKS.md`) requires forks to use distinct p
 
 - T1–T5 merged (PRs #8–#16). T6 follow-ups on `chore/rebrand-follow-ups`.
 - Decided (2026-10-12): `deploy/telemetry/install.sh` drops `--release-tag` and `REPO`; it only builds from `--local-source`.
-- Open decisions: `docs/community-roadmap.md` (links to Ordo issues, which are disabled); `docs/architecture/the-organic-rdd-story.md`; `docs/architecture/rdd-shadow-evaluation.md`; `docs/assets/features/gentle-shell.png`.
+- Decided (2026-10-12): `docs/community-roadmap.md` deleted (its issue links are dead; issues are disabled); its `CONTRIBUTING.md` link removed.
+- Open decisions: `docs/architecture/the-organic-rdd-story.md`; `docs/architecture/rdd-shadow-evaluation.md`; `docs/assets/features/gentle-shell.png`.
