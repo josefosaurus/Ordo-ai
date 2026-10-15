@@ -288,3 +288,51 @@ func TestScanConfigs_KimiLegacyFallback(t *testing.T) {
 		t.Errorf("kimi Exists=%v IsDirectory=%v, want both true", kimi.Exists, kimi.IsDirectory)
 	}
 }
+
+func piConfigState(t *testing.T, states []ConfigState) ConfigState {
+	t.Helper()
+	for _, state := range states {
+		if state.Agent == "pi" {
+			return state
+		}
+	}
+	t.Fatal("ScanConfigs did not report pi")
+	return ConfigState{}
+}
+
+// TestScanConfigs_PiFollowsAgentDirOverride pins that Pi detection follows
+// PI_CODING_AGENT_DIR with the same guards as pi.AgentConfigPath: "~" forms
+// always resolve inside homeDir, absolute forms only for the real user home.
+func TestScanConfigs_PiFollowsAgentDirOverride(t *testing.T) {
+	isolated := filepath.Join(t.TempDir(), "gentle-shell", "agent")
+
+	for _, tt := range []struct {
+		name     string
+		override string
+		realHome bool
+		want     func(home string) string
+	}{
+		{"unset scans ~/.pi", "", true, func(home string) string { return filepath.Join(home, ".pi") }},
+		{"absolute override for real home", isolated, true, func(string) string { return isolated }},
+		{"tilde override stays in home", "~/.gentle-shell/agent", false, func(home string) string { return filepath.Join(home, ".gentle-shell", "agent") }},
+		{"absolute override ignored for foreign home", isolated, false, func(home string) string { return filepath.Join(home, ".pi") }},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			home := t.TempDir()
+			if tt.realHome {
+				t.Setenv("HOME", home)
+				t.Setenv("USERPROFILE", home)
+			}
+			t.Setenv("PI_CODING_AGENT_DIR", tt.override)
+			want := tt.want(home)
+			if err := os.MkdirAll(want, 0o755); err != nil {
+				t.Fatal(err)
+			}
+
+			state := piConfigState(t, ScanConfigs(home))
+			if state.Path != want || !state.Exists || !state.IsDirectory {
+				t.Fatalf("pi state = %#v, want existing directory %q", state, want)
+			}
+		})
+	}
+}

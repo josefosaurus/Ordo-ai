@@ -3,6 +3,7 @@ package system
 import (
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // ConfigState records the filesystem presence of an agent's global config directory.
@@ -45,7 +46,7 @@ func knownAgentConfigDirs(homeDir string) []ConfigState {
 		{Agent: "qwen-code", Path: filepath.Join(homeDir, ".qwen")},
 		{Agent: "kiro-ide", Path: filepath.Join(homeDir, ".kiro")},
 		{Agent: "openclaw", Path: filepath.Join(homeDir, ".openclaw")},
-		{Agent: "pi", Path: filepath.Join(homeDir, ".pi")},
+		{Agent: "pi", Path: piConfigDir(homeDir)},
 		{Agent: "trae-ide", Path: filepath.Join(homeDir, ".trae")},
 		{Agent: "hermes", Path: filepath.Join(homeDir, ".hermes")},
 		{Agent: "conductor", Path: filepath.Join(homeDir, ".conductor")},
@@ -74,6 +75,35 @@ func kimiConfigDir(homeDir string) string {
 		return current
 	}
 	return filepath.Join(homeDir, ".kimi")
+}
+
+// piConfigDir returns the Pi root scanned for presence: the isolated agent
+// directory named by PI_CODING_AGENT_DIR when that override applies to
+// homeDir, otherwise ~/.pi.
+//
+// The resolution replicates pi.AgentConfigPath because this package cannot
+// import internal/agents/pi (pi imports system). A "~" or "~/..." form expands
+// against homeDir; absolute and cwd-relative forms apply only when homeDir is
+// the real user home, so a sandbox or test home is never redirected by ambient
+// environment. pi_agent_dir_parity_test.go keeps the two in lockstep.
+func piConfigDir(homeDir string) string {
+	defaultDir := filepath.Join(homeDir, ".pi")
+	override := strings.TrimSpace(os.Getenv("PI_CODING_AGENT_DIR"))
+	switch {
+	case override == "":
+		return defaultDir
+	case override == "~":
+		return homeDir
+	case strings.HasPrefix(override, "~/"):
+		return filepath.Join(homeDir, strings.TrimPrefix(override, "~/"))
+	}
+	if userHome, err := os.UserHomeDir(); err != nil || filepath.Clean(homeDir) != filepath.Clean(userHome) {
+		return defaultDir
+	}
+	if abs, err := filepath.Abs(override); err == nil {
+		return abs
+	}
+	return defaultDir
 }
 
 // vscodeCopilotGlobalConfigDir returns ~/.copilot, the GlobalConfigDir used by
