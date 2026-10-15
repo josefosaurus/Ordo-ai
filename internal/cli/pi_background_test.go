@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/state"
 )
@@ -237,6 +238,56 @@ func TestPiBackgroundProjectionHonorsConfigHomeOverride(t *testing.T) {
 	}
 	if _, err := os.Stat(want); err != nil {
 		t.Fatalf("policy under GENTLE_PI_CONFIG_HOME: %v", err)
+	}
+}
+
+// TestPiConfigFilesFollowGentlePiConfigDir pins that the background policy,
+// the global persona backup path, and the sync persona path all resolve to the
+// same gentle-pi config folder, and that the workspace persona never moves.
+func TestPiConfigFilesFollowGentlePiConfigDir(t *testing.T) {
+	home := t.TempDir()
+	workspace := t.TempDir()
+	exactDir := filepath.Join(t.TempDir(), "bundled", "config", "gentle-ai")
+	configHome := filepath.Join(t.TempDir(), "bundled", "config")
+	piAdapter, err := agents.NewAdapter(model.AgentPi)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tt := range []struct {
+		name       string
+		configDir  string
+		configHome string
+		wantDir    string
+	}{
+		{"default", "", "", filepath.Join(home, ".pi", "gentle-ai")},
+		{"config home", "", configHome, filepath.Join(configHome, "gentle-ai")},
+		{"config dir outranks config home", exactDir, configHome, exactDir},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("GENTLE_AI_PI_CONFIG_DIR", tt.configDir)
+			t.Setenv(PiConfigHomeEnv, tt.configHome)
+
+			resolution := PiBackgroundResolution{Effective: model.PiBackgroundOn, managed: true}
+			plan := preparePiBackgroundProjection(home, &resolution, true)
+			if want := filepath.Join(tt.wantDir, "background-subagents.json"); plan == nil || plan.path != want {
+				t.Fatalf("background plan path = %#v, want %q", plan, want)
+			}
+
+			wantPersona := []string{filepath.Join(tt.wantDir, "persona.json")}
+			if got := piPersonaConfigPaths(home, workspace, ScopeGlobal); !reflect.DeepEqual(got, wantPersona) {
+				t.Fatalf("global install persona paths = %v, want %v", got, wantPersona)
+			}
+			selection := model.Selection{Persona: model.PersonaNeutral}
+			if got := syncPersonaPathsWithWorkspaceScoped(home, workspace, ScopeGlobal, selection, []agents.Adapter{piAdapter}); !reflect.DeepEqual(got, wantPersona) {
+				t.Fatalf("global sync persona paths = %v, want %v", got, wantPersona)
+			}
+
+			wantWorkspace := []string{filepath.Join(workspace, ".pi", "gentle-ai", "persona.json")}
+			if got := piPersonaConfigPaths(home, workspace, ScopeWorkspace); !reflect.DeepEqual(got, wantWorkspace) {
+				t.Fatalf("workspace persona paths = %v, want %v", got, wantWorkspace)
+			}
+		})
 	}
 }
 

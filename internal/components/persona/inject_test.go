@@ -678,6 +678,55 @@ func TestInjectPiPersonaWritesSelectedModeAndIsIdempotent(t *testing.T) {
 	}
 }
 
+func TestInjectGlobalPiPersonaFollowsGentlePiConfigDir(t *testing.T) {
+	home := t.TempDir()
+	exactDir := filepath.Join(t.TempDir(), "bundled", "config", "gentle-ai")
+	configHome := filepath.Join(t.TempDir(), "bundled", "config")
+
+	for _, tt := range []struct {
+		name       string
+		configDir  string
+		configHome string
+		want       string
+	}{
+		{"default", "", "", filepath.Join(home, ".pi", "gentle-ai", "persona.json")},
+		{"config home", "", configHome, filepath.Join(configHome, "gentle-ai", "persona.json")},
+		{"config dir", exactDir, configHome, filepath.Join(exactDir, "persona.json")},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("GENTLE_AI_PI_CONFIG_DIR", tt.configDir)
+			t.Setenv("GENTLE_PI_CONFIG_HOME", tt.configHome)
+			if got := PiGlobalPersonaConfigPath(home); got != tt.want {
+				t.Fatalf("PiGlobalPersonaConfigPath() = %q, want %q", got, tt.want)
+			}
+			result, err := InjectGlobalPiPersona(home, model.PersonaNeutral)
+			if err != nil {
+				t.Fatalf("InjectGlobalPiPersona() error = %v", err)
+			}
+			if len(result.Files) != 1 || result.Files[0] != tt.want {
+				t.Fatalf("InjectGlobalPiPersona() files = %v, want [%q]", result.Files, tt.want)
+			}
+			if _, err := os.Stat(tt.want); err != nil {
+				t.Fatalf("persona not written at %q: %v", tt.want, err)
+			}
+		})
+	}
+}
+
+func TestInjectPiPersonaWorkspaceIgnoresGentlePiConfigDir(t *testing.T) {
+	t.Setenv("GENTLE_AI_PI_CONFIG_DIR", filepath.Join(t.TempDir(), "elsewhere"))
+	t.Setenv("GENTLE_PI_CONFIG_HOME", filepath.Join(t.TempDir(), "elsewhere-home"))
+	workspace := t.TempDir()
+	want := filepath.Join(workspace, ".pi", "gentle-ai", "persona.json")
+	result, err := InjectPiPersona(workspace, model.PersonaNeutral)
+	if err != nil {
+		t.Fatalf("InjectPiPersona() error = %v", err)
+	}
+	if len(result.Files) != 1 || result.Files[0] != want {
+		t.Fatalf("InjectPiPersona() files = %v, want [%q]", result.Files, want)
+	}
+}
+
 func TestInjectPiPersonaCustomPreservesExistingConfig(t *testing.T) {
 	root := t.TempDir()
 	path := PiPersonaConfigPath(root)

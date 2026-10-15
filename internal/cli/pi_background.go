@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
+	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/pi"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/state"
@@ -21,7 +21,7 @@ const PiBackgroundSubagentsEnv = "GENTLE_AI_PI_BACKGROUND_SUBAGENTS"
 
 // PiConfigHomeEnv overrides gentle-pi's config base directory (default
 // ~/.pi), matching gentle-pi's own configuration precedent.
-const PiConfigHomeEnv = "GENTLE_PI_CONFIG_HOME"
+const PiConfigHomeEnv = pi.GentlePiConfigHomeEnv
 
 // piBackgroundPolicySchema marks the projected policy file as managed by this
 // contract. A file at the managed path without this schema field is foreign
@@ -148,15 +148,10 @@ func ResolvePiBackgroundInteractive(prior model.PiBackgroundIntent) (PiBackgroun
 	})
 }
 
-// piBackgroundPolicyPath resolves the gentle-pi-readable policy location:
-// <base>/gentle-ai/background-subagents.json where base is
-// GENTLE_PI_CONFIG_HOME when set, otherwise ~/.pi.
+// piBackgroundPolicyPath resolves the gentle-pi-readable policy location
+// inside the gentle-pi config folder (see pi.GentlePiConfigDir).
 func piBackgroundPolicyPath(homeDir string) string {
-	base := strings.TrimSpace(os.Getenv(PiConfigHomeEnv))
-	if base == "" {
-		base = filepath.Join(homeDir, ".pi")
-	}
-	return filepath.Join(base, "gentle-ai", "background-subagents.json")
+	return filepath.Join(pi.GentlePiConfigDir(homeDir), "background-subagents.json")
 }
 
 // piBackgroundProjectionPlan writes the RESOLVED effective on/off policy to

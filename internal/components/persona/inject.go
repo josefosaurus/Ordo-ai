@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/pi"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/assets"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/brand"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
@@ -21,19 +22,38 @@ type InjectionResult struct {
 	Files   []string
 }
 
-// PiPersonaConfigPath returns the managed Pi persona state path beneath rootDir.
-// Pi resolves this file relative to the active agent configuration root, which
-// is the user's home for global install and the workspace for workspace install.
+// PiPersonaConfigPath returns the workspace-scoped Pi persona state path
+// beneath rootDir. Global installs use PiGlobalPersonaConfigPath instead.
 func PiPersonaConfigPath(rootDir string) string {
 	return filepath.Join(rootDir, ".pi", "gentle-ai", "persona.json")
 }
 
-// InjectPiPersona writes the small runtime config consumed by gentle-pi.
-// Custom personas remain user-owned and therefore intentionally do nothing.
+// PiGlobalPersonaConfigPath returns the global Pi persona state path inside
+// the gentle-pi config folder (see pi.GentlePiConfigDir).
+func PiGlobalPersonaConfigPath(homeDir string) string {
+	return filepath.Join(pi.GentlePiConfigDir(homeDir), "persona.json")
+}
+
+// InjectPiPersona writes the workspace-scoped runtime config consumed by
+// gentle-pi beneath rootDir. Custom personas remain user-owned and therefore
+// intentionally do nothing.
 func InjectPiPersona(rootDir string, persona model.PersonaID) (InjectionResult, error) {
 	if strings.TrimSpace(rootDir) == "" {
 		return InjectionResult{}, fmt.Errorf("Pi persona root must not be empty")
 	}
+	return writePiPersona(PiPersonaConfigPath(rootDir), persona)
+}
+
+// InjectGlobalPiPersona writes the global runtime config consumed by
+// gentle-pi into the gentle-pi config folder resolved for homeDir.
+func InjectGlobalPiPersona(homeDir string, persona model.PersonaID) (InjectionResult, error) {
+	if strings.TrimSpace(homeDir) == "" {
+		return InjectionResult{}, fmt.Errorf("Pi persona root must not be empty")
+	}
+	return writePiPersona(PiGlobalPersonaConfigPath(homeDir), persona)
+}
+
+func writePiPersona(path string, persona model.PersonaID) (InjectionResult, error) {
 	if persona == model.PersonaCustom {
 		return InjectionResult{}, nil
 	}
@@ -50,7 +70,6 @@ func InjectPiPersona(rootDir string, persona model.PersonaID) (InjectionResult, 
 	}
 	content = append(content, '\n')
 
-	path := PiPersonaConfigPath(rootDir)
 	writeResult, err := filemerge.WriteFileAtomic(path, content, 0o644)
 	if err != nil {
 		return InjectionResult{}, err
