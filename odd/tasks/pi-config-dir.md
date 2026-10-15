@@ -64,6 +64,9 @@ Write the gentle-pi config files where gentle-pi reads them, and make Pi detecti
 
 - Review: assess on `main..ae5c47ff` medium, 503 lines → `slice_budget_reached`; consent granted; lineage `review-11e0a63ccbc77183`, one lens (reliability) → approved, no correction → acknowledged (authority burned). Advisory, non-blocking: R3-relative-config-dir (WARNING: `GentlePiConfigDir` uses env values verbatim; relative/`~` values resolve against cwd, no test), R3-install-inject-untested (SUGGESTION: `injectPiPersonaScoped` write not observed under env overrides). Reviewed boundary: `ae5c47ff`.
 
+- T5 (inline, fixes advisory R3-relative-config-dir) — `GentlePiConfigDir` normalizes each override: `~`/`~/…` expand against home, absolute cleaned, relative resolved against cwd (falls through on cwd error). No real-home guard: absolute overrides keep applying to any home, matching prior `GENTLE_PI_CONFIG_HOME` behavior and existing tests. RED observed (2 new tests), then GREEN.
+  - `go test ./internal/agents/pi/`: ok; persona, uninstall, system, testenv: ok; `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -timeout 30m`: ok (60.4s); vet + gofmtcheck clean
+
 ## Next step
 
-PR (user decision). Optional follow-ups: the two advisory findings above.
+PR (user decision). Optional follow-up: advisory R3-install-inject-untested.
