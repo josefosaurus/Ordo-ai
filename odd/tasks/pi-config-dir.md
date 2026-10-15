@@ -62,6 +62,8 @@ Write the gentle-pi config files where gentle-pi reads them, and make Pi detecti
 - T4 (follow-up, inline) — `testenv.Isolate` also unsets `GENTLE_AI_PI_CONFIG_DIR` and `GENTLE_PI_CONFIG_HOME`, so `go test` from a Gentle Shell cannot write the real bundled config dir. RED observed on `TestIsolateUnsetsKnownAgentRuntimeDirOverrides`, then GREEN.
   - `go test ./internal/testenv/`: ok; all other `testenv.Isolate` packages ok except `internal/cli` hitting the default 10m timeout; `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -timeout 30m`: ok (61.7s); gofmtcheck clean
 
+- Review: assess on `main..ae5c47ff` medium, 503 lines → `slice_budget_reached`; consent granted; lineage `review-11e0a63ccbc77183`, one lens (reliability) → approved, no correction → acknowledged (authority burned). Advisory, non-blocking: R3-relative-config-dir (WARNING: `GentlePiConfigDir` uses env values verbatim; relative/`~` values resolve against cwd, no test), R3-install-inject-untested (SUGGESTION: `injectPiPersonaScoped` write not observed under env overrides). Reviewed boundary: `ae5c47ff`.
+
 ## Next step
 
-Native review assessment of the work-unit commits, then PR (user decision).
+PR (user decision). Optional follow-ups: the two advisory findings above.
