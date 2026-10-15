@@ -15,6 +15,7 @@ import (
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/gemini"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/kiro"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/opencode"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/pi"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/vscode"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/windsurf"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/engram"
@@ -35,6 +36,7 @@ func codexAdapter() agents.Adapter       { return codexagent.NewAdapter() }
 func antigravityAdapter() agents.Adapter { return antigravity.NewAdapter() }
 func windsurfAdapter() agents.Adapter    { return windsurf.NewAdapter() }
 func kiroAdapter() agents.Adapter        { return kiro.NewAdapter() }
+func piAdapter() agents.Adapter          { return pi.NewAdapter() }
 
 // ---------------------------------------------------------------------------
 // Existing golden tests (context7 and presets)
@@ -507,6 +509,75 @@ func TestGoldenEngram_Antigravity(t *testing.T) {
 	// GEMINI.md must contain the engram-protocol section.
 	rulesFile := readTestFile(t, filepath.Join(home, ".gemini", "GEMINI.md"))
 	assertGolden(t, "engram-antigravity-rulesmd.golden", rulesFile)
+}
+
+// ---------------------------------------------------------------------------
+// Pi golden tests
+// ---------------------------------------------------------------------------
+
+func TestGoldenPersona_Pi_Gentleman(t *testing.T) {
+	home := t.TempDir()
+
+	result, err := persona.InjectPiPersona(home, model.PersonaGentleman)
+	if err != nil {
+		t.Fatalf("persona.InjectPiPersona(gentleman) error = %v", err)
+	}
+	if !result.Changed {
+		t.Fatalf("persona.InjectPiPersona(gentleman) changed = false")
+	}
+
+	personaJSON := readTestFile(t, filepath.Join(home, ".pi", "gentle-ai", "persona.json"))
+	assertGolden(t, "persona-pi-gentleman.golden", personaJSON)
+}
+
+func TestGoldenPersona_Pi_Neutral(t *testing.T) {
+	home := t.TempDir()
+
+	result, err := persona.InjectPiPersona(home, model.PersonaNeutral)
+	if err != nil {
+		t.Fatalf("persona.InjectPiPersona(neutral) error = %v", err)
+	}
+	if !result.Changed {
+		t.Fatalf("persona.InjectPiPersona(neutral) changed = false")
+	}
+
+	personaJSON := readTestFile(t, filepath.Join(home, ".pi", "gentle-ai", "persona.json"))
+	assertGolden(t, "persona-pi-neutral.golden", personaJSON)
+}
+
+func TestGoldenPersona_Pi_Custom(t *testing.T) {
+	home := t.TempDir()
+
+	result, err := persona.InjectPiPersona(home, model.PersonaCustom)
+	if err != nil {
+		t.Fatalf("persona.InjectPiPersona(custom) error = %v", err)
+	}
+	if result.Changed {
+		t.Fatalf("persona.InjectPiPersona(custom) changed = true, want no write")
+	}
+
+	// Custom personas stay user-owned: Ordo must not create persona.json.
+	personaPath := filepath.Join(home, ".pi", "gentle-ai", "persona.json")
+	if _, err := os.Stat(personaPath); !os.IsNotExist(err) {
+		t.Fatalf("custom persona must not write %q; stat err = %v", personaPath, err)
+	}
+}
+
+func TestGoldenMCP_Pi(t *testing.T) {
+	t.Setenv("PI_CODING_AGENT_DIR", "")
+	home := t.TempDir()
+
+	result, err := mcp.Inject(home, home, piAdapter())
+	if err != nil {
+		t.Fatalf("mcp.Inject(pi) error = %v", err)
+	}
+	if !result.Changed {
+		t.Fatalf("mcp.Inject(pi) changed = false")
+	}
+
+	// Pi >= 0.99 reads built-in MCP servers from agent/mcp.json.
+	mcpJSON := readTestFile(t, filepath.Join(home, ".pi", "agent", "mcp.json"))
+	assertGolden(t, "mcp-pi-context7.golden", mcpJSON)
 }
 
 // ---------------------------------------------------------------------------
