@@ -52,12 +52,15 @@ Write the gentle-pi config files where gentle-pi reads them, and make Pi detecti
   - `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -count=1 -timeout 30m`: ok (64.7s)
   - `go run ./internal/gofmtcheck`: clean; `./scripts/deadcode-ratchet.sh`: no new unreachable functions
 
-- T2+T3 (delegated writer, one code+docs commit): `ScanConfigs` scans the resolved `PI_CODING_AGENT_DIR` for Pi (replicated resolution in `internal/system/config_scan.go` because `internal/agents/pi` imports `internal/system`; parity test `internal/system/pi_agent_dir_parity_test.go` compares against `pi.AgentConfigPath`). `retainedPiResources` uses `pi.AgentConfigPath` for agent-owned paths and `pi.GentlePiConfigDir` for the global gentle-ai folder. `docs/pi.md` isolated-home paragraph rewritten. RED observed for all new T2 tests, then GREEN.
+- T2+T3 — commit `60af8cae` (delegated writer, one code+docs commit): `ScanConfigs` scans the resolved `PI_CODING_AGENT_DIR` for Pi (replicated resolution in `internal/system/config_scan.go` because `internal/agents/pi` imports `internal/system`; parity test `internal/system/pi_agent_dir_parity_test.go` compares against `pi.AgentConfigPath`). `retainedPiResources` uses `pi.AgentConfigPath` for agent-owned paths and `pi.GentlePiConfigDir` for the global gentle-ai folder. `docs/pi.md` isolated-home paragraph rewritten. RED observed for all new T2 tests, then GREEN.
   - `go build ./... && go vet ./...`: ok; `go run ./internal/gofmtcheck`: clean
   - `go test ./internal/agents/pi/... ./internal/components/persona/... ./internal/system/... ./internal/components/uninstall/...`: ok
   - `go test ./internal/components/ -run Golden -count=1`: ok
   - `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -count=1 -timeout 30m`: ok (62.7s)
   - `./scripts/deadcode-ratchet.sh`: no new unreachable functions
+
+- T4 (follow-up, inline) — `testenv.Isolate` also unsets `GENTLE_AI_PI_CONFIG_DIR` and `GENTLE_PI_CONFIG_HOME`, so `go test` from a Gentle Shell cannot write the real bundled config dir. RED observed on `TestIsolateUnsetsKnownAgentRuntimeDirOverrides`, then GREEN.
+  - `go test ./internal/testenv/`: ok; all other `testenv.Isolate` packages ok except `internal/cli` hitting the default 10m timeout; `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -timeout 30m`: ok (61.7s); gofmtcheck clean
 
 ## Next step
 
