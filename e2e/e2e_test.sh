@@ -150,6 +150,18 @@ test_dry_run_agent_csv() {
     assert_output_contains "$output" "opencode" "CSV agents: shows opencode"
 }
 
+test_dry_run_agent_pi() {
+    log_test "Dry-run with --agent pi (no pi preflight)"
+
+    # Dry-run returns before the install pipeline, so it must succeed even
+    # when the Docker image has no `pi` executable.
+    if output=$($BINARY install --agent pi --dry-run 2>&1); then
+        assert_output_contains "$output" "Agents: pi" "Dry-run shows pi agent"
+    else
+        log_fail "Dry-run with --agent pi failed: $output"
+    fi
+}
+
 # --- Category 1d: Preset flags ---
 
 test_dry_run_preset_minimal() {
@@ -857,6 +869,69 @@ test_qwen_engram_idempotency() {
     else
         log_fail "Qwen settings.json changed between runs"
     fi
+}
+
+# ─── Pi install tests ─────────────────────────────────────────────────────────
+# Pi is the only agent whose install step runs commands (`pi install npm:<pkg>`
+# and `npm exec ... pi-engram init`); setup_fake_pi_binary keeps them offline.
+
+test_pi_persona_install() {
+    log_test "Pi: persona install writes persona.json and requests gentle-pi"
+    cleanup_test_env
+    setup_fake_pi_binary
+
+    if $BINARY install --agent pi --component persona --persona neutral 2>&1; then
+        local persona="$HOME/.pi/gentle-ai/persona.json"
+        assert_file_exists "$persona" "Pi persona.json"
+        assert_valid_json "$persona" "Pi persona.json is valid JSON"
+        assert_file_contains "$persona" '"mode": "neutral"' "Pi persona mode is neutral"
+        assert_file_contains "$PI_CALLS_LOG" '^pi install npm:gentle-pi$' "Install ran pi install npm:gentle-pi"
+        assert_file_contains "$PI_CALLS_LOG" 'pi-engram init' "Install ran pi-engram init through npm"
+    else
+        log_fail "Pi persona install command failed"
+    fi
+}
+
+test_pi_engram_not_in_mcp_json() {
+    log_test "Pi: engram install never writes engram into mcp.json"
+    cleanup_test_env
+    setup_fake_pi_binary
+
+    if $BINARY install --agent pi --component engram --persona neutral 2>&1; then
+        local mcp_json="$HOME/.pi/agent/mcp.json"
+        assert_file_contains "$PI_CALLS_LOG" '^pi install npm:gentle-engram$' "Install ran pi install npm:gentle-engram"
+        # Pi loads Engram through the gentle-engram package, not MCP, so the
+        # file may legitimately be absent (assert_file_not_contains passes then).
+        assert_file_not_contains "$mcp_json" '"engram"' "Pi mcp.json has no engram server"
+    else
+        log_fail "Pi engram install command failed"
+    fi
+}
+
+test_pi_persona_idempotent() {
+    log_test "Pi: persona install is idempotent"
+    cleanup_test_env
+    setup_fake_pi_binary
+
+    local persona="$HOME/.pi/gentle-ai/persona.json"
+    local first="$HOME/.gentle-ai-e2e/pi-persona.first"
+
+    $BINARY install --agent pi --component persona --persona neutral > /dev/null 2>&1 || true
+    if [ ! -f "$persona" ]; then
+        log_fail "Pi persona.json missing after first install"
+        return
+    fi
+    cp "$persona" "$first"
+
+    $BINARY install --agent pi --component persona --persona neutral > /dev/null 2>&1 || true
+    if [ ! -f "$persona" ]; then
+        log_fail "Pi persona.json missing after second install"
+    elif cmp -s "$first" "$persona"; then
+        log_pass "Pi persona.json is byte-identical after 2 runs"
+    else
+        log_fail "Pi persona.json changed between runs"
+    fi
+    rm -f "$first"
 }
 
 test_oc_permissions_injection() {
@@ -1716,6 +1791,7 @@ test_dry_run_agent_claude_code
 test_dry_run_agent_opencode
 test_dry_run_agent_both
 test_dry_run_agent_csv
+test_dry_run_agent_pi
 
 # Category 1d: Preset flags
 test_dry_run_preset_minimal
@@ -1829,6 +1905,11 @@ if [ "${RUN_FULL_E2E:-0}" = "1" ]; then
     # Category 13: Qwen integration
     test_qwen_engram_injection
     test_qwen_engram_idempotency
+
+    # Category 14: Pi install (offline pi/npm shims)
+    test_pi_persona_install
+    test_pi_engram_not_in_mcp_json
+    test_pi_persona_idempotent
 else
     log_skip "Tier 2 tests (set RUN_FULL_E2E=1 to enable)"
 fi
