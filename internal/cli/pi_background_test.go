@@ -339,6 +339,11 @@ func TestInjectPiPersonaScopedWritesGentlePiConfigDir(t *testing.T) {
 					t.Fatalf("default home persona must not be written under an override, stat err = %v", err)
 				}
 			}
+			if tt.useConfigDir {
+				if _, err := os.Stat(filepath.Join(configHome, "gentle-ai", "persona.json")); !os.IsNotExist(err) {
+					t.Fatalf("config home persona must not be written when config dir outranks it, stat err = %v", err)
+				}
+			}
 
 			workspacePath := filepath.Join(workspace, ".pi", "gentle-ai", "persona.json")
 			result, err = injectPiPersonaScoped(home, workspace, ScopeWorkspace, model.PersonaGentleman)
