@@ -2361,3 +2361,61 @@ func TestPartialUninstallPiReportsRetainedResourcesUnderIsolatedDirs(t *testing.
 		t.Fatalf("RetainedPiResources = %v, want %v", result.RetainedPiResources, retainedPaths)
 	}
 }
+
+// Uninstalling the theme selection must keep a user's (or gentle-pi's) own
+// theme and remove only a managed value, including an "ordo" an earlier
+// release wrote into an agent that ships no Ordo theme.
+func TestComponentThemeUninstallRemovesOnlyManagedThemeSelection(t *testing.T) {
+	for _, agent := range []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode, model.AgentPi} {
+		for _, tt := range []struct {
+			value     string
+			wantTheme bool
+		}{
+			{"dark", true},
+			{"ordo", false},
+			// Legacy names earlier releases selected are still managed.
+			{"Gentleman Cute", false},
+			{"gentleman-cute", false},
+		} {
+			t.Run(string(agent)+"/"+tt.value, func(t *testing.T) {
+				homeDir := t.TempDir()
+				svc, err := NewService(homeDir, t.TempDir(), "dev")
+				if err != nil {
+					t.Fatal(err)
+				}
+				adapter, ok := svc.registry.Get(agent)
+				if !ok {
+					t.Fatalf("%s adapter not found in registry", agent)
+				}
+				settingsPath := adapter.SettingsPath(homeDir)
+				if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(settingsPath, []byte(`{"theme":"`+tt.value+`","keep":true}`), 0o644); err != nil {
+					t.Fatal(err)
+				}
+
+				ops, targets, err := svc.componentOperations(adapter, model.ComponentTheme)
+				if err != nil {
+					t.Fatalf("componentOperations() error = %v", err)
+				}
+				if !slices.Contains(targets, settingsPath) {
+					t.Fatalf("targets = %#v, want %q", targets, settingsPath)
+				}
+				for _, op := range ops {
+					if _, _, err := op.apply(op.path); err != nil {
+						t.Fatalf("operation %v on %q error = %v", op.typeID, op.path, err)
+					}
+				}
+
+				settings := readJSONFileForTest(t, settingsPath)
+				if _, has := settings["theme"]; has != tt.wantTheme {
+					t.Fatalf("settings = %v, want theme present = %v", settings, tt.wantTheme)
+				}
+				if settings["keep"] != true {
+					t.Fatalf("settings = %v, want unrelated keys preserved", settings)
+				}
+			})
+		}
+	}
+}

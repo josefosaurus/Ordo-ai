@@ -194,6 +194,62 @@ func TestInstallThemeUsesSelectedOpenCodeJSONC(t *testing.T) {
 	assertThemeSelectedOnly(t, selected, decoy)
 }
 
+// Pi ships no Ordo theme, so --include-theme must neither declare nor write a
+// Pi theme selection on install or sync, while Claude Code is still selected.
+func TestThemeSelectionSkipsAgentsWithoutOrdoTheme(t *testing.T) {
+	home := t.TempDir()
+	workspace := t.TempDir()
+	selection := model.Selection{Agents: []model.AgentID{model.AgentClaudeCode, model.AgentPi}, Components: []model.ComponentID{model.ComponentTheme}}
+	adapters := resolveAdapters(selection.Agents)
+	var claudeSettings, piSettings string
+	for _, adapter := range adapters {
+		switch adapter.Agent() {
+		case model.AgentClaudeCode:
+			claudeSettings = adapter.SettingsPath(home)
+		case model.AgentPi:
+			piSettings = adapter.SettingsPath(home)
+		}
+	}
+	if claudeSettings == "" || piSettings == "" {
+		t.Fatalf("settings paths claude=%q pi=%q, want both resolved", claudeSettings, piSettings)
+	}
+
+	for name, paths := range map[string][]string{
+		"install": componentPathsWithWorkspaceScoped(home, workspace, ScopeGlobal, selection, adapters, model.ComponentTheme),
+		"sync":    syncComponentPathsWithWorkspaceScoped(home, workspace, ScopeGlobal, selection, adapters, model.ComponentTheme),
+	} {
+		if !slices.Contains(paths, claudeSettings) || slices.Contains(paths, piSettings) {
+			t.Fatalf("%s theme paths = %v, want Claude settings and no Pi settings", name, paths)
+		}
+	}
+
+	install := componentApplyStep{component: model.ComponentTheme, homeDir: home, workspaceDir: workspace, scope: ScopeGlobal, agents: selection.Agents}
+	if err := install.Run(); err != nil {
+		t.Fatal(err)
+	}
+	var changed []string
+	sync := componentSyncStep{component: model.ComponentTheme, homeDir: home, workspaceDir: workspace, agents: selection.Agents, changedFiles: &changed}
+	if err := sync.Run(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(piSettings); !os.IsNotExist(err) {
+		t.Fatalf("Pi settings should not be written; stat error = %v", err)
+	}
+	if slices.Contains(changed, piSettings) {
+		t.Fatalf("sync changed paths = %v, want no Pi settings", changed)
+	}
+	raw, err := os.ReadFile(claudeSettings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var root struct {
+		Theme string `json:"theme"`
+	}
+	if err := json.Unmarshal(raw, &root); err != nil || root.Theme != "ordo" {
+		t.Fatalf("Claude settings theme = %q, %v; want ordo", root.Theme, err)
+	}
+}
+
 type failAfterOpenCodeSettingsStep struct {
 	selected string
 	before   []byte

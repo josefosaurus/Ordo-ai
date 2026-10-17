@@ -110,7 +110,19 @@ func IsManagedThemeName(name string) bool {
 	return name == OrdoThemeName || slices.Contains(legacyClaudeThemeNames, name) || slices.Contains(legacyOpenCodeThemeNames, name)
 }
 
+// SelectsTheme reports whether selecting the Ordo theme makes sense for an
+// adapter: only agents Ordo ships a theme asset for (visualThemeDir) can load
+// it. Other agents own their active theme, so selection is skipped there.
+func SelectsTheme(adapter agents.Adapter) bool {
+	return shipsOrdoTheme(adapter.Agent())
+}
+
+// Inject selects the Ordo theme in the adapter settings. It is a no-op for an
+// adapter SelectsTheme rejects, so their own theme choice is left alone.
 func Inject(homeDir string, adapter agents.Adapter) (InjectionResult, error) {
+	if !SelectsTheme(adapter) {
+		return InjectionResult{}, nil
+	}
 	return injectSettings(adapter.SettingsPath(homeDir))
 }
 
@@ -230,12 +242,16 @@ func VisualThemeSettingsPath(homeDir string, adapter agents.Adapter) string {
 // OPENCODE_CONFIG_DIR. Only the theme selection follows the effective settings
 // file, as every other settings writer does (VisualThemeSettingsPath).
 func visualThemeDir(homeDir string, adapter agents.Adapter) string {
-	switch adapter.Agent() {
-	case model.AgentClaudeCode, model.AgentOpenCode:
-		return filepath.Join(adapter.GlobalConfigDir(homeDir), "themes")
-	default:
+	if !shipsOrdoTheme(adapter.Agent()) {
 		return ""
 	}
+	return filepath.Join(adapter.GlobalConfigDir(homeDir), "themes")
+}
+
+// shipsOrdoTheme is the single source for which agents get an Ordo theme
+// asset (visualThemeDir) and therefore an Ordo theme selection (SelectsTheme).
+func shipsOrdoTheme(agent model.AgentID) bool {
+	return agent == model.AgentClaudeCode || agent == model.AgentOpenCode
 }
 
 // themeSettingMigration is the outcome of migrateLegacyThemeSetting.
