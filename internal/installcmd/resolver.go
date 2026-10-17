@@ -105,8 +105,7 @@ func resolveKimiInstall(profile system.PlatformProfile) (CommandSequence, error)
 // present before the pipeline reaches the agent install step.
 //
 // AgentPi is included because InstallCommand always runs engramInitCommand(),
-// which executes either `pnpm dlx` or `npm exec` (both require Node.js). The
-// npm-presence check is a sound proxy for Node.js availability.
+// which executes `npm exec … pi-engram init`.
 var npmBasedAgents = map[model.AgentID]struct{}{
 	model.AgentClaudeCode: {},
 	model.AgentOpenCode:   {},
