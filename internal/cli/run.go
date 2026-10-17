@@ -3627,6 +3627,10 @@ func componentPathsWithWorkspaceScoped(homeDir, workspaceDir string, scope Insta
 			paths = append(paths, gga.ConfigPath(homeDir))
 			paths = append(paths, gga.AgentsTemplatePath(homeDir))
 		case model.ComponentTheme:
+			if !theme.SelectsTheme(adapter) {
+				// theme.Inject skips agents without an Ordo theme asset.
+				break
+			}
 			p := adapter.SettingsPath(homeDir)
 			if adapter.Agent() == model.AgentOpenCode {
 				p = openCodeLoadedSettingsPath(homeDir, workspaceDir, adapter)

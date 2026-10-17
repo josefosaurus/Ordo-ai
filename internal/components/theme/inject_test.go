@@ -742,3 +742,64 @@ func indentedJSON(t *testing.T, fixture string, value any) []byte {
 	}
 	return append(result, '\n')
 }
+
+func piAdapter(t *testing.T) agents.Adapter {
+	t.Helper()
+	adapter, err := agents.NewAdapter(model.AgentPi)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return adapter
+}
+
+func TestSelectsThemeOnlyForAgentsWithAnOrdoThemeAsset(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		adapter agents.Adapter
+		want    bool
+	}{
+		{"claude", claudeAdapter(), true},
+		{"opencode", opencodeAdapter(), true},
+		{"pi", piAdapter(t), false},
+	} {
+		if got := SelectsTheme(tt.adapter); got != tt.want {
+			t.Fatalf("SelectsTheme(%s) = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
+// Pi ships no Ordo theme and its active theme belongs to gentle-pi, so
+// selecting "ordo" there would point at a theme that does not exist.
+func TestInjectSkipsAgentWithoutOrdoThemeAsset(t *testing.T) {
+	home := t.TempDir()
+	adapter := piAdapter(t)
+	settingsPath := adapter.SettingsPath(home)
+	if settingsPath == "" {
+		t.Fatal("Pi adapter has no settings path")
+	}
+
+	result, err := Inject(home, adapter)
+	if err != nil {
+		t.Fatalf("Inject() error = %v", err)
+	}
+	if result.Changed || len(result.Files) != 0 {
+		t.Fatalf("Inject() = %#v, want no-op", result)
+	}
+	if _, err := os.Stat(settingsPath); !os.IsNotExist(err) {
+		t.Fatalf("Inject() should not create Pi settings; stat error = %v", err)
+	}
+
+	before := []byte("{\n  \"theme\": \"gentle-pi\"\n}\n")
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(settingsPath, before, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Inject(home, adapter); err != nil {
+		t.Fatalf("Inject() error = %v", err)
+	}
+	if got, err := os.ReadFile(settingsPath); err != nil || !bytes.Equal(got, before) {
+		t.Fatalf("Pi settings = %q, %v; want unchanged %q", got, err, before)
+	}
+}

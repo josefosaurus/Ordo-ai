@@ -920,9 +920,12 @@ func (s *Service) componentOperations(adapter agents.Adapter, componentID model.
 			}
 		}
 	case model.ComponentTheme:
+		// Clear the selection only when it names a managed theme, for every
+		// agent: a user's own theme survives, and an "ordo" an earlier release
+		// selected in an agent without an Ordo theme is still cleaned up.
 		for _, path := range settingsTargets(homeDir, adapter) {
 			targets = append(targets, path)
-			ops = append(ops, rewriteJSONFile(path, jsonPath{"theme"}))
+			ops = append(ops, rewriteJSONFileWith(path, removeManagedThemeSetting))
 		}
 	case model.ComponentClaudeTheme:
 		// Uninstall removes the current asset and the upstream-named assets
