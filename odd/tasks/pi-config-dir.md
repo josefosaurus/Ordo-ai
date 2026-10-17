@@ -28,8 +28,8 @@ Write the gentle-pi config files where gentle-pi reads them, and make Pi detecti
 ## Tasks
 
 - [x] T1 — Shared gentle-pi config-dir resolver; global persona + background policy use it (+ tests with each env var). Route: delegated (2+ non-trivial files).
-- [ ] T2 — Detection scan and uninstall retained report follow the Pi agent dir (+ tests). Route: delegated (2+ non-trivial files).
-- [ ] T3 — Update `docs/pi.md` isolated-home paragraph. Route: delegated with T2 writer.
+- [x] T2 — Detection scan and uninstall retained report follow the Pi agent dir (+ tests). Route: delegated (2+ non-trivial files).
+- [x] T3 — Update `docs/pi.md` isolated-home paragraph. Route: delegated with T2 writer.
 
 ## Acceptance criteria
 
@@ -46,12 +46,27 @@ Write the gentle-pi config files where gentle-pi reads them, and make Pi detecti
 
 ## Progress / evidence
 
-- T1 (delegated writer): resolver `pi.GentlePiConfigDir` in `internal/agents/pi/gentle_pi_config.go` (persona and cli already import-safe; no cycle). Global persona via `persona.InjectGlobalPiPersona`/`PiGlobalPersonaConfigPath`; workspace persona unchanged; install (`injectPiPersonaScoped`, `piPersonaConfigPaths`) and sync (inject + backup paths) route through the same resolver; background policy uses it too. RED observed (new pi/persona tests failed to build; `TestPiConfigFilesFollowGentlePiConfigDir` failed against the old cli code), then GREEN.
+- T1 — commit `8bd8d7ad` (delegated writer): resolver `pi.GentlePiConfigDir` in `internal/agents/pi/gentle_pi_config.go` (persona and cli already import-safe; no cycle). Global persona via `persona.InjectGlobalPiPersona`/`PiGlobalPersonaConfigPath`; workspace persona unchanged; install (`injectPiPersonaScoped`, `piPersonaConfigPaths`) and sync (inject + backup paths) route through the same resolver; background policy uses it too. RED observed (new pi/persona tests failed to build; `TestPiConfigFilesFollowGentlePiConfigDir` failed against the old cli code), then GREEN.
   - `go test ./internal/agents/pi/ ./internal/components/persona/`: ok
   - `go test ./internal/components/ -run Golden -count=1`: ok
   - `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -count=1 -timeout 30m`: ok (64.7s)
   - `go run ./internal/gofmtcheck`: clean; `./scripts/deadcode-ratchet.sh`: no new unreachable functions
 
+- T2+T3 — commit `60af8cae` (delegated writer, one code+docs commit): `ScanConfigs` scans the resolved `PI_CODING_AGENT_DIR` for Pi (replicated resolution in `internal/system/config_scan.go` because `internal/agents/pi` imports `internal/system`; parity test `internal/system/pi_agent_dir_parity_test.go` compares against `pi.AgentConfigPath`). `retainedPiResources` uses `pi.AgentConfigPath` for agent-owned paths and `pi.GentlePiConfigDir` for the global gentle-ai folder. `docs/pi.md` isolated-home paragraph rewritten. RED observed for all new T2 tests, then GREEN.
+  - `go build ./... && go vet ./...`: ok; `go run ./internal/gofmtcheck`: clean
+  - `go test ./internal/agents/pi/... ./internal/components/persona/... ./internal/system/... ./internal/components/uninstall/...`: ok
+  - `go test ./internal/components/ -run Golden -count=1`: ok
+  - `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -count=1 -timeout 30m`: ok (62.7s)
+  - `./scripts/deadcode-ratchet.sh`: no new unreachable functions
+
+- T4 (follow-up, inline) — `testenv.Isolate` also unsets `GENTLE_AI_PI_CONFIG_DIR` and `GENTLE_PI_CONFIG_HOME`, so `go test` from a Gentle Shell cannot write the real bundled config dir. RED observed on `TestIsolateUnsetsKnownAgentRuntimeDirOverrides`, then GREEN.
+  - `go test ./internal/testenv/`: ok; all other `testenv.Isolate` packages ok except `internal/cli` hitting the default 10m timeout; `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -timeout 30m`: ok (61.7s); gofmtcheck clean
+
+- Review: assess on `main..ae5c47ff` medium, 503 lines → `slice_budget_reached`; consent granted; lineage `review-11e0a63ccbc77183`, one lens (reliability) → approved, no correction → acknowledged (authority burned). Advisory, non-blocking: R3-relative-config-dir (WARNING: `GentlePiConfigDir` uses env values verbatim; relative/`~` values resolve against cwd, no test), R3-install-inject-untested (SUGGESTION: `injectPiPersonaScoped` write not observed under env overrides). Reviewed boundary: `ae5c47ff`.
+
+- T5 (inline, fixes advisory R3-relative-config-dir) — `GentlePiConfigDir` normalizes each override: `~`/`~/…` expand against home, absolute cleaned, relative resolved against cwd (falls through on cwd error). No real-home guard: absolute overrides keep applying to any home, matching prior `GENTLE_PI_CONFIG_HOME` behavior and existing tests. RED observed (2 new tests), then GREEN.
+  - `go test ./internal/agents/pi/`: ok; persona, uninstall, system, testenv: ok; `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -timeout 30m`: ok (60.4s); vet + gofmtcheck clean
+
 ## Next step
 
-T2.
+PR (user decision). Optional follow-up: advisory R3-install-inject-untested.

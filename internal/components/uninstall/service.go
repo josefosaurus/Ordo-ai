@@ -771,14 +771,17 @@ func firstOrEmpty(items []string) string {
 
 // retainedPiResources returns existing Pi-owned runtime and configuration paths
 // that ordo deliberately leaves intact because they can be shared with Pi,
-// gentle-pi packages, or user-managed configuration.
+// gentle-pi packages, or user-managed configuration. Agent-owned paths follow
+// the active Pi agent directory (PI_CODING_AGENT_DIR) and the global gentle-ai
+// state follows the gentle-pi config folder, matching where install writes.
 func retainedPiResources(homeDir, workspaceDir string) []string {
+	agentDir := pi.AgentConfigPath(homeDir)
 	paths := []string{
-		filepath.Join(homeDir, ".pi", "agent", "agents"),
-		filepath.Join(homeDir, ".pi", "agent", "chains"),
-		filepath.Join(homeDir, ".pi", "agent", "gentle-ai"),
-		filepath.Join(homeDir, ".pi", "agent", "subagents.json"),
-		filepath.Join(homeDir, ".pi", "gentle-ai"),
+		filepath.Join(agentDir, "agents"),
+		filepath.Join(agentDir, "chains"),
+		filepath.Join(agentDir, "gentle-ai"),
+		filepath.Join(agentDir, "subagents.json"),
+		pi.GentlePiConfigDir(homeDir),
 	}
 	if workspaceDir != "" {
 		paths = append(paths, filepath.Join(workspaceDir, ".pi", "gentle-ai"))

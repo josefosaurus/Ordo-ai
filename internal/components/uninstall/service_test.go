@@ -2319,3 +2319,45 @@ func TestUninstallSkillsRemovesLegacySharedMarkerAfterUpgrade(t *testing.T) {
 		})
 	}
 }
+
+// TestPartialUninstallPiReportsRetainedResourcesUnderIsolatedDirs pins that the
+// retained report follows PI_CODING_AGENT_DIR for agent-owned paths and the
+// gentle-pi config folder for the global gentle-ai state.
+func TestPartialUninstallPiReportsRetainedResourcesUnderIsolatedDirs(t *testing.T) {
+	homeDir := t.TempDir()
+	workspaceDir := t.TempDir()
+	configDir := filepath.Join(t.TempDir(), "bundled", "config", "gentle-ai")
+	t.Setenv("PI_CODING_AGENT_DIR", "~/.gentle-shell/agent")
+	t.Setenv("GENTLE_AI_PI_CONFIG_DIR", configDir)
+	svc, err := NewService(homeDir, workspaceDir, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	svc.snapshotter = stubSnapshotter{}
+
+	agentDir := filepath.Join(homeDir, ".gentle-shell", "agent")
+	retainedPaths := []string{
+		filepath.Join(agentDir, "agents"),
+		filepath.Join(agentDir, "chains"),
+		filepath.Join(agentDir, "gentle-ai"),
+		configDir,
+		filepath.Join(workspaceDir, ".pi", "gentle-ai"),
+	}
+	for _, path := range retainedPaths {
+		if err := os.MkdirAll(path, 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// Default-location leftovers are no longer Pi's live state and stay unreported.
+	if err := os.MkdirAll(filepath.Join(homeDir, ".pi", "agent", "agents"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := svc.PartialUninstall([]model.AgentID{model.AgentPi}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(result.RetainedPiResources, retainedPaths) {
+		t.Fatalf("RetainedPiResources = %v, want %v", result.RetainedPiResources, retainedPaths)
+	}
+}

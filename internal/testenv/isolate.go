@@ -10,6 +10,8 @@ import "os"
 // an absolute value, bypassing whatever homeDir a caller passes in:
 //   - PI_CODING_AGENT_DIR (internal/agents/pi.AgentConfigPath)
 //   - OPENCODE_CONFIG_DIR (internal/opencode.ResolveRuntimeConfigForHome)
+//   - GENTLE_AI_PI_CONFIG_DIR and GENTLE_PI_CONFIG_HOME
+//     (internal/agents/pi.GentlePiConfigDir)
 //
 // A developer shell that exports either of these (Gentle Shell does, for its
 // isolated Pi/OpenCode homes) leaks into any `go test` invocation that
@@ -21,6 +23,8 @@ import "os"
 var overrideEnvVars = []string{
 	"PI_CODING_AGENT_DIR",
 	"OPENCODE_CONFIG_DIR",
+	"GENTLE_AI_PI_CONFIG_DIR",
+	"GENTLE_PI_CONFIG_HOME",
 }
 
 // Isolate unsets every known agent runtime-dir override environment
