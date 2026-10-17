@@ -2366,13 +2366,16 @@ func TestPartialUninstallPiReportsRetainedResourcesUnderIsolatedDirs(t *testing.
 // theme and remove only a managed value, including an "ordo" an earlier
 // release wrote into an agent that ships no Ordo theme.
 func TestComponentThemeUninstallRemovesOnlyManagedThemeSelection(t *testing.T) {
-	for _, agent := range []model.AgentID{model.AgentClaudeCode, model.AgentPi} {
+	for _, agent := range []model.AgentID{model.AgentClaudeCode, model.AgentOpenCode, model.AgentPi} {
 		for _, tt := range []struct {
 			value     string
 			wantTheme bool
 		}{
 			{"dark", true},
 			{"ordo", false},
+			// Legacy names earlier releases selected are still managed.
+			{"Gentleman Cute", false},
+			{"gentleman-cute", false},
 		} {
 			t.Run(string(agent)+"/"+tt.value, func(t *testing.T) {
 				homeDir := t.TempDir()

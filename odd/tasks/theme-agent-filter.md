@@ -51,4 +51,5 @@ Locator: `odd/tasks/theme-agent-filter.md` · Engram topic: `odd/theme-agent-fil
   - `go test ./internal/components/ -run Golden`: ok
   - `go test ./internal/cli/ -run 'Theme|ComponentPaths|Sync|Uninstall' -timeout 30m`: ok (46s)
   - `./scripts/deadcode-ratchet.sh`: no new unreachable functions
+- Review of 21900d25: reliability lens, approved, acknowledged. Advisory R3-001 applied: uninstall test also covers OpenCode and legacy managed names (`Gentleman Cute`, `gentleman-cute`); 12 cases pass, package ok.
   - Out of scope, noted: catalog still labels `ComponentTheme` "OpenCode Theme" although Claude Code also gets it.
