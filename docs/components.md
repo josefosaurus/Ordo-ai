@@ -16,6 +16,7 @@
 | Permissions | `permissions` | Security-first defaults and guardrails. Applied to Claude Code and OpenCode (the two adapters with permissions overlay support). Default sensitive-paths deny list: `~/.ssh/*`, `~/.ssh/**/*`, `**/*.pem`, `**/*.key`, `**/.env*`, `~/.credentials/*`, `~/.aws/credentials`, `~/.config/gh/hosts.yml`, `~/Library/Keychains/*`, `**/secrets/*`, `**/*.p12`, `**/*.pfx` |
 | GGA | `gga` | Gentleman Guardian Angel — AI provider switcher |
 | Theme | `theme` | Ordo theme overlay (Rosé Pine) for Claude Code and OpenCode |
+| Visual themes | `claude-theme` | Ordo theme asset (`ordo.json`, Rosé Pine) for Claude Code, OpenCode, and Pi; Pi gets the asset only under its agent dir (`~/.pi/agent/themes`, or `PI_CODING_AGENT_DIR`) because gentle-pi owns its active theme |
 
 ODD (Organic Driven Development) is shared routing guidance, not a separate component to install. Use it for everyday direct/delegated work; installing the SDD component does not select SDD for a task. See [ODD and recovery](usage.md#organic-driven-development-odd).
 

@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/gentleman-programming/gentle-ai/v4/internal/agents"
+	"github.com/gentleman-programming/gentle-ai/v4/internal/agents/pi"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/components/filemerge"
 	"github.com/gentleman-programming/gentle-ai/v4/internal/model"
 	opencodeconfig "github.com/gentleman-programming/gentle-ai/v4/internal/opencode"
@@ -37,6 +38,20 @@ type openCodeTheme struct {
 
 const openCodeThemeSchema = "https://opencode.ai/theme.json"
 
+// piTheme is Pi's theme file format (pi.dev/schemas/theme.schema.json):
+// colors values name a vars entry or hold a color, and export sets the HTML
+// export backgrounds.
+type piTheme struct {
+	Schema     string            `json:"$schema"`
+	Name       string            `json:"name"`
+	Appearance string            `json:"appearance"`
+	Vars       map[string]string `json:"vars"`
+	Colors     map[string]string `json:"colors"`
+	Export     map[string]string `json:"export"`
+}
+
+const piThemeSchema = "https://pi.dev/schemas/theme.schema.json"
+
 func palette(pairs ...string) map[string]string {
 	colors := make(map[string]string, len(pairs)/2)
 	for i := 0; i < len(pairs); i += 2 {
@@ -49,6 +64,7 @@ func palette(pairs ...string) map[string]string {
 // backgrounds are derived tints of pine and love over base, because the
 // palette defines no diff colors of its own.
 const (
+	rpBase    = "#191724"
 	rpSurface = "#1f1d2e"
 	rpOverlay = "#26233a"
 	rpMuted   = "#6e6a86"
@@ -94,6 +110,32 @@ var ordoOpenCodeTheme = openCodeTheme{
 	),
 }
 
+// ordoPiTheme maps the palette onto Pi's color roles through named vars, so
+// the theme file reads like the palette it comes from.
+var ordoPiTheme = piTheme{
+	Schema: piThemeSchema, Name: OrdoThemeName, Appearance: "dark",
+	Vars: palette(
+		"base", rpBase, "surface", rpSurface, "overlay", rpOverlay, "muted", rpMuted, "subtle", rpSubtle, "text", rpText,
+		"love", rpLove, "gold", rpGold, "rose", rpRose, "pine", rpPine, "foam", rpFoam, "iris", rpIris,
+		"highlightLow", rpHLLow, "highlightMed", rpHLMed, "addedBg", rpAddedBg, "removedBg", rpRemovedBg,
+	),
+	Colors: palette(
+		"accent", "iris", "border", "highlightMed", "borderAccent", "iris", "borderMuted", "overlay",
+		"success", "foam", "error", "love", "warning", "gold", "muted", "subtle", "dim", "muted", "text", "text",
+		"thinkingText", "subtle", "selectedBg", "highlightMed", "userMessageBg", "surface", "userMessageText", "text",
+		"customMessageBg", "highlightLow", "customMessageText", "text", "customMessageLabel", "rose",
+		"toolPendingBg", "surface", "toolSuccessBg", "addedBg", "toolErrorBg", "removedBg", "toolTitle", "iris", "toolOutput", "text",
+		"mdHeading", "iris", "mdLink", "foam", "mdLinkUrl", "muted", "mdCode", "gold", "mdCodeBlock", "text", "mdCodeBlockBorder", "highlightMed",
+		"mdQuote", "subtle", "mdQuoteBorder", "highlightMed", "mdHr", "muted", "mdListBullet", "iris",
+		"toolDiffAdded", "foam", "toolDiffRemoved", "love", "toolDiffContext", "muted",
+		"syntaxComment", "muted", "syntaxKeyword", "pine", "syntaxFunction", "rose", "syntaxVariable", "text", "syntaxString", "gold",
+		"syntaxNumber", "gold", "syntaxType", "foam", "syntaxOperator", "subtle", "syntaxPunctuation", "subtle",
+		"thinkingOff", "highlightMed", "thinkingMinimal", "muted", "thinkingLow", "subtle", "thinkingMedium", "foam", "thinkingHigh", "iris", "thinkingXhigh", "rose",
+		"bashMode", "gold",
+	),
+	Export: palette("pageBg", "base", "cardBg", "surface", "infoBg", "overlay"),
+}
+
 // Theme files earlier releases installed under upstream names, per agent.
 // Install and sync leave them in place; uninstall removes them.
 var (
@@ -110,11 +152,11 @@ func IsManagedThemeName(name string) bool {
 	return name == OrdoThemeName || slices.Contains(legacyClaudeThemeNames, name) || slices.Contains(legacyOpenCodeThemeNames, name)
 }
 
-// SelectsTheme reports whether selecting the Ordo theme makes sense for an
-// adapter: only agents Ordo ships a theme asset for (visualThemeDir) can load
-// it. Other agents own their active theme, so selection is skipped there.
+// SelectsTheme reports whether Ordo selects its theme in an adapter's
+// settings (selectsOrdoTheme). Other agents own their active theme, so
+// selection is skipped there.
 func SelectsTheme(adapter agents.Adapter) bool {
-	return shipsOrdoTheme(adapter.Agent())
+	return selectsOrdoTheme(adapter.Agent())
 }
 
 // Inject selects the Ordo theme in the adapter settings. It is a no-op for an
@@ -171,6 +213,8 @@ func InjectVisualThemes(homeDir string, adapter agents.Adapter) (InjectionResult
 		value, legacyNames = ordoClaudeTheme, legacyClaudeThemeNames
 	case model.AgentOpenCode:
 		value, legacyNames = ordoOpenCodeTheme, legacyOpenCodeThemeNames
+	case model.AgentPi:
+		value = ordoPiTheme
 	}
 
 	content, err := json.MarshalIndent(value, "", "  ")
@@ -240,17 +284,29 @@ func VisualThemeSettingsPath(homeDir string, adapter agents.Adapter) string {
 // visualThemeDir places theme assets under the adapter config root, like the
 // other OpenCode assets (plugins, skills, AGENTS.md), which ignore
 // OPENCODE_CONFIG_DIR. Only the theme selection follows the effective settings
-// file, as every other settings writer does (VisualThemeSettingsPath).
+// file, as every other settings writer does (VisualThemeSettingsPath). Pi
+// loads user themes from its agent dir (~/.pi/agent or PI_CODING_AGENT_DIR),
+// not from the ~/.pi config root.
 func visualThemeDir(homeDir string, adapter agents.Adapter) string {
 	if !shipsOrdoTheme(adapter.Agent()) {
 		return ""
+	}
+	if adapter.Agent() == model.AgentPi {
+		return filepath.Join(pi.AgentConfigPath(homeDir), "themes")
 	}
 	return filepath.Join(adapter.GlobalConfigDir(homeDir), "themes")
 }
 
 // shipsOrdoTheme is the single source for which agents get an Ordo theme
-// asset (visualThemeDir) and therefore an Ordo theme selection (SelectsTheme).
+// asset (visualThemeDir, InjectVisualThemes).
 func shipsOrdoTheme(agent model.AgentID) bool {
+	return agent == model.AgentClaudeCode || agent == model.AgentOpenCode || agent == model.AgentPi
+}
+
+// selectsOrdoTheme is the single source for which agents Ordo selects its
+// theme in (SelectsTheme). It is a subset of shipsOrdoTheme: Pi gets the
+// asset only, because gentle-pi owns Pi's active theme.
+func selectsOrdoTheme(agent model.AgentID) bool {
 	return agent == model.AgentClaudeCode || agent == model.AgentOpenCode
 }
 
