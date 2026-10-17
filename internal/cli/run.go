@@ -2700,10 +2700,8 @@ func (s componentApplyStep) Run() error {
 	case model.ComponentPersona:
 		for _, adapter := range adapters {
 			if adapter.Agent() == model.AgentPi {
-				for _, rootDir := range piPersonaConfigRoots(s.homeDir, s.workspaceDir, s.scope) {
-					if _, err := persona.InjectPiPersona(rootDir, s.selection.Persona); err != nil {
-						return fmt.Errorf("inject persona for %q: %w", adapter.Agent(), err)
-					}
+				if _, err := injectPiPersonaScoped(s.homeDir, s.workspaceDir, s.scope, s.selection.Persona); err != nil {
+					return fmt.Errorf("inject persona for %q: %w", adapter.Agent(), err)
 				}
 				continue
 			}
@@ -3716,19 +3714,28 @@ func componentInjectionDirScoped(homeDir, workspaceDir string, scope InstallScop
 	return ResolveAgentConfigDir(scope, homeDir, workspaceDir)
 }
 
-// piPersonaConfigRoots returns the roots whose Pi persona state is managed by
-// install. Like every scoped component, global install writes only to home.
-func piPersonaConfigRoots(homeDir, workspaceDir string, scope InstallScope) []string {
-	return []string{ResolveAgentConfigDir(scope, homeDir, workspaceDir)}
+// piPersonaUsesWorkspace reports whether install manages the workspace-scoped
+// Pi persona instead of the global one in the gentle-pi config folder. It
+// mirrors ResolveAgentConfigDir; injection and backup paths both route here
+// so they cannot drift.
+func piPersonaUsesWorkspace(workspaceDir string, scope InstallScope) bool {
+	return scope == ScopeWorkspace && strings.TrimSpace(workspaceDir) != ""
+}
+
+// injectPiPersonaScoped writes the Pi persona state install manages: the
+// workspace file for workspace scope, otherwise the global gentle-pi file.
+func injectPiPersonaScoped(homeDir, workspaceDir string, scope InstallScope, selected model.PersonaID) (persona.InjectionResult, error) {
+	if piPersonaUsesWorkspace(workspaceDir, scope) {
+		return persona.InjectPiPersona(workspaceDir, selected)
+	}
+	return persona.InjectGlobalPiPersona(homeDir, selected)
 }
 
 func piPersonaConfigPaths(homeDir, workspaceDir string, scope InstallScope) []string {
-	roots := piPersonaConfigRoots(homeDir, workspaceDir, scope)
-	paths := make([]string, 0, len(roots))
-	for _, root := range roots {
-		paths = append(paths, persona.PiPersonaConfigPath(root))
+	if piPersonaUsesWorkspace(workspaceDir, scope) {
+		return []string{persona.PiPersonaConfigPath(workspaceDir)}
 	}
-	return paths
+	return []string{persona.PiGlobalPersonaConfigPath(homeDir)}
 }
 
 func nativeReviewCodeGraphGuidanceMarkdown(homeDir string, selected []model.CommunityToolID) string {
