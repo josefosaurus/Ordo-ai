@@ -291,6 +291,86 @@ func TestPiConfigFilesFollowGentlePiConfigDir(t *testing.T) {
 	}
 }
 
+// TestInjectPiPersonaScopedWritesGentlePiConfigDir pins that the install
+// persona step writes persona.json into the resolved gentle-pi config folder,
+// at exactly the path it declares for backup, and that workspace scope keeps
+// writing the workspace file whatever the env overrides say.
+func TestInjectPiPersonaScopedWritesGentlePiConfigDir(t *testing.T) {
+	for _, tt := range []struct {
+		name          string
+		useConfigDir  bool
+		useConfigHome bool
+	}{
+		{"default", false, false},
+		{"config home", false, true},
+		{"config dir outranks config home", true, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			home := t.TempDir()
+			workspace := t.TempDir()
+			exactDir := filepath.Join(t.TempDir(), "bundled", "config", "gentle-ai")
+			configHome := filepath.Join(t.TempDir(), "bundled", "config")
+			wantDir := filepath.Join(home, ".pi", "gentle-ai")
+			t.Setenv("GENTLE_AI_PI_CONFIG_DIR", "")
+			t.Setenv(PiConfigHomeEnv, "")
+			if tt.useConfigHome {
+				t.Setenv(PiConfigHomeEnv, configHome)
+				wantDir = filepath.Join(configHome, "gentle-ai")
+			}
+			if tt.useConfigDir {
+				t.Setenv("GENTLE_AI_PI_CONFIG_DIR", exactDir)
+				wantDir = exactDir
+			}
+
+			wantPath := filepath.Join(wantDir, "persona.json")
+			result, err := injectPiPersonaScoped(home, workspace, ScopeGlobal, model.PersonaNeutral)
+			if err != nil {
+				t.Fatalf("global inject: %v", err)
+			}
+			if !result.Changed || !reflect.DeepEqual(result.Files, []string{wantPath}) {
+				t.Fatalf("global inject result = %+v, want changed write of %q", result, wantPath)
+			}
+			if declared := piPersonaConfigPaths(home, workspace, ScopeGlobal); !reflect.DeepEqual(result.Files, declared) {
+				t.Fatalf("written files %v drift from declared backup paths %v", result.Files, declared)
+			}
+			assertPiPersonaMode(t, wantPath, "neutral")
+			if wantDir != filepath.Join(home, ".pi", "gentle-ai") {
+				if _, err := os.Stat(filepath.Join(home, ".pi", "gentle-ai", "persona.json")); !os.IsNotExist(err) {
+					t.Fatalf("default home persona must not be written under an override, stat err = %v", err)
+				}
+			}
+
+			workspacePath := filepath.Join(workspace, ".pi", "gentle-ai", "persona.json")
+			result, err = injectPiPersonaScoped(home, workspace, ScopeWorkspace, model.PersonaGentleman)
+			if err != nil {
+				t.Fatalf("workspace inject: %v", err)
+			}
+			if !reflect.DeepEqual(result.Files, []string{workspacePath}) {
+				t.Fatalf("workspace inject files = %v, want %q", result.Files, workspacePath)
+			}
+			assertPiPersonaMode(t, workspacePath, "gentleman")
+			assertPiPersonaMode(t, wantPath, "neutral")
+		})
+	}
+}
+
+func assertPiPersonaMode(t *testing.T, path, want string) {
+	t.Helper()
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+	var got struct {
+		Mode string `json:"mode"`
+	}
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("decode %s: %v", path, err)
+	}
+	if got.Mode != want {
+		t.Fatalf("%s mode = %q, want %q", path, got.Mode, want)
+	}
+}
+
 func TestPiBackgroundProjectionRollback(t *testing.T) {
 	t.Run("created file is removed", func(t *testing.T) {
 		home := t.TempDir()

@@ -67,6 +67,9 @@ Write the gentle-pi config files where gentle-pi reads them, and make Pi detecti
 - T5 (inline, fixes advisory R3-relative-config-dir) — `GentlePiConfigDir` normalizes each override: `~`/`~/…` expand against home, absolute cleaned, relative resolved against cwd (falls through on cwd error). No real-home guard: absolute overrides keep applying to any home, matching prior `GENTLE_PI_CONFIG_HOME` behavior and existing tests. RED observed (2 new tests), then GREEN.
   - `go test ./internal/agents/pi/`: ok; persona, uninstall, system, testenv: ok; `go test ./internal/cli/ -run 'Pi|Persona|Background|Sync|ComponentPaths' -timeout 30m`: ok (60.4s); vet + gofmtcheck clean
 
+- T6 (inline, closes advisory R3-install-inject-untested) — `TestInjectPiPersonaScopedWritesGentlePiConfigDir` drives `injectPiPersonaScoped` under each env case: global writes `persona.json` in the resolved folder (matching the declared backup path, default home untouched under an override); workspace scope keeps writing the workspace file. Coverage-only test, so no natural RED: a mutation (global branch back to `InjectPiPersona(homeDir)`) failed both override cases, then GREEN after restore.
+  - `go test ./internal/cli/ -run 'Pi|Persona|Background' -timeout 30m`: ok (23.5s); vet + gofmtcheck clean
+
 ## Next step
 
-PR (user decision). Optional follow-up: advisory R3-install-inject-untested.
+Delivered: PRs #19 and #20 merged. T6 pending delivery.
