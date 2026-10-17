@@ -51,4 +51,5 @@ Cover a real `ordo install --agent pi` in the Docker e2e suite (`e2e/e2e_test.sh
   - `bash -n e2e/lib.sh && bash -n e2e/e2e_test.sh`: ok (parent spot check re-run: ok)
   - shellcheck: not installed, not run
   - Sandboxed macOS smoke (temp HOME, Pi env vars unset, Pi test block extracted): Tier 2 PASSED=8 FAILED=0; Tier 1 dry-run without `pi` on PATH PASSED=1; real `~/.pi` and `~/.gentle-ai` untouched
+- T1 follow-up (inline, review advisories R3-001/R4-pi-shim-path-leak and R2-002): `cleanup_test_env` removes the `pi`/`npm` shims so later tests see the real tools; shims use a bash shebang to match their `%q` quoting. Sandboxed smoke: PASSED=8 FAILED=0, shim removed after cleanup, `npm` resolves to the real binary. Review of 85e3f33e: 4 lenses, approved, acknowledged; R1 (rm -rf ~/.pi, existing pattern) and R3-003 (absent mcp.json) left as noted.
   - Docker e2e: pending (Docker unavailable locally) → T2 via CI

@@ -91,6 +91,8 @@ cleanup_test_env() {
     rm -rf "$HOME/.kimi" 2>/dev/null || true
     rm -rf "$HOME/.pi" 2>/dev/null || true
     rm -f "$HOME/.gentle-ai-e2e/pi-calls.log" 2>/dev/null || true
+    # Pi shims are per test: drop them so later tests see the real pi/npm.
+    rm -f "$HOME/.gentle-ai-e2e/bin/pi" "$HOME/.gentle-ai-e2e/bin/npm" 2>/dev/null || true
     mkdir -p "$HOME/.config"
 }
 
@@ -165,7 +167,7 @@ setup_fake_pi_binary() {
     real_npm="$(PATH="$search_path" command -v npm 2>/dev/null || true)"
 
     cat > "$fake_bin_dir/pi" <<EOF
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 case "\${1:-}" in
   --version|-v) printf 'pi e2e-shim\n' ;;
   *) printf 'pi %s\n' "\$*" >> $(printf '%q' "$PI_CALLS_LOG") ;;
@@ -174,7 +176,7 @@ exit 0
 EOF
 
     cat > "$fake_bin_dir/npm" <<EOF
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # Fake only the pi-engram init shape; delegate everything else.
 case " \$* " in
   *" exec "*" pi-engram init "*)
