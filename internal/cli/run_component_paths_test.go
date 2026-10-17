@@ -1606,12 +1606,14 @@ func TestBackupTargetsClaudeContext7IncludeCleanupWithoutVerificationRequirement
 
 func TestComponentPathsVisualThemesMatchSelectedAdapter(t *testing.T) {
 	home := t.TempDir()
+	t.Setenv("PI_CODING_AGENT_DIR", "")
 	for _, tt := range []struct {
 		agent model.AgentID
 		want  []string
 	}{
 		{model.AgentClaudeCode, []string{filepath.Join(home, ".claude", "themes", "ordo.json")}},
 		{model.AgentOpenCode, []string{filepath.Join(home, ".config", "opencode", "themes", "ordo.json")}},
+		{model.AgentPi, []string{filepath.Join(home, ".pi", "agent", "themes", "ordo.json")}},
 	} {
 		paths := componentPathsWithWorkspaceScoped(home, "", ScopeGlobal, model.Selection{}, resolveAdapters([]model.AgentID{tt.agent}), model.ComponentClaudeTheme)
 		if !slices.Equal(paths, tt.want) {

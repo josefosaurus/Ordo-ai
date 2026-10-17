@@ -768,8 +768,8 @@ func TestSelectsThemeOnlyForAgentsWithAnOrdoThemeAsset(t *testing.T) {
 	}
 }
 
-// Pi ships no Ordo theme and its active theme belongs to gentle-pi, so
-// selecting "ordo" there would point at a theme that does not exist.
+// Pi gets the Ordo theme as an asset only: its active theme belongs to
+// gentle-pi, so Ordo never selects "ordo" there.
 func TestInjectSkipsAgentWithoutOrdoThemeAsset(t *testing.T) {
 	home := t.TempDir()
 	adapter := piAdapter(t)
@@ -802,4 +802,156 @@ func TestInjectSkipsAgentWithoutOrdoThemeAsset(t *testing.T) {
 	if got, err := os.ReadFile(settingsPath); err != nil || !bytes.Equal(got, before) {
 		t.Fatalf("Pi settings = %q, %v; want unchanged %q", got, err, before)
 	}
+}
+
+// piRequiredColorTokens pins the 51 required "colors" entries of Pi's theme
+// schema (pi-coding-agent 1.3.0, schemas/theme.schema.json,
+// properties.colors.required). The five optional tokens (scrollbarTrack,
+// scrollbarThumb, searchMatchBg, searchMatchText, thinkingMax) fall back to
+// required ones, per docs/themes.md.
+var piRequiredColorTokens = []string{
+	"accent", "border", "borderAccent", "borderMuted", "success", "error", "warning", "muted", "dim", "text",
+	"thinkingText", "selectedBg", "userMessageBg", "userMessageText", "customMessageBg", "customMessageText", "customMessageLabel",
+	"toolPendingBg", "toolSuccessBg", "toolErrorBg", "toolTitle", "toolOutput",
+	"mdHeading", "mdLink", "mdLinkUrl", "mdCode", "mdCodeBlock", "mdCodeBlockBorder", "mdQuote", "mdQuoteBorder", "mdHr", "mdListBullet",
+	"toolDiffAdded", "toolDiffRemoved", "toolDiffContext",
+	"syntaxComment", "syntaxKeyword", "syntaxFunction", "syntaxVariable", "syntaxString", "syntaxNumber", "syntaxType", "syntaxOperator", "syntaxPunctuation",
+	"thinkingOff", "thinkingMinimal", "thinkingLow", "thinkingMedium", "thinkingHigh", "thinkingXhigh", "bashMode",
+}
+
+var piOptionalColorTokens = []string{"scrollbarTrack", "scrollbarThumb", "searchMatchBg", "searchMatchText", "thinkingMax"}
+
+func TestShipsAndSelectsOrdoThemeAgentSets(t *testing.T) {
+	for _, tt := range []struct {
+		agent           model.AgentID
+		ships, selected bool
+	}{
+		{model.AgentClaudeCode, true, true},
+		{model.AgentOpenCode, true, true},
+		{model.AgentPi, true, false},
+		{model.AgentGeminiCLI, false, false},
+	} {
+		if got := shipsOrdoTheme(tt.agent); got != tt.ships {
+			t.Fatalf("shipsOrdoTheme(%s) = %v, want %v", tt.agent, got, tt.ships)
+		}
+		if got := selectsOrdoTheme(tt.agent); got != tt.selected {
+			t.Fatalf("selectsOrdoTheme(%s) = %v, want %v", tt.agent, got, tt.selected)
+		}
+	}
+}
+
+func TestInjectVisualThemesWritesPiThemeAssetOnly(t *testing.T) {
+	for _, tt := range []struct {
+		name, override string
+		dir            func(home string) string
+	}{
+		{"default agent dir", "", func(home string) string { return filepath.Join(home, ".pi", "agent") }},
+		{"PI_CODING_AGENT_DIR", "~/custom-pi", func(home string) string { return filepath.Join(home, "custom-pi") }},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			home := t.TempDir()
+			t.Setenv("PI_CODING_AGENT_DIR", tt.override)
+			adapter := piAdapter(t)
+			want := filepath.Join(tt.dir(home), "themes", "ordo.json")
+
+			if got := VisualThemePaths(home, adapter); len(got) != 1 || got[0] != want {
+				t.Fatalf("VisualThemePaths(pi) = %v, want [%s]", got, want)
+			}
+			if got := LegacyVisualThemePaths(home, adapter); len(got) != 0 {
+				t.Fatalf("LegacyVisualThemePaths(pi) = %v, want none", got)
+			}
+			if got := VisualThemeSettingsPath(home, adapter); got != "" {
+				t.Fatalf("VisualThemeSettingsPath(pi) = %q, want empty", got)
+			}
+
+			result, err := InjectVisualThemes(home, adapter)
+			if err != nil {
+				t.Fatalf("InjectVisualThemes(pi) error = %v", err)
+			}
+			if !result.Changed || len(result.Files) != 1 || result.Files[0] != want {
+				t.Fatalf("InjectVisualThemes(pi) = %#v, want only %q", result, want)
+			}
+			raw, err := os.ReadFile(want)
+			if err != nil {
+				t.Fatalf("read Pi theme: %v", err)
+			}
+			assertValidPiTheme(t, raw)
+
+			if _, err := os.Stat(adapter.SettingsPath(home)); !os.IsNotExist(err) {
+				t.Fatalf("InjectVisualThemes(pi) must not create Pi settings; stat error = %v", err)
+			}
+			if again, err := InjectVisualThemes(home, adapter); err != nil || again.Changed {
+				t.Fatalf("second InjectVisualThemes(pi) = %#v, %v; want unchanged", again, err)
+			}
+		})
+	}
+}
+
+func assertValidPiTheme(t *testing.T, raw []byte) {
+	t.Helper()
+	var doc struct {
+		Schema string            `json:"$schema"`
+		Name   string            `json:"name"`
+		Appear string            `json:"appearance"`
+		Vars   map[string]string `json:"vars"`
+		Colors map[string]string `json:"colors"`
+		Export map[string]string `json:"export"`
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&doc); err != nil {
+		t.Fatalf("decode Pi theme: %v\n%s", err, raw)
+	}
+	if doc.Name != OrdoThemeName {
+		t.Fatalf("Pi theme name = %q, want %q", doc.Name, OrdoThemeName)
+	}
+	if doc.Schema == "" {
+		t.Fatal("Pi theme has no $schema")
+	}
+	allowed := map[string]bool{}
+	for _, token := range append(append([]string{}, piRequiredColorTokens...), piOptionalColorTokens...) {
+		allowed[token] = true
+	}
+	for _, token := range piRequiredColorTokens {
+		if _, ok := doc.Colors[token]; !ok {
+			t.Fatalf("Pi theme misses required color %q", token)
+		}
+	}
+	resolves := func(where, key, value string) {
+		if _, ok := doc.Vars[value]; ok || isHexColor(value) {
+			return
+		}
+		t.Fatalf("Pi theme %s %q = %q, want a vars key or #rrggbb", where, key, value)
+	}
+	for key, value := range doc.Colors {
+		if !allowed[key] {
+			t.Fatalf("Pi theme color %q is not in Pi's schema", key)
+		}
+		resolves("color", key, value)
+	}
+	for key, value := range doc.Vars {
+		if !isHexColor(value) {
+			t.Fatalf("Pi theme var %q = %q, want #rrggbb", key, value)
+		}
+	}
+	for _, key := range []string{"pageBg", "cardBg", "infoBg"} {
+		if value, ok := doc.Export[key]; ok {
+			resolves("export", key, value)
+		}
+	}
+	if len(doc.Export) > 3 {
+		t.Fatalf("Pi theme export = %v, want only pageBg/cardBg/infoBg", doc.Export)
+	}
+}
+
+func isHexColor(value string) bool {
+	if len(value) != 7 || value[0] != '#' {
+		return false
+	}
+	for _, c := range strings.ToLower(value[1:]) {
+		if !strings.ContainsRune("0123456789abcdef", c) {
+			return false
+		}
+	}
+	return true
 }

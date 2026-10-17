@@ -2419,3 +2419,47 @@ func TestComponentThemeUninstallRemovesOnlyManagedThemeSelection(t *testing.T) {
 		}
 	}
 }
+
+// Pi gets the Ordo theme as an asset only. Uninstall removes that asset from
+// Pi's agent dir, keeps the user's other themes, and leaves a gentle-pi theme
+// selection alone.
+func TestPartialUninstallClaudeThemeRemovesPiThemeAsset(t *testing.T) {
+	homeDir := t.TempDir()
+	t.Setenv("PI_CODING_AGENT_DIR", "")
+	svc, err := NewService(homeDir, t.TempDir(), "dev")
+	if err != nil {
+		t.Fatalf("NewService() error = %v", err)
+	}
+	svc.snapshotter = stubSnapshotter{}
+
+	themesDir := filepath.Join(homeDir, ".pi", "agent", "themes")
+	managed := filepath.Join(themesDir, "ordo.json")
+	preserved := map[string]string{
+		filepath.Join(themesDir, "Gentle.json"):                 `{"name":"Gentle"}`,
+		filepath.Join(homeDir, ".pi", "agent", "settings.json"): `{"theme":"Gentle","keep":true}`,
+	}
+	if err := os.MkdirAll(themesDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(managed, []byte(`{"name":"ordo"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for path, content := range preserved {
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if _, err := svc.PartialUninstall([]model.AgentID{model.AgentPi}, []model.ComponentID{model.ComponentClaudeTheme}); err != nil {
+		t.Fatalf("PartialUninstall() error = %v", err)
+	}
+
+	if _, err := os.Stat(managed); !os.IsNotExist(err) {
+		t.Fatalf("Pi Ordo theme %q should be removed: %v", managed, err)
+	}
+	for path, want := range preserved {
+		if got, err := os.ReadFile(path); err != nil || string(got) != want {
+			t.Fatalf("preserved Pi file %q = %q, %v; want %q", path, got, err, want)
+		}
+	}
+}
