@@ -89,6 +89,10 @@ cleanup_test_env() {
     rm -rf "$HOME/.qwen" 2>/dev/null || true
     rm -rf "$HOME/.kiro" 2>/dev/null || true
     rm -rf "$HOME/.kimi" 2>/dev/null || true
+    rm -rf "$HOME/.pi" 2>/dev/null || true
+    rm -f "$HOME/.gentle-ai-e2e/pi-calls.log" 2>/dev/null || true
+    # Pi shims are per test: drop them so later tests see the real pi/npm.
+    rm -f "$HOME/.gentle-ai-e2e/bin/pi" "$HOME/.gentle-ai-e2e/bin/npm" 2>/dev/null || true
     mkdir -p "$HOME/.config"
 }
 
@@ -140,6 +144,61 @@ EOF
     esac
 
     log_info "Using deterministic Engram E2E shim: $fake_engram"
+}
+
+# setup_fake_pi_binary — install offline Pi tooling shims for E2E.
+#
+# A Pi install runs `pi install npm:<pkg>` for each managed package and
+# `npm exec --yes --package gentle-engram@latest -- pi-engram init`; its
+# preflight requires both `pi` and `npm` on PATH. The fake `pi` and the `npm`
+# wrapper append their argv to PI_CALLS_LOG and exit 0 so tests can assert what
+# was requested without downloading Pi packages. Every other npm invocation is
+# delegated to the real npm resolved before the wrapper shadows it.
+PI_CALLS_LOG="$HOME/.gentle-ai-e2e/pi-calls.log"
+
+setup_fake_pi_binary() {
+    local fake_bin_dir="$HOME/.gentle-ai-e2e/bin"
+    mkdir -p "$fake_bin_dir"
+
+    # Resolve the real npm with the fake dir removed from PATH so a repeated
+    # call never points the wrapper at itself.
+    local search_path real_npm
+    search_path="$(printf '%s' "$PATH" | tr ':' '\n' | grep -vxF "$fake_bin_dir" | paste -s -d: -)"
+    real_npm="$(PATH="$search_path" command -v npm 2>/dev/null || true)"
+
+    cat > "$fake_bin_dir/pi" <<EOF
+#!/usr/bin/env bash
+case "\${1:-}" in
+  --version|-v) printf 'pi e2e-shim\n' ;;
+  *) printf 'pi %s\n' "\$*" >> $(printf '%q' "$PI_CALLS_LOG") ;;
+esac
+exit 0
+EOF
+
+    cat > "$fake_bin_dir/npm" <<EOF
+#!/usr/bin/env bash
+# Fake only the pi-engram init shape; delegate everything else.
+case " \$* " in
+  *" exec "*" pi-engram init "*)
+    printf 'npm %s\n' "\$*" >> $(printf '%q' "$PI_CALLS_LOG")
+    exit 0
+    ;;
+esac
+real_npm=$(printf '%q' "$real_npm")
+if [ -z "\$real_npm" ]; then
+  echo "npm e2e wrapper: no real npm found" >&2
+  exit 127
+fi
+exec "\$real_npm" "\$@"
+EOF
+    chmod +x "$fake_bin_dir/pi" "$fake_bin_dir/npm"
+
+    case ":$PATH:" in
+        *":$fake_bin_dir:"*) ;;
+        *) export PATH="$fake_bin_dir:$PATH" ;;
+    esac
+
+    log_info "Using deterministic Pi E2E shims in $fake_bin_dir (real npm: ${real_npm:-none})"
 }
 
 # setup_fake_configs — seed fake config files so backup tests have something
