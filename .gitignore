@@ -47,3 +47,6 @@ itau-logo.txt
 
 # Release signing key (never commit)
 .secrets/
+
+# Local CodeGraph index (per checkout)
+.codegraph/
