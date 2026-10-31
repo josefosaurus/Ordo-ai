@@ -193,7 +193,15 @@ func ReconcilePiCodeGraph(options PiCodeGraphOptions) (result PiCodeGraphResult,
 	}
 	manifest.MCPPath = paths.MCPConfig
 	for _, discovered := range children {
-		if safeErr := journal.validate(discovered.Source); safeErr != nil {
+		readable := discovered.Source
+		if discovered.PackageOwned {
+			// A package child may be linked in; it is only read, never written,
+			// so validate the resolved file the overlay is rendered from.
+			if resolved, resolveErr := filepath.EvalSymlinks(readable); resolveErr == nil {
+				readable = resolved
+			}
+		}
+		if safeErr := journal.validate(readable); safeErr != nil {
 			return result, safeErr
 		}
 		body, readErr := os.ReadFile(discovered.Source)

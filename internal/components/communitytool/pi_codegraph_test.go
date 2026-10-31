@@ -1094,3 +1094,42 @@ func TestCodeGraphIsolatedManifestWithConfiguredAgentDir(t *testing.T) {
 		t.Fatalf("default manifest was removed: %v", err)
 	}
 }
+
+func TestPiCodeGraphOverlaysSymlinkedPackageChildWithoutWritingThroughLink(t *testing.T) {
+	home := t.TempDir()
+	packaged := filepath.Join(home, ".pi", "agent", "install", "releases", "1.3.0", "node_modules", "pi", "examples", "agents", "planner.md")
+	writePiFile(t, filepath.Join(home, ".pi", "agent", "settings.json"), `{}`)
+	writePiFile(t, packaged, "---\ntools: bash\n---\nplanner\n")
+	link := filepath.Join(home, ".pi", "agent", "agents", "planner.md")
+	if err := os.MkdirAll(filepath.Dir(link), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(packaged, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	result, err := ReconcilePiCodeGraph(PiCodeGraphOptions{HomeDir: home, Selected: true, EffectiveMCPProbe: piProbeForTest})
+	if err != nil {
+		t.Fatalf("ReconcilePiCodeGraph() error = %v", err)
+	}
+	overlay := filepath.Join(home, ".pi", "agent", "subagents", "planner.md")
+	if len(result.Children) != 1 || result.Children[0].Target != overlay {
+		t.Fatalf("children = %#v, want overlay at %q", result.Children, overlay)
+	}
+	body, err := os.ReadFile(overlay)
+	if err != nil || !strings.Contains(string(body), piCodeGraphToolMarker) {
+		t.Fatalf("overlay has no CodeGraph tool block: %v\n%s", err, body)
+	}
+	original, _ := os.ReadFile(packaged)
+	if string(original) != "---\ntools: bash\n---\nplanner\n" {
+		t.Fatalf("package child mutated through symlink:\n%s", original)
+	}
+	if info, err := os.Lstat(link); err != nil || info.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("symlink replaced: info=%v err=%v", info, err)
+	}
+
+	// A second reconcile sees the overlay as the effective child and stays clean.
+	if _, err := ReconcilePiCodeGraph(PiCodeGraphOptions{HomeDir: home, Selected: true, EffectiveMCPProbe: piProbeForTest}); err != nil {
+		t.Fatalf("second ReconcilePiCodeGraph() error = %v", err)
+	}
+}
