@@ -479,6 +479,33 @@ func TestDiscoverCodeGraphChildrenUsesProjectOverrideAndPreservesPackageSource(t
 	}
 }
 
+func TestDiscoverCodeGraphChildrenOverlaysSymlinkedPackageChild(t *testing.T) {
+	home := t.TempDir()
+	packaged := filepath.Join(home, ".pi", "agent", "install", "releases", "1.3.0", "node_modules", "pi", "examples", "agents", "planner.md")
+	if err := os.MkdirAll(filepath.Dir(packaged), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(packaged, []byte("---\ntools: bash\n---\nplanner\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(home, ".pi", "agent", "agents", "planner.md")
+	if err := os.MkdirAll(filepath.Dir(link), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(packaged, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	children, err := DiscoverCodeGraphChildren(home, "")
+	if err != nil {
+		t.Fatalf("DiscoverCodeGraphChildren() error = %v", err)
+	}
+	want := filepath.Join(home, ".pi", "agent", "subagents", "planner.md")
+	if len(children) != 1 || children[0].Source != link || !children[0].PackageOwned || children[0].Target != want {
+		t.Fatalf("children = %#v, want package-owned overlay at %q", children, want)
+	}
+}
+
 func TestDiscoverCodeGraphChildrenReturnsUnreadableDirectoryError(t *testing.T) {
 	home := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(home, ".pi", "agent", "subagents"), 0o755); err != nil {

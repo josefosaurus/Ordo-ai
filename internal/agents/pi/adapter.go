@@ -197,6 +197,12 @@ func DiscoverCodeGraphChildren(homeDir, workspaceDir string) ([]CodeGraphChild, 
 			target := source
 			if packageOwned {
 				target = filepath.Join(paths.AgentDir, "subagents", filepath.Base(source))
+			} else if linksIntoPackage(source) && filepath.Base(filepath.Dir(source)) == "agents" {
+				// Pi's example installers link package children into agents/.
+				// Writing through the link would mutate package content, so the
+				// overlay goes to the sibling subagents/ directory, which wins.
+				packageOwned = true
+				target = filepath.Join(filepath.Dir(filepath.Dir(source)), "subagents", filepath.Base(source))
 			}
 			byName[name] = CodeGraphChild{Name: name, Source: source, Target: target, PackageOwned: packageOwned}
 		}
@@ -218,6 +224,20 @@ func DiscoverCodeGraphChildren(homeDir, workspaceDir string) ([]CodeGraphChild, 
 // counterpart even when the filenames differ only by case or surrounding space.
 func normalizeCodeGraphChildIdentity(name string) string {
 	return strings.ToLower(strings.TrimSpace(name))
+}
+
+// linksIntoPackage reports whether path is a symlink resolving into a
+// node_modules package tree.
+func linksIntoPackage(path string) bool {
+	info, err := os.Lstat(path)
+	if err != nil || info.Mode()&os.ModeSymlink == 0 {
+		return false
+	}
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return false
+	}
+	return strings.Contains(filepath.ToSlash(resolved), "/node_modules/")
 }
 
 func piChildFiles(dir string) ([]string, error) {
